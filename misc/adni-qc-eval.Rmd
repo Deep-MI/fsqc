@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE}
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+load("~/adni-qc-with-repl.RData")
+```
+
+
+```{r echo=FALSE}
+
+```
+
+# Relation to Age
+
+```{r echo=FALSE}
+m$mayo.SERIES_QUALITY<-as.factor(m$mayo.SERIES_QUALITY)
+ggplot(subset(m,subset=!is.na(mayo.SERIES_QUALITY)), aes(y=Age,x=mayo.SERIES_QUALITY,fill=mayo.SERIES_QUALITY)) + scale_fill_brewer(type="seq",palette=1,guide=FALSE) + geom_boxplot() + xlab("SERIES_QUALITY") + ylab("Age [yrs]")
+```
+
+# Relation to Diagnosis
+
+```{r echo=FALSE}
+m$Research.Group.4<-as.character(m$Research.Group)
+m$Research.Group.4[m$Research.Group.4=="Patient"]<-NA
+m$Research.Group.4[m$Research.Group.4=="MCI"|m$Research.Group.4=="LMCI"|m$Research.Group.4=="EMCI"]<-"MCI"
+m$Research.Group.4<-factor(m$Research.Group.4,levels=c("CN","SMC","MCI","AD"))
+tmp<-as.data.frame(table(m$Research.Group.4,m$mayo.SERIES_QUALITY)/matrix(rowSums(table(m$Research.Group.4,m$mayo.SERIES_QUALITY)),4,3))
+
+ggplot(tmp, aes(y=Freq,x=Var1,fill=Var2)) + scale_fill_brewer(type="seq",palette=1,name="Rating") + geom_col() + xlab("Diagnosis") + ylab("Proportion")
+```
+
+# Relation to MMSE
+
+```{r echo=FALSE}
+m$mayo.SERIES_QUALITY<-as.factor(m$mayo.SERIES_QUALITY)
+ggplot(subset(m,subset=!(is.na(mayo.SERIES_QUALITY)|is.na(MMSE.Total.Score))), aes(y=MMSE.Total.Score,x=mayo.SERIES_QUALITY,fill=mayo.SERIES_QUALITY)) + scale_fill_brewer(type="seq",palette=1,guide=FALSE) + geom_boxplot() + xlab("SERIES_QUALITY") + ylab("MMSE")
+```
+
+# Relation to Fieldstrength
+
+```{r echo=FALSE}
+tmp<-as.data.frame(table(m$Imaging.Protocol.FieldStrength,m$mayo.SERIES_QUALITY)/matrix(rowSums(table(m$Imaging.Protocol.FieldStrength,m$mayo.SERIES_QUALITY)),2,3))
+ggplot(tmp, aes(y=Freq,x=Var1,fill=Var2)) + scale_fill_brewer(type="seq",palette=1,name="Rating") + geom_col() + xlab("Field Strength") + ylab("Proportion")
+```
+
+# Relation to Scanner Manufacturer
+
+```{r echo=FALSE}
+tmp<-as.data.frame(table(m$Imaging.Protocol.Manufacturer,m$mayo.SERIES_QUALITY)/matrix(rowSums(table(m$Imaging.Protocol.Manufacturer,m$mayo.SERIES_QUALITY)),3,3))
+ggplot(tmp, aes(y=Freq,x=Var1,fill=Var2)) + scale_fill_brewer(type="seq",palette=1,name="Rating") + geom_col() + xlab("Manufacturer") + ylab("Proportion")
+```
+
+
