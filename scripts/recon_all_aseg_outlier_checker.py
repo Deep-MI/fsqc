@@ -5,7 +5,7 @@ Created on Thu May 16 12:43:45 2019
 @author: Tobias Wolff
 Purpose of this function:
 1) This function computes the mean volumes for all segmentations of the indicated subjects. 
-2) Then the function checks if every segemntation volume is within the mean value and two times the standart deviation of this specific segmentation. 
+2) Then the function checks if every segemntation volume is within the mean value and two times the standard deviation of this specific segmentation. 
 3) If this is not the case, there is an output on the screen
 
 4) The default is that the function computes the mean segmentation volumes on its own. Another way to get the mean values is to extract them from a table. 
@@ -58,7 +58,7 @@ def recon_all_aseg_outlier_checker(subjects_dir, subjects, recon_checker_scripts
             list_segmentation = [str(segmentation)]
             list_of_means = g_parc_mean_norm(subjects_dir, subjects, list_segmentation)
         # the actual output of the g_parc_mean_norm function is .. +/- .. 
-        # where the first value is the mean value and the second one the standart deviation
+        # where the first value is the mean value and the second one the standard deviation
         
         means = list_of_means[0]
         stds = list_of_means[2]
@@ -67,7 +67,7 @@ def recon_all_aseg_outlier_checker(subjects_dir, subjects, recon_checker_scripts
         if means == "." :
             continue
         
-        # If the user want to have a specific file with the means and standart deviations:                                         
+        # If the user want to have a specific file with the means and standard deviations:                                         
         if print_means_to_file:
             if first_call_write_file == 1:
                 try: 
@@ -83,7 +83,7 @@ def recon_all_aseg_outlier_checker(subjects_dir, subjects, recon_checker_scripts
                 except: 
                     print("Impossible to write the mean values into a file, located at the subjects directory")
                     
-        # Now test every segmentations of every subject against the means and standart deviations
+        # Now test every segmentations of every subject against the means and standard deviations
         for subject in subjects: 
             list_segmentation = [str(segmentation)]
             list_subject = [str(subject)]

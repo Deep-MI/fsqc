@@ -1,63 +1,66 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed May 29 16:09:26 2019
+qatools-python
 
-@author: Tobias Wolff
-This is the main script for the quality control. This script calls several function that compute: \n
-    - The WM and GM SNR based on the norm.mgz image 
-    - The WM and GM SNR based on the orig.mgz image 
-    - The size of the Corpus Callosum 
-    - The number of holes in the LH and RH occured during the toplogy fixing 
-    - The number of defects in the LH and RH occured during the topology fixing
-    - The topological fixing time of the LH and the RH 
-    - The Contrast to Noise ratio of the LH and the RH 
-    - The outliers in relation to the segmentation volumes  
-    
-    optional: 
-    - The Shape distances for several regions 
+description:
 
-Note: 
-    - If you do not specify some subjects, the scripts will execute the QC over the whole directory. 
-    - You need to define the subjects dir with a slash at the end. 
-    - Test call to the function:
-        python3 quality_checker.py -sdir /path/to/your/subjects/dir/ \
-    -recs /path/to/your/quality_checker/scripts/ -rcsv /path/to/your/metrics_result_file.csv/ \
-    -mch /path/to/your/manual_check_file.csv \
-    -fsh /path/to/your/freesurfer/home/directory/ -sk /path/to/your/shape/key.txt \
-    -sh /path/to/your/shapeDNA/scripts/ -scsv /path/to/your/shape_results_file.csv \
-    -pname plotly_username -pkey plotly_key
+this is a set of quality assurance / quality control scripts for Freesurfer 6.0
+processed structural MRI data.
 
-Required Arguments: 
-    - Subjects directory, 
-    - Recon checker scripts 
-    - path_data_file: CSV file in which the results will be saved
-    - pat_manual_check_file
-    
-Optional Arguments: 
-    - Subjects: If specified, not the whole directory will be processed 
-    -fsh, -sk, -sh, -scsv: Freesurfer Home Directory, Shape Key, Shape scripts home directory, results of the shape analysis 
-        When specifying a shape_home directory, the script will compute the segmentation distances
-        and save them into a csv file
-    -pname -pkey: Plotly username, Plotly Key: You can sign up to plotly and then have a
-    nice boyplot diagram of your results. This boyplot is semi-interactive as you can 
-    see the subject ID when sliding across the points
-    - Stats: If one wants to have a file with the information treated in the outlier part. 
-        This file will be created in the subjects directory with the name mean_file 
-    - lumeans: If one has already computed the means of the directory, there is an option to look 
-        up these means instead of computing them. 
-    - nerode: If one wants to shorten the WM when computing the CNR, one can erode more than 
-        the default value of three pixel. 
-    
-    
-TO DO: 
-    Include Fore/Background energy ratio, probably by using mri_seghead
-    Include Line_detector by using th Hough transform 
+it is a revision and translation to python of the original Freesurfer QA Tools
+that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
+
+it has been augmented by additional functions from the MRIQC toolbox, available 
+at https://github.com/poldracklab/mriqc and https://osf.io/haf97
+
+authors: 
+
+- qatools-python: Tobias Wolff, Kersten Diers, and Martin Reuter.
+- Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
+  and Louis Vinke. 
+- MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
+  Russell Poldrack, and Krzysztof Gorgolewski.
+
+citations:
+
+Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; MRIQC: 
+Advancing the Automatic Prediction of Image Quality in MRI from Unseen Sites; 
+PLOS ONE 12(9):e0184661; doi:10.1371/journal.pone.0184661.
+
+requirements:
+
+<todo: optionale brainprint-skripte>
+
+license:
+
+<todo>
+
+
 """
+
+# ------------------------------------------------------------------------------
+# list of todos:
+
+# check all <todo> tags
+# maybe remove short options, they are too confusing
+# maybe re-format help and usage info
+# add help="..." to add_argument
+# probably discard the plotly username/key stuff
+# the mriqc osf repository seems to have manual image ratings --> possibly use these for evaluation   
+# get rid of the recs option
+# get rid of the submodule in shape_checker.py
+
+
+# ------------------------------------------------------------------------------
+# imports
 
 import argparse
 import os 
+import sys
 import csv
+
 from datetime import datetime
+
 from wm_gm_anat_snr_checker import wm_gm_anat_snr_checker
 from recon_all_aseg_outlier_checker import recon_all_aseg_outlier_checker
 from cc_size_checker import cc_size_checker
@@ -69,83 +72,57 @@ from create_graph import create_graph
 from manual_check import manual_check
 from write_shape_to_file import write_shape_to_file
 
+# ------------------------------------------------------------------------------
+# functions
 
 def parse_arguments():
-    parser= argparse.ArgumentParser(description = '''This is the main script for the quality control. This script calls several function that compute: \n
-    - The WM and GM SNR based on the norm.mgz image 
-    - The WM and GM SNR based on the orig.mgz image 
-    - The size of the Corpus Callosum 
-    - The number of holes in the LH and RH occured during the toplogy fixing 
-    - The number of defects in the LH and RH occured during the topology fixing
-    - The topological fixing time of the LH and the RH 
-    - The Contrast to Noise ratio of the LH and the RH 
-    - The outliers in relation to the segmentation volumes  
-    
-    optional: 
-    - The Shape distances for several segmentations 
 
-Note: 
-    - If you do not specify some subjects, the scripts will execute the QC over the whole directory. 
-    - You need to define the subjects dir with a slash at the end. 
-    - Test call to the function:
-        python3 quality_checker.py -sdir /path/to/your/subjects/dir/ \
-    -recs /path/to/your/quality_checker/scripts/ -rcsv /path/to/your/metrics_result_file.csv/ \
-    -mch /path/to/your/manual_check_file.csv \
-    -fsh /path/to/your/freesurfer/home/directory/ -sk /path/to/your/shape/key.txt \
-    -sh /path/to/your/shapeDNA/scripts/ -scsv /path/to/your/shape_results_file.csv \
-    -pname plotly_username -pkey plotly_key
+    parser= argparse.ArgumentParser(description='''
+        <todo>
+        ''', formatter_class=argparse.RawTextHelpFormatter)
 
-Required Arguments: 
-    - Subjects directory, 
-    - Recon checker scripts 
-    - path_data_file: CSV file in which the results will be saved
-    - pat_manual_check_file
-    
-Optional Arguments: 
-    - Subjects: If specified, not the whole directory will be processed 
-    -fsh, -sk, -sh, -scsv: Freesurfer Home Directory, Shape Key, Shape scripts home directory, results of the shape analysis 
-        When specifying a shape_home directory, the script will compute the segmentation distances
-        and save them into a csv file
-    -pname -pkey: Plotly username, Plotly Key: You can sign up to plotly and then have a
-    nice boyplot diagram of your results. This boyplot is semi-interactive as you can 
-    see the subject ID when sliding across the points
-    - Stats: If one wants to have a file with the information treated in the outlier part. 
-        This file will be created in the subjects directory with the name mean_file 
-    - lumeans: If one has already computed the means of the directory, there is an option to look 
-        up these means instead of computing them. 
-    - nerode: If one wants to shorten the WM when computing the SNR, one can erode more than 
-        the default value of three pixel. 
-''', formatter_class = argparse.RawTextHelpFormatter)
+    requiredNamed = parser.add_argument_group('required named arguments')
 
-    parser.add_argument('--subjets_dir', '-sdir', dest = "subjects_dir")
-    parser.add_argument('--subjects', '-s', nargs = '+',  dest = "subjects", default = [])
-    parser.add_argument('--recon_checker_scripts', '-recs', dest = "re_che_scr")
-    parser.add_argument('--result_csv', '-rcsv', dest = "path_data_file")
-    parser.add_argument('--manuel_check', '-mch', dest = "path_manuel_check_file")
-    
-    parser.add_argument('--freesurfer_home', '-fsh', dest = "freesurfer_home", default ="")
-    parser.add_argument('--shape_key', '-sk', dest = "shape_key", default ="" )    
-    parser.add_argument('--shape_home', '-sh', dest = "shape_home", default = "")
-    parser.add_argument('--shape_file', '-scsv', dest = "path_shape_file", default = "")
+    requiredNamed.add_argument('--subjects_dir', '-sdir', dest="subjects_dir", required=True)
+    requiredNamed.add_argument('--recon_checker_scripts', '-recs', dest="re_che_scr", required=True)
+    requiredNamed.add_argument('--result_csv', '-rcsv', dest="path_data_file", required=True)
+    requiredNamed.add_argument('--manual_check', '-mch', dest="path_manual_check_file", required=True)
 
-    parser.add_argument('--plotly_uname', '-pname', dest = "plotly_username", default = "")
-    parser.add_argument('--plotly_key', '-pkey', dest = "pkey", default = "" )
+    parser.add_argument('--subjects', '-s', dest="subjects", default=[], nargs='+')
     
-    parser.add_argument('--nerode', dest = 'nb_erode', default = 3)
-    parser.add_argument('--stats', dest = "print_means_to_file", default = 0)
-    parser.add_argument('--lumeans', dest ="look_up_means_from_file", default = 0)
+    parser.add_argument('--freesurfer_home', '-fsh', dest="freesurfer_home", default ="")
+    parser.add_argument('--shape_key', '-sk', dest="shape_key", default ="" )    
+    parser.add_argument('--shape_home', '-sh', dest="shape_home", default="")
+    parser.add_argument('--shape_file', '-scsv', dest="path_shape_file", default="")
 
+    parser.add_argument('--plotly_uname', '-pname', dest="plotly_username", default="")
+    parser.add_argument('--plotly_key', '-pkey', dest="pkey", default="" )
     
+    parser.add_argument('--nerode', dest='nb_erode', default=3)
+    parser.add_argument('--stats', dest="print_means_to_file", default=0)
+    parser.add_argument('--lumeans', dest ="look_up_means_from_file", default=0)
+
+    # setting the default option -h will print out usage info if called without 
+    # arguments
+    #args = parser.parse_args(['-h'])
     args = parser.parse_args()
+
     return args
+
+# ------------------------------------------------------------------------------
+# main
     
 if __name__ == "__main__":
+
+    # parse arguments
     arguments = parse_arguments()
+
+    # assign values 
     subjects_dir = arguments.subjects_dir
     subjects = arguments.subjects
     qc_checker_scripts = arguments.re_che_scr 
     path_data_file = arguments.path_data_file
-    path_check_file = arguments.path_manuel_check_file
+    path_check_file = arguments.path_manual_check_file
     
     freesurfer_home = arguments.freesurfer_home
     shape_key = arguments.shape_key
@@ -188,15 +165,15 @@ if __name__ == "__main__":
         all_con_lh_snr = []
         all_con_rh_snr = []    
     
-    print("Startingt the quality control at", datetime.now())
+    print("Starting the quality control at", datetime.now())
     print("The subjects directory is:", subjects_dir)
     
-    #str(subjects_dir) + "QA/quality_checker.csv"
+    # create output file
     with open(path_data_file, 'w') as datafile:
         writer = csv.writer(datafile)
         writer.writerow (["Subject", "SNR_white_matter_norm", "SNR_gray_matter_norm", "SNR_white_matter_orig","SNR_gray_matter_orig","Relative_Corpus_Callosum_size","Probable_Misssegmentation_Corpus_Callosum", "Holes_LH", "Holes_RH","Defects_LH", "Defects_RH", "Topo_fixing_time_LH", "Topo_fixing_time_RH", "Contrast_WM_GM_LH_rawavg_mgz", "Contrast_WM_GM_RH_rawavg_mgz", "Number_of_outliers", "Segmentations"])
     
-    #First possibility: Get the subjects of the directory
+    # first possibility: Get the subjects of the directory
     if subjects == []:
         for subject in os.listdir(subjects_dir):
             path_aseg_stat  = str(subjects_dir) + str(subject) + "/stats/aseg.stats"
@@ -205,7 +182,7 @@ if __name__ == "__main__":
             else:
                 subjects.extend([subject])
             
-    #Loop through the whole directory or through the specified subjects
+    # loop through the whole directory or through the specified subjects
     for subject in subjects:
         path_aseg_stat  = str(subjects_dir) + str(subject) + "/stats/aseg.stats"    
         with open(path_data_file, 'a')as datafile:
@@ -246,21 +223,22 @@ if __name__ == "__main__":
     # Write the usual metrics into the CSV file
     write_information_to_file(path_data_file, metrics)
     
-    #Write shape information into seperate CSV file, if the shape scripts are sourced. 
+    # Write shape information into seperate CSV file, if the shape scripts are sourced. 
     if shape_home != "":
         write_shape_to_file(subjects_dir, subjects, path_shape_file)
        
-    #Look for Aseg outliers 
+    # Look for Aseg outliers 
     if int(look_up_means) == 1 or int(print_means_file) == 1: 
         recon_all_aseg_outlier_checker(subjects_dir, subjects, qc_checker_scripts, path_data_file, print_means_file, look_up_means)
     else: 
         recon_all_aseg_outlier_checker(subjects_dir, subjects, qc_checker_scripts, path_data_file)  
         
-    #Subjects that have to be checked again
+    # Subjects that have to be checked again
     manual_check(path_check_file, subjects, metrics)    
          
-    #Create interactive graph
+    # Create interactive graph
     if plotly_username != "": 
         create_graph(subjects, plotly_username, plotly_key, metrics)    
-     
+
+    # Exit
     print("Done with the quality control at:", datetime.now())
