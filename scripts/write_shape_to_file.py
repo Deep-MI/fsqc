@@ -5,9 +5,11 @@ Created on Mon Jul  8 10:36:55 2019
 @author: Tobias Wolff
 
 """
-import csv
 
 def write_shape_to_file(subjects_dir, subjects, path_shape_file):
+
+    import csv
+
     cere_wm = []
     acc_area = []
     put = []

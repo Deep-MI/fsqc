@@ -67,7 +67,7 @@ from contrast_control import contrast_control
 from shape_checker import shape_checker
 from create_graph import create_graph
 from manual_check import manual_check
-from shape_distances import write_shape_to_file
+from write_shape_to_file import write_shape_to_file
 
 
 def parse_arguments():
