@@ -3,16 +3,19 @@
 Created on Thu Jun  6 12:44:21 2019
 
 @author: Tobias Wolff
+
 This function computes the WM/GM contrast based on the output of the pctsurfcon 
 function. 
+
 Required arguments: 
     - Subjects directory
     - Subject
 """
 
+import os 
+import sys
 import struct
 import numpy
-import os 
 import nibabel
 
 def read_mgh(filename):
@@ -57,29 +60,27 @@ def read_mgh(filename):
  
       return vol
       
-      
-      
-def contrast_control(subjects_dir, subject):
-    # Define the different paths
-    path_pct_lh = str(subjects_dir) + str(subject) + "/surf/lh.w-g.pct.mgh"
-    path_pct_rh = str(subjects_dir) + str(subject) + "/surf/rh.w-g.pct.mgh"
-    path_label_cortex_lh  = str(subjects_dir) + str(subject) + "/label/lh.cortex.label"
-    path_label_cortex_rh = str(subjects_dir) + str(subject) + "/label/rh.cortex.label"
-    
+def contrast_checker(subjects_dir, subject):
+
+    # Define paths
+    path_pct_lh = os.path.join(subjects_dir,subject,"surf","lh.w-g.pct.mgh")
+    path_pct_rh = os.path.join(subjects_dir,subject,"surf","rh.w-g.pct.mgh")
+    path_label_cortex_lh  = os.path.join(subjects_dir,subject,"label","lh.cortex.label")
+    path_label_cortex_rh = os.path.join(subjects_dir,subject,"label","rh.cortex.label")
     
     # Check if files exist
     if not os.path.exists(path_pct_lh):
-        print("In the contrast control function, the path to the lh.w-g.pct.mgh file is wrong")
-        exit()
+        print("ERROR: could not find "+path_pct_lh)
+        sys.exit(1)
     if not os.path.exists(path_pct_rh):
-        print("In the contrast control function, the path to the rh.w-g.pct.mgh file is wrong")
-        exit()
+        print("ERROR: could not find "+path_pct_rh)
+        sys.exit(1)
     if not os.path.exists(path_label_cortex_lh):
-        print("In the contrast control function, the path to the lh.cortex.label file is wrong")
-        exit()
+        print("ERROR: could not find "+path_label_cortex_lh)
+        sys.exit(1)
     if not os.path.exists(path_label_cortex_rh):
-        print("In the contrast control function, the path to the rh.cortex.label file is wrong")
-        exit()
+        print("ERROR: could not find "+path_label_cortex_rh)
+        sys.exit(1)
     
     # Get the data fromt the mgh files
     con_lh = read_mgh(path_pct_lh)
