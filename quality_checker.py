@@ -338,9 +338,6 @@ if __name__ == "__main__":
             # compute brainprint
             brainprint = shape_checker(subjects_dir, subject, output_dir)
 
-            import pdb
-            pdb.set_trace()
-
             # get a subset of the brainprint results
             dist = { subject : brainprint[os.path.abspath(os.path.join(output_dir,subject+"-brainprint.csv"))]['dist'] }
     
