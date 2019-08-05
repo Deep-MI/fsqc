@@ -1,103 +1,138 @@
-# README for the Quality checker scripts
+# qatools-python
 
-## Overview
+___
 
-The main script, from which the functions are called is the "quality_checker.py". 
+## Description
 
-This script calls several function that compute: 
+This is a set of quality assurance / quality control scripts for Freesurfer 6.0
+processed structural MRI data. It is a revision and translation to python of 
+the original Freesurfer QA Tools that are provided at 
+https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
-* The WM and GM SNR based on the norm.mgz image 
-* The WM and GM SNR based on the orig.mgz image 
-* The size of the Corpus Callosum 
-* The number of holes in the LH and RH occured during the toplogy fixing 
-* The number of defects in the LH and RH occured during the topology fixing
-* The topological fixing time of the LH and the RH 
-* The Contrast to Noise ratio of the LH and the RH 
-* The outliers in relation to the segmentation volumes
-* The Shape distances for several regions (optional)
+It has been augmented by additional functions from the MRIQC toolbox, available 
+at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
+shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
+
+**The current version is a development version that can be used for testing 
+purposes. It will almost certainly be revised, corrected, and extended in the 
+future.**
+
+The program will use an existing output directory (or try to create it) and 
+write a csv table (`qatools-results.csv`) into that location. The csv table 
+will contain the following variables/metrics:
+
+variable       |   description
+---------------|----------------------------------------------------------------
+subject        |   subject ID
+wm_snr_orig    |   signal-to-noise for white matter in orig.mgz
+gm_snr_orig    |   signal-to-noise for gray matter in orig.mgz
+wm_snr_norm    |   signal-to-noise for white matter in norm.mgz
+gm_snr_norm    |   signal-to-noise for gray matter in norm.mgz
+cc_size        |   size of the corpus callosum
+lh_holes       |   number of holes in the left hemisphere
+rh_holes       |   number of holes in the right hemisphere
+lh_defects     |   number of defects in the left hemisphere
+rh_defects     |   number of defects in the right hemisphere
+topo_lh        |   topological fixing time for the left hemisphere
+topo_rh        |   topological fixing time for the right hemisphere
+con_lh_snr     |   wm/gm contrast signal-to-noise ration in the left hemisphere
+con_rh_snr     |   wm/gm contrast signal-to-noise ration in the right hemisphere
+
+If the (optional) shape pipeline was run in addition to the core pipeline, the 
+output directory will also contain results files of the brainPrint analysis, 
+and the above csv table will contain several additional metrics: for a number 
+of lateralized brain structures (e.g., ventricles, subcortical structures, 
+gray and white matter), the lateral asymmetry will be computed, i.e. distances
+between numerical shape descriptors, where large values indicate large 
+asymmetries and hence potential issues with the segmentation of these 
+structures.
+
+___
 
 ## Usage
 
-Required Arguments: 
+```
+python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
+                          [--subjects SubjectID [SubjectID ...]] [--shape]
+                          [--norms <file>] [-h]
+                      
 
-* -sdir Subjects directory, 
-* -recs Recon checker scripts 
-* -rcsv path_data_file: CSV file in which the results will be saved
-* -mch pat_manual_check_file: CSV file in which the critical subjects are saved. The reason why they are documented is also included 
-    
-Optional Arguments: 
+required arguments:
+  --subjects_dir <directory>
+                        subjects directory with a set of Freesurfer 6.0 processed
+                        individual datasets.
+  --output_dir <directory>
+                        output directory
 
-* -subjects: If specified, not the whole directory will be processed 
-* -fsh: Freesurfer Home Directory
-* -sk, -sh, -scsv: Shape Key, Shape scripts home directory, results of the shape analysis. When specifying a shape_home directory, the script will compute the segmentation distances and save them into a csv file.
-* -pname, -pkey: Plotly username, Plotly Key: You can sign up to plotly and then have a nice boxplot diagram of your results. This boxplot is semi-interactive as you can see the subject ID when sliding across the points.
-* -stats: If one wants to have a file with the information treated in the outlier part. This file will be created in the subjects directory with the name mean_file.
-* -lumeans: If one has already computed the means of the directory, there is an option to look up these means instead of computing them. 
-* -nerode: If one wants to shorten the WM when computing the CNR, one can erode more than the default value of three pixel. 
-        
-Note: 
+optional arguments:
+  --subjects SubjectID [SubjectID ...]
+                        list of subject IDs
+  --shape               run shape analysis (requires additional scripts)
+  --norms <file>        path to file with normative values
 
-* If you do not specify some subjects, the scripts will execute the QC over the whole directory. 
-* You need to define the subjects dir with a slash at the end. 
+getting help:
+  -h, --help            display this help message and exit
+  
+```
 
-Example:
-    
-    python3 quality_checker.py \
-        -sdir /path/to/your/subjects/dir/ \
-        -recs /path/to/your/quality_checker/scripts/ \
-        -rcsv /path/to/your/metrics_result_file.csv/ \
-        -mch /path/to/your/manual_check_file.csv \
-        -fsh /path/to/your/freesurfer/home/directory/ 
-        -sk /path/to/your/shape/key.txt \
-        -sh /path/to/your/shapeDNA/scripts/ 
-        -scsv /path/to/your/shape_results_file.csv \
-        -pname plotly_username \
-        -pkey plotly_key
-   
-## Further extensions/modifications
+___
 
-A few issues remain with the current version of the scripts:
+## Examples
 
-* At the moment the manual_checker function evaluates the holes, defects and Contrast to Noise ratio in order to evaluate if an image is bad. The corresponding thresholds have not been established in a professional manner. They are more intuitive and based on the ADNI 3T-Good dataset. Some modifications might be made in order to have less false positive or false negative subjects. 
-* The shape metrics are only computed. There is no further evaluation if one segmenatation is well done or not. It could be interesting to look out for some way to detect segmentation outliers with the shape distances results. 
-* It could be interesting to improve the report with screenshots of the possible bad subjects.
-* Nearly all metrics are age and sex dependant. If available, this information should be included in the Quality check, which is not the case yet. 
-* In the MRI QC (Poldrack Lab) paper, the metric that helped a lot in order to determine the quality of an image was the foreground/background energy ratio. This could be done by using mri_seghead function.
-* Some images suffer from horizontal lines. These horizontal lines could be detected with the Hough Transform.
-* Apart from one subprocess in the ShapeDNA postprocessing, the whole pipeline is done without subprocesses. In order to avoid version compatibility problems, it could be interesting to implement the functionality in a new python script.
+- The following example will run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
+    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
-## Technical notes
+- The following example will run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
 
-scripts:
+    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
-quality_checker.py
-|
-|- wm_gm_anat_snr_checker
-|- cc_size_checker.py
-|- holes_topo_checker.py
-|- contrast_control.py
-|- shape_checker.py
-|
-|- write_information_to_file.py
-|- write_shape_to_file.py
-|
-|- recon_all_aseg_outlier_checker.py
-|  |- g_parc_mean_norm.py
-|  |- g_parc_val_norm.py
-|  |- read_parc_mean_from_table.py
-|  |- segsfile2
-|
-|- manual_check.py
-|
-|- create_graph.py
+- The following example will run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-scripts-unused:
+    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
-- defects_checker.py
-- get_relative_cc_size.py
-- fore_back_energy_checker.py
+___
 
-scripts-unfinished:
+## Authors
 
-- Hough_transform.py
+- qatools-python: Tobias Wolff, Kersten Diers, and Martin Reuter.
+- Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
+  and Louis Vinke. 
+- MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
+  Russell Poldrack, and Krzysztof Gorgolewski.
+- shapeDNA and brainPrint toolboxes: Martin Reuter.
+
+___
+
+## Citations
+
+- Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; 2017; 
+  MRIQC: Advancing the Automatic Prediction of Image Quality in MRI from Unseen 
+  Sites; PLOS ONE 12(9):e0184661; doi:10.1371/journal.pone.0184661.
+
+- Wachinger C, Golland P, Kremen W, Fischl B, Reuter M; 2015; BrainPrint: a 
+  Discriminative Characterization of Brain Morphology; Neuroimage: 109, 232-248; 
+  doi:10.1016/j.neuroimage.2015.01.032.
+
+- Reuter M, Wolter FE, Shenton M, Niethammer M; 2009; Laplace-Beltrami 
+  Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape 
+  Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
+
+___
+
+## Requirements
+
+- At least one structural MR image that was processed with Freesurfer 6.0.
+
+- A Python version >= 3.4 is required to run this script.
+
+- Required packages include the skimage and nibabel packages.
+
+- For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
+  scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
+  for download options.
+
+___
+
+## License
+

@@ -2,6 +2,7 @@
 """
 qatools-python
 
+
 description:
 
 this is a set of quality assurance / quality control scripts for Freesurfer 6.0
@@ -11,34 +12,65 @@ it is a revision and translation to python of the original Freesurfer QA Tools
 that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
 it has been augmented by additional functions from the MRIQC toolbox, available 
-at https://github.com/poldracklab/mriqc and https://osf.io/haf97
+at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
+shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu
 
-usage: quality_checker.py --subjects_dir  <directory> --output_dir  <directory>
-                          [--subjects SubjectID [SubjectID ...]] [--shape]
-                          [--norms <file>] [-h]
+The current version is a development version that can be used for testing 
+purposes. It will almost certainly be revised, corrected, and extended in the 
+future.
 
-        <todo>
-        The program will use an existing OUTPUT_DIR (or try to create it) and 
-        will create the following output files:
-        ...
-        
+The program will use an existing OUTPUT_DIR (or try to create it) and 
+write a csv table into that location.
 
-required arguments:
-  --subjects_dir <directory>
-                        Subjects directory with a set of Freesurfer 6.0 processed
-                        individual datasets.
-  --output_dir <directory>
-                        Output directory
+The csv table will contain the following variables/metrics:
 
-optional arguments:
-  --subjects SubjectID [SubjectID ...]
-                        List of subject IDs
-  --shape               run shape analysis (requires additional scripts)
-  --norms <file>
-                        Path to file with normative values
+- subject       ...  subject ID
+- wm_snr_orig   ...  signal-to-noise for white matter in orig.mgz
+- gm_snr_orig   ...  signal-to-noise for gray matter in orig.mgz
+- wm_snr_norm   ...  signal-to-noise for white matter in norm.mgz
+- gm_snr_norm   ...  signal-to-noise for gray matter in norm.mgz
+- cc_size       ...  size of the corpus callosum
+- lh_holes      ...  number of holes in the left hemisphere
+- rh_holes      ...  number of holes in the right hemisphere
+- lh_defects    ...  number of defects in the left hemisphere
+- rh_defects    ...  number of defects in the right hemisphere
+- topo_lh       ...  topological fixing time for the left hemisphere
+- topo_rh       ...  topological fixing time for the right hemisphere
+- con_lh_snr    ...  wm/gm contrast signal-to-noise ration in the left hemisphere
+- con_rh_snr    ...  wm/gm contrast signal-to-noise ration in the right hemisphere
 
-getting help:
-  -h, --help            display this help message and exit
+If the (optional) shape pipeline was run in addition to the core pipeline, the 
+output directory will also contain results files of the brainPrint analysis, 
+and the above csv table will contain several additional metrics: for a number 
+of lateralized brain structures (e.g., ventricles, subcortical structures, gray 
+and white matter), the lateral asymmetry will be computed, i.e. distances 
+between numerical shape descriptors, where large values indicate large 
+asymmetries and hence potential issues with the segmentation of these 
+structures.
+
+
+usage: 
+
+    python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
+                              [--subjects SubjectID [SubjectID ...]] [--shape]
+                              [--norms <file>] [-h]
+
+    required arguments:
+      --subjects_dir <directory>
+                            subjects directory with a set of Freesurfer 6.0 
+                            processed individual datasets.
+      --output_dir <directory>
+                            output directory
+
+    optional arguments:
+      --subjects SubjectID [SubjectID ...]
+                            list of subject IDs
+      --shape               run shape analysis (requires additional scripts)
+      --norms <file>
+                            path to file with normative values
+
+    getting help:
+      -h, --help            display this help message and exit
 
 
 authors: 
@@ -48,6 +80,7 @@ authors:
   and Louis Vinke. 
 - MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
   Russell Poldrack, and Krzysztof Gorgolewski.
+- shapeDNA and brainPrint toolboxes: Martin Reuter.
 
 
 citations:
@@ -56,8 +89,18 @@ Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; MRIQC:
 Advancing the Automatic Prediction of Image Quality in MRI from Unseen Sites; 
 PLOS ONE 12(9):e0184661; doi:10.1371/journal.pone.0184661.
 
+Wachinger C, Golland P, Kremen W, Fischl B, Reuter M; 2015; BrainPrint: a 
+Discriminative Characterization of Brain Morphology; Neuroimage: 109, 232-248; 
+doi:10.1016/j.neuroimage.2015.01.032.
+
+Reuter M, Wolter FE, Shenton M, Niethammer M; 2009; Laplace-Beltrami 
+Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape 
+Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
+
 
 requirements:
+
+At least one subject whose structural MR image was processed with Freesurfer 6.0.
 
 A Python version >= 3.4 is required to run this script.
 
@@ -67,51 +110,12 @@ For (optional) shape analysis, a working version of Freesurfer, the shapeDNA
 scripts and the brainPrint scripts are required. See https://reuter.mit.edu for
 download options.
 
-<todo: problem ist die distribution des brainPrintpostproc scripts>
-
 
 license:
 
 <todo>
 
 """
-
-# ------------------------------------------------------------------------------
-# list of todos:
-
-# OK maybe remove short options, they are too confusing
-# OK add help="..." to add_argument
-# OK get rid of the recs option
-# OK get rid of several other cmdline arguments
-# OK maybe re-format help and usage info
-# OK do we really need the requirement that paths must end with '/'? No.
-# OK make print_means mandatory, put the segs_file2 into its own module
-# OK integrate shape tools; get rid of the submodule in shape_checker.py --> modify brainprintpostproc script
-# OK adjust outdir for shape-checker
-# OK check für verfügbare packages einbauen (insb nibabel, skimage, weitere?)
-# OK replace metrics class with dictionary (of dictionaries, i.e. hierarchical)
-# OK re-design output; probably get rid of the write*py files
-# OK clean-up code, remove (some) commented lines
-# 6. check all <todo> tags
-# PP re-design writing routines in the outlier checker script, see <todo> (better return values instead of writing them; no necessity to print out means; better use robust criteria instead of SD; ...) Also: need to test the --norms option!
-# PP we want to have a distinction between providing metrics and classifying a scan as bad. this is why we do not use the manual_check.py file (it just averages a few metrices, and also because of the dubious thresholds) and do not include the 'probable CC missegmentation variable'. IMPORTANT: this is really a design choice: do we want to provide metrics or classifications; currently it's a strange mix of both and it can't stay this way 
-# PP probably discard the plotly username/key stuff, but not sure how to replace it. matplotlib?
-# PP wie soll die distribution von shapeDNA, brainPrint und brainPrintPostproc erfolgen
-# PP create screenshots?
-# PP integrate additional info such as age, sex, etc.?
-# PP additional metrics such as Hough transform, fore/background energy.
-
-# general issues:
-# - should we do a formal evaluation, create a classifier?
-# - the mriqc osf repository seems to have manual image ratings --> possibly use these for evaluation?
-# - consider Tobias suggestions for future developments
-# - mal travis / unittests / CI ausprobieren, code coverage?
-
-# useful links:
-# https://www.ncbi.nlm.nih.gov/pubmed/28945803
-# https://github.com/poldracklab/mriqc
-# http://preprocessed-connectomes-project.org/quality-assessment-protocol/
-# https://guides.github.com/features/mastering-markdown/
 
 # ------------------------------------------------------------------------------
 # imports
@@ -141,22 +145,24 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(description='''
         This program takes existing Freesurfer 6.0 analysis results of one
-        or more individual MR images and compute a set of quality metrics. 
-        These will be reported in a summary csv table.
+        or more subjects and computes a set of quality metrics. These will be 
+        reported in a summary csv table.
 
-        For a description of these metrics, see <todo>
+        For a description of these metrics, see the gitlab/github page or the 
+        header section of this script.
 
         The (optional) analysis of shape features requires additional scripts 
         that can be obtained from https://reuter.mit.edu
-        ''', add_help=False, formatter_class=argparse.RawTextHelpFormatter)
+        ''', 
+        add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
     required = parser.add_argument_group('required arguments')
-    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer 6.0 processed individual datasets.", metavar="<directory>", required=True)
+    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer 6.0 \nprocessed individual datasets.", metavar="<directory>", required=True)
     required.add_argument('--output_dir', dest="output_dir", help="output directory", metavar="<directory>", required=True)
 
     optional = parser.add_argument_group('optional arguments')
-    optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable subdirectories witin the subjects directory will be used.", default=[], nargs='+', metavar="SubjectID", required=False)
-    optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts", default=False, action="store_true", required=False)
+    optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
+    optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
     optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # #erode is currently a hidden option
     optional.add_argument('--norms', dest ="normative_values", help="path to file with normative values", default=None, metavar="<file>", required=False) 
@@ -242,7 +248,7 @@ if __name__ == "__main__":
             print('\nERROR: '+output_dir+' not writeable (check access)!\n')
             sys.exit(1)
 
-    if shape==1:
+    if shape is True:
         if os.environ.get('FREESURFER_HOME') is None:
             print('\nERROR: need to set the FREESURFER_HOME environment variable for shape analysis\n')
             sys.exit(1)
@@ -332,8 +338,11 @@ if __name__ == "__main__":
             # compute brainprint
             brainprint = shape_checker(subjects_dir, subject, output_dir)
 
+            import pdb
+            pdb.set_trace()
+
             # get a subset of the brainprint results
-            dist = { subject : brainprint[os.path.join(output_dir,subject+"-brainprint.csv")]['dist'] }
+            dist = { subject : brainprint[os.path.abspath(os.path.join(output_dir,subject+"-brainprint.csv"))]['dist'] }
     
             # store data
             metricsDict[subject].update(dist[subject])
