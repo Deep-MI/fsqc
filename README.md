@@ -18,7 +18,7 @@ purposes. It will almost certainly be revised, corrected, and extended in the
 future.**
 
 The program will use an existing output directory (or try to create it) and 
-write a csv table (`qatools-results.csv`) into that location. The csv table 
+write a csv table (qatools-results.csv) into that location. The csv table 
 will contain the following variables/metrics:
 
 variable       |   description
