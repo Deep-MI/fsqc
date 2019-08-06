@@ -27,7 +27,7 @@ subject        |   subject ID
 wm_snr_orig    |   signal-to-noise ratio for white matter in orig.mgz
 gm_snr_orig    |   signal-to-noise ratio for gray matter in orig.mgz
 wm_snr_norm    |   signal-to-noise ratio for white matter in norm.mgz
-gm_snr_norm    |   signal-to-noise for gray matter in norm.mgz
+gm_snr_norm    |   signal-to-noise ratio for gray matter in norm.mgz
 cc_size        |   size of the corpus callosum
 lh_holes       |   number of holes in the left hemisphere
 rh_holes       |   number of holes in the right hemisphere
