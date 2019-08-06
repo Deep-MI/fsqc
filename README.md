@@ -24,9 +24,9 @@ will contain the following variables/metrics:
 variable       |   description
 ---------------|----------------------------------------------------------------
 subject        |   subject ID
-wm_snr_orig    |   signal-to-noise for white matter in orig.mgz
-gm_snr_orig    |   signal-to-noise for gray matter in orig.mgz
-wm_snr_norm    |   signal-to-noise for white matter in norm.mgz
+wm_snr_orig    |   signal-to-noise ratio for white matter in orig.mgz
+gm_snr_orig    |   signal-to-noise ratio for gray matter in orig.mgz
+wm_snr_norm    |   signal-to-noise ratio for white matter in norm.mgz
 gm_snr_norm    |   signal-to-noise for gray matter in norm.mgz
 cc_size        |   size of the corpus callosum
 lh_holes       |   number of holes in the left hemisphere
@@ -35,8 +35,8 @@ lh_defects     |   number of defects in the left hemisphere
 rh_defects     |   number of defects in the right hemisphere
 topo_lh        |   topological fixing time for the left hemisphere
 topo_rh        |   topological fixing time for the right hemisphere
-con_lh_snr     |   wm/gm contrast signal-to-noise ration in the left hemisphere
-con_rh_snr     |   wm/gm contrast signal-to-noise ration in the right hemisphere
+con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
+con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
 
 If the (optional) shape pipeline was run in addition to the core pipeline, the 
 output directory will also contain results files of the brainPrint analysis, 
