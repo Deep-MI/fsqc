@@ -63,9 +63,7 @@ ___
 python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [--shape]
                           [--screenshots] [-h]
-<!--
-                          [--screenshots] [--norms <file>] [-h]
--->                  
+
 
 required arguments:
   --subjects_dir <directory>
@@ -79,9 +77,7 @@ optional arguments:
                         list of subject IDs
   --screenshots         create screenshots
   --shape               run shape analysis (requires additional scripts)
-<!--
-  --norms <file>        path to file with normative values
--->
+
 
 getting help:
   -h, --help            display this help message and exit
