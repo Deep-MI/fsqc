@@ -14,38 +14,46 @@ at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
 
 **The current version is a development version that can be used for testing 
-purposes. It will almost certainly be revised, corrected, and extended in the 
-future.**
+purposes. It will be revised, and extended in the future.**
 
 The program will use an existing output directory (or try to create it) and 
-write a csv table (`qatools-results.csv`) into that location. The csv table 
+write a csv table (qatools-results.csv) into that location. The csv table 
 will contain the following variables/metrics:
 
 variable       |   description
 ---------------|----------------------------------------------------------------
 subject        |   subject ID
-wm_snr_orig    |   signal-to-noise for white matter in orig.mgz
-gm_snr_orig    |   signal-to-noise for gray matter in orig.mgz
-wm_snr_norm    |   signal-to-noise for white matter in norm.mgz
-gm_snr_norm    |   signal-to-noise for gray matter in norm.mgz
-cc_size        |   size of the corpus callosum
+wm_snr_orig    |   signal-to-noise ratio for white matter in orig.mgz
+gm_snr_orig    |   signal-to-noise ratio for gray matter in orig.mgz
+wm_snr_norm    |   signal-to-noise ratio for white matter in norm.mgz
+gm_snr_norm    |   signal-to-noise ratio for gray matter in norm.mgz
+cc_size        |   relative size of the corpus callosum
 lh_holes       |   number of holes in the left hemisphere
 rh_holes       |   number of holes in the right hemisphere
 lh_defects     |   number of defects in the left hemisphere
 rh_defects     |   number of defects in the right hemisphere
 topo_lh        |   topological fixing time for the left hemisphere
 topo_rh        |   topological fixing time for the right hemisphere
-con_lh_snr     |   wm/gm contrast signal-to-noise ration in the left hemisphere
-con_rh_snr     |   wm/gm contrast signal-to-noise ration in the right hemisphere
+con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
+con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
 
-If the (optional) shape pipeline was run in addition to the core pipeline, the 
-output directory will also contain results files of the brainPrint analysis, 
-and the above csv table will contain several additional metrics: for a number 
-of lateralized brain structures (e.g., ventricles, subcortical structures, 
-gray and white matter), the lateral asymmetry will be computed, i.e. distances
-between numerical shape descriptors, where large values indicate large 
-asymmetries and hence potential issues with the segmentation of these 
-structures.
+Computing the above features is the core functionality of this toolbox. In 
+addition to that, there are two optional modules. One is the automated 
+generation of cross-sections of the brain that are overlaid with the anatomical 
+segmentations (asegs) and the white and pial surfaces. These images will be 
+saved to the 'screenshots' subdirectory that will be created within the output 
+directory. These images can be used for quickly glimpsing through the 
+processing results. Note that no display manager is required for this module, 
+i.e. it can be run on a remote server, for example.
+
+The other optional module is the computation of shape features, i.e. a 
+brainPrint anylsis. If this module is run, the output directory will also 
+contain results files of the brainPrint analysis, and the above csv table will 
+contain several additional metrics: for a number of lateralized brain 
+structures (e.g., ventricles, subcortical structures, gray and white matter), 
+the lateral asymmetry will be computed, i.e. distances between numerical shape 
+descriptors, where large values indicate large asymmetries and hence potential 
+issues with the segmentation of these structures.
 
 ___
 
@@ -54,8 +62,8 @@ ___
 ```
 python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [--shape]
-                          [--norms <file>] [-h]
-                      
+                          [--screenshots] [-h]
+
 
 required arguments:
   --subjects_dir <directory>
@@ -67,8 +75,9 @@ required arguments:
 optional arguments:
   --subjects SubjectID [SubjectID ...]
                         list of subject IDs
+  --screenshots         create screenshots
   --shape               run shape analysis (requires additional scripts)
-  --norms <file>        path to file with normative values
+
 
 getting help:
   -h, --help            display this help message and exit
@@ -82,6 +91,10 @@ ___
 - The following example will run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+
+- The following example will run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
+
+    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - The following example will run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
 
@@ -126,7 +139,8 @@ ___
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the skimage and nibabel packages.
+- Required packages include the matplotlib, pandas, skimage and nibabel 
+  packages.
 
 - For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
   scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
