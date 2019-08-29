@@ -16,8 +16,7 @@ at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu
 
 The current version is a development version that can be used for testing 
-purposes. It will almost certainly be revised, corrected, and extended in the 
-future.
+purposes. It will be revised, and extended in the future.
 
 The program will use an existing OUTPUT_DIR (or try to create it) and 
 write a csv table into that location.
@@ -39,21 +38,30 @@ The csv table will contain the following variables/metrics:
 - con_lh_snr    ...  wm/gm contrast signal-to-noise ration in the left hemisphere
 - con_rh_snr    ...  wm/gm contrast signal-to-noise ration in the right hemisphere
 
-If the (optional) shape pipeline was run in addition to the core pipeline, the 
-output directory will also contain results files of the brainPrint analysis, 
-and the above csv table will contain several additional metrics: for a number 
-of lateralized brain structures (e.g., ventricles, subcortical structures, gray 
-and white matter), the lateral asymmetry will be computed, i.e. distances 
-between numerical shape descriptors, where large values indicate large 
-asymmetries and hence potential issues with the segmentation of these 
-structures.
+Computing the above features is the core functionality of this toolbox. In 
+addition to that, there are two optional modules. One is the automated 
+generation of cross-sections of the brain that are overlaid with the anatomical 
+segmentations (asegs) and the white and pial surfaces. These images will be 
+saved to the 'screenshots' subdirectory that will be created within the output 
+directory. These images can be used for quickly glimpsing through the 
+processing results. Note that no display manager is required for this module, 
+i.e. it can be run on a remote server, for example.
+
+The other optional module is the computation of shape features, i.e. a 
+brainPrint anylsis. If this module is run, the output directory will also 
+contain results files of the brainPrint analysis, and the above csv table will 
+contain several additional metrics: for a number of lateralized brain 
+structures (e.g., ventricles, subcortical structures, gray and white matter), 
+the lateral asymmetry will be computed, i.e. distances between numerical shape 
+descriptors, where large values indicate large asymmetries and hence potential 
+issues with the segmentation of these structures.
 
 
 usage: 
 
     python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
                               [--subjects SubjectID [SubjectID ...]] [--shape]
-                              [--norms <file>] [-h]
+                              [--screenshots] [--norms <file>] [-h]
 
     required arguments:
       --subjects_dir <directory>
@@ -66,8 +74,8 @@ usage:
       --subjects SubjectID [SubjectID ...]
                             list of subject IDs
       --shape               run shape analysis (requires additional scripts)
-      --norms <file>
-                            path to file with normative values
+      --screenshots         create screenshots of individual brains
+      --norms <file>        path to file with normative values
 
     getting help:
       -h, --help            display this help message and exit
@@ -104,7 +112,7 @@ At least one subject whose structural MR image was processed with Freesurfer 6.0
 
 A Python version >= 3.4 is required to run this script.
 
-Required packages include the skimage and nibabel packages.
+Required packages include the matplotlib, pandas, skimage, nibabel packages.
 
 For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
 scripts and the brainPrint scripts are required. See https://reuter.mit.edu for
@@ -136,7 +144,7 @@ from cc_size_checker import cc_size_checker
 from holes_topo_checker import holes_topo_checker
 from contrast_checker import contrast_checker 
 from shape_checker import shape_checker
-from create_graph import create_graph
+from createScreenshots import createScreenshots
 
 # ------------------------------------------------------------------------------
 # functions
@@ -163,9 +171,11 @@ def parse_arguments():
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
     optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
+    optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
-    optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # #erode is currently a hidden option
-    optional.add_argument('--norms', dest ="normative_values", help="path to file with normative values", default=None, metavar="<file>", required=False) 
+    optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # erode is currently a hidden option
+    #optional.add_argument('--norms', dest ="normative_values", help="path to file with normative values", default=None, metavar="<file>", required=False)
+    optional.add_argument('--norms', dest ="normative_values", help=argparse.SUPPRESS, default=None, metavar="<file>", required=False) # norms is currently a hidden option
 
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
@@ -207,6 +217,9 @@ if __name__ == "__main__":
         print('\nERROR: the \'nibabel\' package is required for running this script, please install.\n')
         sys.exit(1)
 
+    if importlib.util.find_spec("nibabel") is None:
+        print('\nERROR: the \'nibabel\' package is required for running this script, please install.\n')
+        sys.exit(1)
 
     # --------------------------------------------------------------------------
     # get and process inputs
@@ -219,6 +232,7 @@ if __name__ == "__main__":
     output_dir = arguments.output_dir
     subjects = arguments.subjects
     shape = arguments.shape
+    screenshots = arguments.screenshots
     normative_values = arguments.normative_values
     amount_erosion = arguments.amount_erosion
 
@@ -247,6 +261,26 @@ if __name__ == "__main__":
                 raise
             print('\nERROR: '+output_dir+' not writeable (check access)!\n')
             sys.exit(1)
+
+    if screenshots is True:
+        if os.path.isdir(os.path.join(output_dir,'screenshots')):
+            print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
+        else:
+            try:
+                os.mkdir(os.path.join(output_dir,'screenshots'))
+            except:
+                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir,'screenshots')+'\n')
+                sys.exit(1)
+
+            try:
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'screenshots'))
+                testfile.close()
+            except OSError as e:
+                if e.errno != errno.EACCES:  # 13
+                    e.filename = os.path.join(output_dir,'screenshots')
+                    raise
+                print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
+                sys.exit(1)
 
     if shape is True:
         if os.environ.get('FREESURFER_HOME') is None:
@@ -290,6 +324,17 @@ if __name__ == "__main__":
     path_means_file = os.path.join(output_dir,'qatools-means.csv')
     path_check_file = os.path.join(output_dir,'qatools-check.csv')
     path_shape_file = os.path.join(output_dir,'qatools-shape.csv')
+
+    # --------------------------------------------------------------------------
+    # check some optional dependencies
+
+    if screenshots is True and importlib.util.find_spec("pandas") is None:
+        print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
+        sys.exit(1)
+
+    if screenshots is True and importlib.util.find_spec("matplotlib") is None:
+        print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
+        sys.exit(1)
 
     # --------------------------------------------------------------------------
     # process
@@ -344,6 +389,11 @@ if __name__ == "__main__":
             # store data
             metricsDict[subject].update(dist[subject])
 
+        # screenshots
+        if screenshots == True:
+            outfile = os.path.join(output_dir,'screenshots',subject+'.png')
+            createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
+
         # message
         print("Done with the quality check for subject", subject, "at", datetime.now())
         print("")
@@ -370,12 +420,6 @@ if __name__ == "__main__":
         csvwriter.writeheader()
         for subject in list(metricsDict.keys()):
             csvwriter.writerow(metricsDict[subject])
-
-    # --------------------------------------------------------------------------         
-    # Create interactive graph <todo>
-
-    # if plotly_username != "": 
-    #    create_graph(subjects, plotly_username, plotly_key, metrics)    
 
     # --------------------------------------------------------------------------
     # exit
