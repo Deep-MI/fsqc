@@ -14,7 +14,7 @@ at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
 
 **The current version is a development version that can be used for testing 
-purposes. It will be revised, and extended in the future.**
+purposes. It will be revised and extended in the future.**
 
 The program will use an existing output directory (or try to create it) and 
 write a csv table (qatools-results.csv) into that location. The csv table 
@@ -38,13 +38,14 @@ con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
 con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
 
 Computing the above features is the core functionality of this toolbox. In 
-addition to that, there are two optional modules. One is the automated 
-generation of cross-sections of the brain that are overlaid with the anatomical 
-segmentations (asegs) and the white and pial surfaces. These images will be 
-saved to the 'screenshots' subdirectory that will be created within the output 
-directory. These images can be used for quickly glimpsing through the 
-processing results. Note that no display manager is required for this module, 
-i.e. it can be run on a remote server, for example.
+addition to that, there are two optional modules:
+
+One is the automated generation of cross-sections of the brain that are overlaid 
+with the anatomical segmentations (asegs) and the white and pial surfaces. These 
+images will be saved to the 'screenshots' subdirectory that will be created 
+within the output directory. These images can be used for quickly glimpsing 
+through the processing results. Note that no display manager is required for this 
+module, i.e. it can be run on a remote server, for example.
 
 The other optional module is the computation of shape features, i.e. a 
 brainPrint anylsis. If this module is run, the output directory will also 
