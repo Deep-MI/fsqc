@@ -112,7 +112,8 @@ At least one subject whose structural MR image was processed with Freesurfer 6.0
 
 A Python version >= 3.4 is required to run this script.
 
-Required packages include the matplotlib, pandas, skimage, nibabel packages.
+Required packages include the matplotlib, pandas, scikit-image, nibabel, and
+future packages.
 
 For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
 scripts and the brainPrint scripts are required. See https://reuter.mit.edu for
@@ -174,6 +175,7 @@ def parse_arguments():
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
     optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # erode is currently a hidden option
+    optional.add_argument('--output_suffix', dest='output_suffix', help=argparse.SUPPRESS, default=None, required=False) # output_suffix is currently a hidden option
     #optional.add_argument('--norms', dest ="normative_values", help="path to file with normative values", default=None, metavar="<file>", required=False)
     optional.add_argument('--norms', dest ="normative_values", help=argparse.SUPPRESS, default=None, metavar="<file>", required=False) # norms is currently a hidden option
 
@@ -235,6 +237,7 @@ if __name__ == "__main__":
     screenshots = arguments.screenshots
     normative_values = arguments.normative_values
     amount_erosion = arguments.amount_erosion
+    output_suffix = arguments.output_suffix
 
     # check arguments
     if os.path.isdir(subjects_dir):
@@ -313,14 +316,24 @@ if __name__ == "__main__":
                 print("Found aseg.stats file for subject",subject)
                 subjects.extend([subject])
     else:
+        subjects_to_remove = list()
         for subject in subjects:
             path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
             if not os.path.isfile(path_aseg_stat):
                 print("Could not find.aseg stats file for subject",subject)
-                subjects.remove(subject)
+                subjects_to_remove.extend([subject])
+        [ subjects.remove(x) for x in subjects_to_remove ]
+
+    # check if we have any subjects at all
+    if subjects == []:
+        print("\nERROR: no subjects to process") 
+        sys.exit(1)
 
     # determine default output files
-    path_data_file = os.path.join(output_dir,'qatools-results.csv')
+    if output_suffix is not None:
+        path_data_file = os.path.join(output_dir,'qatools-results-'+output_suffix+'.csv')
+    else:
+        path_data_file = os.path.join(output_dir,'qatools-results.csv')
     path_means_file = os.path.join(output_dir,'qatools-means.csv')
     path_check_file = os.path.join(output_dir,'qatools-check.csv')
     path_shape_file = os.path.join(output_dir,'qatools-shape.csv')
@@ -391,6 +404,14 @@ if __name__ == "__main__":
 
         # screenshots
         if screenshots == True:
+
+            # message
+            print("")
+            print("-----------------------------")
+            print("Creating screenshots ...")
+            print("")
+
+            # process
             outfile = os.path.join(output_dir,'screenshots',subject+'.png')
             createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
 

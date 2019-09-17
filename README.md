@@ -140,8 +140,8 @@ ___
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the matplotlib, pandas, skimage and nibabel 
-  packages.
+- Required packages include the matplotlib, pandas, scikit-image, nibabel, and
+  future packages.
 
 - For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
   scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
