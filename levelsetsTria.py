@@ -7,11 +7,11 @@ def levelsetsTria(v, t, p, levelsets):
     lLVL = list()
     iLVL = list()
 
-    A = lil_matrix((np.shape(v)[0],np.shape(v)[0]))
-
     levelsets = (np.array(levelsets, ndmin=2))
 
     for l in range(len(levelsets)):
+
+        A = lil_matrix((np.shape(v)[0],np.shape(v)[0]))
 
         lvl = levelsets[l]
 
@@ -104,4 +104,4 @@ def levelsetsTria(v, t, p, levelsets):
         lLVL.append(ti)
         iLVL.append(n)
 
-    return vLVL[0], lLVL[0], iLVL
+    return vLVL, lLVL, iLVL

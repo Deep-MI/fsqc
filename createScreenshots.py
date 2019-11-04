@@ -1,4 +1,12 @@
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
+
+    """
+    function createScreenshots()
+    
+    Requires FREESURFER_HOME environment variable 
+
+    """
+
     # -----------------------------------------------------------------------------
     # imports
 
@@ -66,7 +74,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
     # import colortable, compute auxiliary variables, and transform to matplotlib
     # colortable
 
-    lut = pd.read_csv('/groups/ag-reuter/software/fs60/FreeSurferColorLUT.txt',
+    lut = pd.read_csv(os.path.join(os.environ['FREESURFER_HOME'],'FreeSurferColorLUT.txt'),
                       sep=' ',
                       comment='#',
                       header=None,
@@ -189,28 +197,28 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
     axs[axsi].set_axis_off()
     axs[axsi].set_aspect('equal')
 
-    for i in range(len(lhWhiteLVL1a[1])):
+    for i in range(len(lhWhiteLVL1a[1][0])):
         axs[axsi].plot(
-            (lhWhiteLVL1a[0][lhWhiteLVL1a[1][i][0] - 1][dims[0]], lhWhiteLVL1a[0][lhWhiteLVL1a[1][i][1] - 1][dims[0]]),
-            (lhWhiteLVL1a[0][lhWhiteLVL1a[1][i][0] - 1][dims[1]], lhWhiteLVL1a[0][lhWhiteLVL1a[1][i][1] - 1][dims[1]]),
+            (lhWhiteLVL1a[0][0][lhWhiteLVL1a[1][0][i][0] - 1][dims[0]], lhWhiteLVL1a[0][0][lhWhiteLVL1a[1][0][i][1] - 1][dims[0]]),
+            (lhWhiteLVL1a[0][0][lhWhiteLVL1a[1][0][i][0] - 1][dims[1]], lhWhiteLVL1a[0][0][lhWhiteLVL1a[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(rhWhiteLVL1a[1])):
+    for i in range(len(rhWhiteLVL1a[1][0])):
         axs[axsi].plot(
-            (rhWhiteLVL1a[0][rhWhiteLVL1a[1][i][0] - 1][dims[0]], rhWhiteLVL1a[0][rhWhiteLVL1a[1][i][1] - 1][dims[0]]),
-            (rhWhiteLVL1a[0][rhWhiteLVL1a[1][i][0] - 1][dims[1]], rhWhiteLVL1a[0][rhWhiteLVL1a[1][i][1] - 1][dims[1]]),
+            (rhWhiteLVL1a[0][0][rhWhiteLVL1a[1][0][i][0] - 1][dims[0]], rhWhiteLVL1a[0][0][rhWhiteLVL1a[1][0][i][1] - 1][dims[0]]),
+            (rhWhiteLVL1a[0][0][rhWhiteLVL1a[1][0][i][0] - 1][dims[1]], rhWhiteLVL1a[0][0][rhWhiteLVL1a[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(lhPialLVL1a[1])):
+    for i in range(len(lhPialLVL1a[1][0])):
         axs[axsi].plot(
-            (lhPialLVL1a[0][lhPialLVL1a[1][i][0] - 1][dims[0]], lhPialLVL1a[0][lhPialLVL1a[1][i][1] - 1][dims[0]]),
-            (lhPialLVL1a[0][lhPialLVL1a[1][i][0] - 1][dims[1]], lhPialLVL1a[0][lhPialLVL1a[1][i][1] - 1][dims[1]]),
+            (lhPialLVL1a[0][0][lhPialLVL1a[1][0][i][0] - 1][dims[0]], lhPialLVL1a[0][0][lhPialLVL1a[1][0][i][1] - 1][dims[0]]),
+            (lhPialLVL1a[0][0][lhPialLVL1a[1][0][i][0] - 1][dims[1]], lhPialLVL1a[0][0][lhPialLVL1a[1][0][i][1] - 1][dims[1]]),
             color='red')
 
-    for i in range(len(rhPialLVL1a[1])):
+    for i in range(len(rhPialLVL1a[1][0])):
         axs[axsi].plot(
-            (rhPialLVL1a[0][rhPialLVL1a[1][i][0] - 1][dims[0]], rhPialLVL1a[0][rhPialLVL1a[1][i][1] - 1][dims[0]]),
-            (rhPialLVL1a[0][rhPialLVL1a[1][i][0] - 1][dims[1]], rhPialLVL1a[0][rhPialLVL1a[1][i][1] - 1][dims[1]]),
+            (rhPialLVL1a[0][0][rhPialLVL1a[1][0][i][0] - 1][dims[0]], rhPialLVL1a[0][0][rhPialLVL1a[1][0][i][1] - 1][dims[0]]),
+            (rhPialLVL1a[0][0][rhPialLVL1a[1][0][i][0] - 1][dims[1]], rhPialLVL1a[0][0][rhPialLVL1a[1][0][i][1] - 1][dims[1]]),
             color='red')
 
     # -----------------------------------------------------------------------------
@@ -244,28 +252,28 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
     axs[axsi].set_axis_off()
     axs[axsi].set_aspect('equal')
 
-    for i in range(len(lhWhiteLVL1b[1])):
+    for i in range(len(lhWhiteLVL1b[1][0])):
         axs[axsi].plot(
-            (lhWhiteLVL1b[0][lhWhiteLVL1b[1][i][0] - 1][dims[0]], lhWhiteLVL1b[0][lhWhiteLVL1b[1][i][1] - 1][dims[0]]),
-            (lhWhiteLVL1b[0][lhWhiteLVL1b[1][i][0] - 1][dims[1]], lhWhiteLVL1b[0][lhWhiteLVL1b[1][i][1] - 1][dims[1]]),
+            (lhWhiteLVL1b[0][0][lhWhiteLVL1b[1][0][i][0] - 1][dims[0]], lhWhiteLVL1b[0][0][lhWhiteLVL1b[1][0][i][1] - 1][dims[0]]),
+            (lhWhiteLVL1b[0][0][lhWhiteLVL1b[1][0][i][0] - 1][dims[1]], lhWhiteLVL1b[0][0][lhWhiteLVL1b[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(rhWhiteLVL1b[1])):
+    for i in range(len(rhWhiteLVL1b[1][0])):
         axs[axsi].plot(
-            (rhWhiteLVL1b[0][rhWhiteLVL1b[1][i][0] - 1][dims[0]], rhWhiteLVL1b[0][rhWhiteLVL1b[1][i][1] - 1][dims[0]]),
-            (rhWhiteLVL1b[0][rhWhiteLVL1b[1][i][0] - 1][dims[1]], rhWhiteLVL1b[0][rhWhiteLVL1b[1][i][1] - 1][dims[1]]),
+            (rhWhiteLVL1b[0][0][rhWhiteLVL1b[1][0][i][0] - 1][dims[0]], rhWhiteLVL1b[0][0][rhWhiteLVL1b[1][0][i][1] - 1][dims[0]]),
+            (rhWhiteLVL1b[0][0][rhWhiteLVL1b[1][0][i][0] - 1][dims[1]], rhWhiteLVL1b[0][0][rhWhiteLVL1b[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(lhPialLVL1b[1])):
+    for i in range(len(lhPialLVL1b[1][0])):
         axs[axsi].plot(
-            (lhPialLVL1b[0][lhPialLVL1b[1][i][0] - 1][dims[0]], lhPialLVL1b[0][lhPialLVL1b[1][i][1] - 1][dims[0]]),
-            (lhPialLVL1b[0][lhPialLVL1b[1][i][0] - 1][dims[1]], lhPialLVL1b[0][lhPialLVL1b[1][i][1] - 1][dims[1]]),
+            (lhPialLVL1b[0][0][lhPialLVL1b[1][0][i][0] - 1][dims[0]], lhPialLVL1b[0][0][lhPialLVL1b[1][0][i][1] - 1][dims[0]]),
+            (lhPialLVL1b[0][0][lhPialLVL1b[1][0][i][0] - 1][dims[1]], lhPialLVL1b[0][0][lhPialLVL1b[1][0][i][1] - 1][dims[1]]),
             color='red')
 
-    for i in range(len(rhPialLVL1b[1])):
+    for i in range(len(rhPialLVL1b[1][0])):
         axs[axsi].plot(
-            (rhPialLVL1b[0][rhPialLVL1b[1][i][0] - 1][dims[0]], rhPialLVL1b[0][rhPialLVL1b[1][i][1] - 1][dims[0]]),
-            (rhPialLVL1b[0][rhPialLVL1b[1][i][0] - 1][dims[1]], rhPialLVL1b[0][rhPialLVL1b[1][i][1] - 1][dims[1]]),
+            (rhPialLVL1b[0][0][rhPialLVL1b[1][0][i][0] - 1][dims[0]], rhPialLVL1b[0][0][rhPialLVL1b[1][0][i][1] - 1][dims[0]]),
+            (rhPialLVL1b[0][0][rhPialLVL1b[1][0][i][0] - 1][dims[1]], rhPialLVL1b[0][0][rhPialLVL1b[1][0][i][1] - 1][dims[1]]),
             color='red')
 
     # -----------------------------------------------------------------------------
@@ -300,28 +308,28 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
     axs[axsi].set_axis_off()
     axs[axsi].set_aspect('equal')
 
-    for i in range(len(lhWhiteLVL2[1])):
+    for i in range(len(lhWhiteLVL2[1][0])):
         axs[axsi].plot(
-            (lhWhiteLVL2[0][lhWhiteLVL2[1][i][0] - 1][dims[0]], lhWhiteLVL2[0][lhWhiteLVL2[1][i][1] - 1][dims[0]]),
-            (lhWhiteLVL2[0][lhWhiteLVL2[1][i][0] - 1][dims[1]], lhWhiteLVL2[0][lhWhiteLVL2[1][i][1] - 1][dims[1]]),
+            (lhWhiteLVL2[0][0][lhWhiteLVL2[1][0][i][0] - 1][dims[0]], lhWhiteLVL2[0][0][lhWhiteLVL2[1][0][i][1] - 1][dims[0]]),
+            (lhWhiteLVL2[0][0][lhWhiteLVL2[1][0][i][0] - 1][dims[1]], lhWhiteLVL2[0][0][lhWhiteLVL2[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(rhWhiteLVL2[1])):
+    for i in range(len(rhWhiteLVL2[1][0])):
         axs[axsi].plot(
-            (rhWhiteLVL2[0][rhWhiteLVL2[1][i][0] - 1][dims[0]], rhWhiteLVL2[0][rhWhiteLVL2[1][i][1] - 1][dims[0]]),
-            (rhWhiteLVL2[0][rhWhiteLVL2[1][i][0] - 1][dims[1]], rhWhiteLVL2[0][rhWhiteLVL2[1][i][1] - 1][dims[1]]),
+            (rhWhiteLVL2[0][0][rhWhiteLVL2[1][0][i][0] - 1][dims[0]], rhWhiteLVL2[0][0][rhWhiteLVL2[1][0][i][1] - 1][dims[0]]),
+            (rhWhiteLVL2[0][0][rhWhiteLVL2[1][0][i][0] - 1][dims[1]], rhWhiteLVL2[0][0][rhWhiteLVL2[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(lhPialLVL2[1])):
+    for i in range(len(lhPialLVL2[1][0])):
         axs[axsi].plot(
-            (lhPialLVL2[0][lhPialLVL2[1][i][0] - 1][dims[0]], lhPialLVL2[0][lhPialLVL2[1][i][1] - 1][dims[0]]),
-            (lhPialLVL2[0][lhPialLVL2[1][i][0] - 1][dims[1]], lhPialLVL2[0][lhPialLVL2[1][i][1] - 1][dims[1]]),
+            (lhPialLVL2[0][0][lhPialLVL2[1][0][i][0] - 1][dims[0]], lhPialLVL2[0][0][lhPialLVL2[1][0][i][1] - 1][dims[0]]),
+            (lhPialLVL2[0][0][lhPialLVL2[1][0][i][0] - 1][dims[1]], lhPialLVL2[0][0][lhPialLVL2[1][0][i][1] - 1][dims[1]]),
             color='red')
 
-    for i in range(len(rhPialLVL2[1])):
+    for i in range(len(rhPialLVL2[1][0])):
         axs[axsi].plot(
-            (rhPialLVL2[0][rhPialLVL2[1][i][0] - 1][dims[0]], rhPialLVL2[0][rhPialLVL2[1][i][1] - 1][dims[0]]),
-            (rhPialLVL2[0][rhPialLVL2[1][i][0] - 1][dims[1]], rhPialLVL2[0][rhPialLVL2[1][i][1] - 1][dims[1]]),
+            (rhPialLVL2[0][0][rhPialLVL2[1][0][i][0] - 1][dims[0]], rhPialLVL2[0][0][rhPialLVL2[1][0][i][1] - 1][dims[0]]),
+            (rhPialLVL2[0][0][rhPialLVL2[1][0][i][0] - 1][dims[1]], rhPialLVL2[0][0][rhPialLVL2[1][0][i][1] - 1][dims[1]]),
             color='red')
 
     # -----------------------------------------------------------------------------
@@ -356,28 +364,28 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True):
     axs[axsi].set_axis_off()
     axs[axsi].set_aspect('equal')
 
-    for i in range(len(lhWhiteLVL3[1])):
+    for i in range(len(lhWhiteLVL3[1][0])):
         axs[axsi].plot(
-            (lhWhiteLVL3[0][lhWhiteLVL3[1][i][0] - 1][dims[0]], lhWhiteLVL3[0][lhWhiteLVL3[1][i][1] - 1][dims[0]]),
-            (lhWhiteLVL3[0][lhWhiteLVL3[1][i][0] - 1][dims[1]], lhWhiteLVL3[0][lhWhiteLVL3[1][i][1] - 1][dims[1]]),
+            (lhWhiteLVL3[0][0][lhWhiteLVL3[1][0][i][0] - 1][dims[0]], lhWhiteLVL3[0][0][lhWhiteLVL3[1][0][i][1] - 1][dims[0]]),
+            (lhWhiteLVL3[0][0][lhWhiteLVL3[1][0][i][0] - 1][dims[1]], lhWhiteLVL3[0][0][lhWhiteLVL3[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(rhWhiteLVL3[1])):
+    for i in range(len(rhWhiteLVL3[1][0])):
         axs[axsi].plot(
-            (rhWhiteLVL3[0][rhWhiteLVL3[1][i][0] - 1][dims[0]], rhWhiteLVL3[0][rhWhiteLVL3[1][i][1] - 1][dims[0]]),
-            (rhWhiteLVL3[0][rhWhiteLVL3[1][i][0] - 1][dims[1]], rhWhiteLVL3[0][rhWhiteLVL3[1][i][1] - 1][dims[1]]),
+            (rhWhiteLVL3[0][0][rhWhiteLVL3[1][0][i][0] - 1][dims[0]], rhWhiteLVL3[0][0][rhWhiteLVL3[1][0][i][1] - 1][dims[0]]),
+            (rhWhiteLVL3[0][0][rhWhiteLVL3[1][0][i][0] - 1][dims[1]], rhWhiteLVL3[0][0][rhWhiteLVL3[1][0][i][1] - 1][dims[1]]),
             color='yellow')
 
-    for i in range(len(lhPialLVL3[1])):
+    for i in range(len(lhPialLVL3[1][0])):
         axs[axsi].plot(
-            (lhPialLVL3[0][lhPialLVL3[1][i][0] - 1][dims[0]], lhPialLVL3[0][lhPialLVL3[1][i][1] - 1][dims[0]]),
-            (lhPialLVL3[0][lhPialLVL3[1][i][0] - 1][dims[1]], lhPialLVL3[0][lhPialLVL3[1][i][1] - 1][dims[1]]),
+            (lhPialLVL3[0][0][lhPialLVL3[1][0][i][0] - 1][dims[0]], lhPialLVL3[0][0][lhPialLVL3[1][0][i][1] - 1][dims[0]]),
+            (lhPialLVL3[0][0][lhPialLVL3[1][0][i][0] - 1][dims[1]], lhPialLVL3[0][0][lhPialLVL3[1][0][i][1] - 1][dims[1]]),
             color='red')
 
-    for i in range(len(rhPialLVL3[1])):
+    for i in range(len(rhPialLVL3[1][0])):
         axs[axsi].plot(
-            (rhPialLVL3[0][rhPialLVL3[1][i][0] - 1][dims[0]], rhPialLVL3[0][rhPialLVL3[1][i][1] - 1][dims[0]]),
-            (rhPialLVL3[0][rhPialLVL3[1][i][0] - 1][dims[1]], rhPialLVL3[0][rhPialLVL3[1][i][1] - 1][dims[1]]),
+            (rhPialLVL3[0][0][rhPialLVL3[1][0][i][0] - 1][dims[0]], rhPialLVL3[0][0][rhPialLVL3[1][0][i][1] - 1][dims[0]]),
+            (rhPialLVL3[0][0][rhPialLVL3[1][0][i][0] - 1][dims[1]], rhPialLVL3[0][0][rhPialLVL3[1][0][i][1] - 1][dims[1]]),
             color='red')
 
     # -----------------------------------------------------------------------------
