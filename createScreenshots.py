@@ -1,17 +1,22 @@
-def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[('x',-10),('x',10),('y',0),('z',0)], LAYOUT=None):
+def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None, 
+    BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"], 
+    VIEWS = ["default"]
+    ):
 
     """
     function createScreenshots()
     
-    Requires FREESURFER_HOME environment variable 
+    Requires FREESURFER_HOME environment variable
+
+    BASE, VIEWS must be lists, can be ["default"]
+
+    OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"]
 
     """
 
     # -----------------------------------------------------------------------------
     # TODO
 
-    # - possibly add option to determine which surface(s) should be plotted in 
-    #   which color
     # - talairch?
     # - remove white background
     # - add linewidth parameter
@@ -51,8 +56,6 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     # -----------------------------------------------------------------------------
     # settings
 
-    CutsRRAS = VIEWS
-
     FIGSIZE = 32
 
     FIGDPI = 100
@@ -62,18 +65,43 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     # -----------------------------------------------------------------------------
     # import image data
 
-    norm = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, 'mri', 'norm.mgz'))
+    if BASE == ["default"]:
+        norm = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, 'mri', 'norm.mgz'))
+    else:
+        norm = nb.load(BASE[0])
 
-    aseg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, 'mri', 'aseg.mgz'))
+    if OVERLAY is None:
+        aseg = None
+    elif OVERLAY == ["default"]:
+        aseg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, 'mri', 'aseg.mgz'))
+    else:
+        aseg = nb.load(OVERLAY[0])
 
     # -----------------------------------------------------------------------------
     # import surface data
 
-    lhWhite = nb.freesurfer.io.read_geometry(os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'lh.white'), read_metadata=True)
-    rhWhite = nb.freesurfer.io.read_geometry(os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'rh.white'), read_metadata=True)
+    if SURF == ["default"]:
+        surflist = [
+            os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'lh.white'),
+            os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'rh.white'),
+            os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'lh.pial'),
+            os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'rh.pial'),
+            ]
+    else:
+        surflist = SURF
 
-    lhPial = nb.freesurfer.io.read_geometry(os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'lh.pial'), read_metadata=True)
-    rhPial = nb.freesurfer.io.read_geometry(os.path.join(SUBJECTS_DIR, SUBJECT, 'surf', 'rh.pial'), read_metadata=True)
+    surf = list()
+
+    if surflist is not None:
+        for i in range(len(surflist)):
+            surf.append(nb.freesurfer.io.read_geometry(surflist[i], read_metadata=True))
+
+    if SURFCOLOR == ["default"] and SURF == ["default"]:
+        surfcolor = ['yellow','yellow','red','red']
+    elif SURFCOLOR == ["default"] and SURF != ["default"]:
+        surfcolor = ['yellow'] * len(surf)
+    else:
+        surfcolor = SURFCOLOR
 
     # -----------------------------------------------------------------------------
     # import colortable, compute auxiliary variables, and transform to matplotlib
@@ -99,28 +127,37 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     lutMap = matplotlib.colors.ListedColormap(lutTab)
 
     # -----------------------------------------------------------------------------
+    # determine VIEWS
+
+    if VIEWS == ["default"]:
+        CutsRRAS = [('x',-10),('x',10),('y',0),('z',0)]
+    else:
+        CutsRRAS = VIEWS
+
+    # -----------------------------------------------------------------------------
     # compute levelsets
 
-    lhWhiteLVL=list()
-    rhWhiteLVL=list()
-    lhPialLVL=list()
-    rhPialLVL=list()
+    LVL = list()
 
-    for i in range(len(CutsRRAS)):
-        
-        # determine dimension
-        if CutsRRAS[i][0] is 'x':
-            iDim = 0
-        elif CutsRRAS[i][0] is 'y':
-            iDim = 1
-        elif CutsRRAS[i][0] is 'z':
-            iDim = 2
+    # will not run if surf is empty (intended)
+    for s in range(len(surf)):
 
-        # compute levelsets: e.g., lhWhiteLVL[VIEWS][vLVL|tLVL|iLVL][0][elementDim1][elementDim2]
-        lhWhiteLVL.append(levelsetsTria(lhWhite[0], lhWhite[1], lhWhite[0][:, iDim], CutsRRAS[i][1]))
-        rhWhiteLVL.append(levelsetsTria(rhWhite[0], rhWhite[1], rhWhite[0][:, iDim], CutsRRAS[i][1]))
-        lhPialLVL.append(levelsetsTria(lhPial[0],  lhPial[1],  lhPial[0][:, iDim],  CutsRRAS[i][1]))
-        rhPialLVL.append(levelsetsTria(rhPial[0],  rhPial[1],  rhPial[0][:, iDim],  CutsRRAS[i][1]))
+        sLVL = list()
+
+        for i in range(len(CutsRRAS)):
+            
+            # determine dimension
+            if CutsRRAS[i][0] is 'x':
+                iDim = 0
+            elif CutsRRAS[i][0] is 'y':
+                iDim = 1
+            elif CutsRRAS[i][0] is 'z':
+                iDim = 2
+
+            # compute levelsets: e.g., LVL[SURF][VIEWS][vLVL|tLVL|iLVL][0][elementDimnnnnn1][elementDim2]
+            sLVL.append(levelsetsTria(surf[s][0], surf[s][1], surf[s][0][:, iDim], CutsRRAS[i][1]))
+
+        LVL.append(sLVL)
 
     # -----------------------------------------------------------------------------
     # get data for norm
@@ -133,13 +170,15 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     # get data for aseg and change to enumerated aseg so that it can be used as
     # index to lutMap
 
-    asegData = aseg.get_data()
+    if aseg is not None:
 
-    asegUnique, asegIdx = np.unique(asegData, return_inverse=True)
+        asegData = aseg.get_data()
 
-    asegEnum = np.array([lutEnum[x] for x in asegUnique])
+        asegUnique, asegIdx = np.unique(asegData, return_inverse=True)
 
-    asegVals = np.reshape(asegEnum[asegIdx], (aseg.shape))
+        asegEnum = np.array([lutEnum[x] for x in asegUnique])
+
+        asegVals = np.reshape(asegEnum[asegIdx], (aseg.shape))
 
     # -----------------------------------------------------------------------------
     # compile image data for plotting
@@ -156,8 +195,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     # x_S y_S z_S c_S
     #   0   0   0   1
 
-    m = aseg.header.get_vox2ras_tkr()
-    n = aseg.header.get_data_shape()
+    m = norm.header.get_vox2ras_tkr()
+    n = norm.header.get_data_shape()
 
     xyzIdx = np.array(np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
     xyzIdxFlat3 = np.reshape(xyzIdx, (3, np.prod(n))).transpose()
@@ -165,7 +204,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     rasIdxFlat3 = np.matmul(m, xyzIdxFlat4.transpose()).transpose()[:, 0:3]
 
     normValsRAS = list()
-    asegValsRAS = list()
+    if aseg is not None:
+        asegValsRAS = list()
 
     for i in range(len(CutsRRAS)):
         
@@ -180,7 +220,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
         #
         sel = np.array(xyzIdxFlat3[rasIdxFlat3[:, iDim] == CutsRRAS[i][1], :], dtype="int")
         normValsRAS.append(np.squeeze(normVals[np.min(sel[:, 0]):np.max(sel[:, 0]) + 1, np.min(sel[:, 1]):np.max(sel[:, 1]) + 1, np.min(sel[:, 2]):np.max(sel[:, 2]) + 1]))
-        asegValsRAS.append(np.squeeze(asegVals[np.min(sel[:, 0]):np.max(sel[:, 0]) + 1, np.min(sel[:, 1]):np.max(sel[:, 1]) + 1, np.min(sel[:, 2]):np.max(sel[:, 2]) + 1]))
+        if aseg is not None:
+            asegValsRAS.append(np.squeeze(asegVals[np.min(sel[:, 0]):np.max(sel[:, 0]) + 1, np.min(sel[:, 1]):np.max(sel[:, 1]) + 1, np.min(sel[:, 2]):np.max(sel[:, 2]) + 1]))
 
     # -----------------------------------------------------------------------------
     # plotting: create a new figure, plot into it, then close it so it never gets
@@ -196,6 +237,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
     else:
         myLayout = LAYOUT
 
+    # create list of de-facto layouts
     myLayoutList = list()
     for axsx in range(myLayout[0]):
         for axsy in range(myLayout[1]):
@@ -232,10 +274,12 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
             #
             if axi < cor:
                 axs[axsx,axsy].imshow(normValsRAS[p], cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p] + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p] + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
             else:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
         elif CutsRRAS[p][0] is 'y':
             #
             dims = (0, 2)
@@ -247,10 +291,12 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
             #
             if axi < sag:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
             else:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
         elif CutsRRAS[p][0] is 'z':
             #
             dims = (0, 1)
@@ -261,10 +307,12 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
             cor = np.where(m[dims[1], 0:3])[0]
             if axi < sag:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
             else:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
-                axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                if aseg is not None:
+                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
 
         # prepare plot
         if rasIdxFlat3[0, dims[0]] > rasIdxFlat3[-1, dims[0]]:
@@ -276,29 +324,12 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE=True, VIEWS=[(
         axs[axsx,axsy].set_aspect('equal')
 
         # now plot
-        for i in range(len(lhWhiteLVL[p][1][0])):
-            axs[axsx,axsy].plot(
-                (lhWhiteLVL[p][0][0][lhWhiteLVL[p][1][0][i][0] - 1][dims[0]], lhWhiteLVL[p][0][0][lhWhiteLVL[p][1][0][i][1] - 1][dims[0]]),
-                (lhWhiteLVL[p][0][0][lhWhiteLVL[p][1][0][i][0] - 1][dims[1]], lhWhiteLVL[p][0][0][lhWhiteLVL[p][1][0][i][1] - 1][dims[1]]),
-                color='yellow')
-
-        for i in range(len(rhWhiteLVL[p][1][0])):
-            axs[axsx,axsy].plot(
-                (rhWhiteLVL[p][0][0][rhWhiteLVL[p][1][0][i][0] - 1][dims[0]], rhWhiteLVL[p][0][0][rhWhiteLVL[p][1][0][i][1] - 1][dims[0]]),
-                (rhWhiteLVL[p][0][0][rhWhiteLVL[p][1][0][i][0] - 1][dims[1]], rhWhiteLVL[p][0][0][rhWhiteLVL[p][1][0][i][1] - 1][dims[1]]),
-                color='yellow')
-
-        for i in range(len(lhPialLVL[p][1][0])):
-            axs[axsx,axsy].plot(
-                (lhPialLVL[p][0][0][lhPialLVL[p][1][0][i][0] - 1][dims[0]], lhPialLVL[p][0][0][lhPialLVL[p][1][0][i][1] - 1][dims[0]]),
-                (lhPialLVL[p][0][0][lhPialLVL[p][1][0][i][0] - 1][dims[1]], lhPialLVL[p][0][0][lhPialLVL[p][1][0][i][1] - 1][dims[1]]),
-                color='red')
-
-        for i in range(len(rhPialLVL[p][1][0])):
-            axs[axsx,axsy].plot(
-                (rhPialLVL[p][0][0][rhPialLVL[p][1][0][i][0] - 1][dims[0]], rhPialLVL[p][0][0][rhPialLVL[p][1][0][i][1] - 1][dims[0]]),
-                (rhPialLVL[p][0][0][rhPialLVL[p][1][0][i][0] - 1][dims[1]], rhPialLVL[p][0][0][rhPialLVL[p][1][0][i][1] - 1][dims[1]]),
-                color='red')
+        for s in range(len(surf)):
+            for i in range(len(LVL[s][p][1][0])):
+                axs[axsx,axsy].plot(
+                    (LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[0]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[0]]),
+                    (LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[1]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[1]]),
+                    color=surfcolor[s],linewidth=np.round(FIGSIZE/8))
 
     # -----------------------------------------------------------------------------
     # output

@@ -61,7 +61,7 @@ usage:
 
     python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
                               [--subjects SubjectID [SubjectID ...]] [--shape]
-                              [--screenshots] [--norms <file>] [-h]
+                              [--screenshots] [--fornix] [--norms <file>] [-h]
 
     required arguments:
       --subjects_dir <directory>
@@ -75,6 +75,7 @@ usage:
                             list of subject IDs
       --shape               run shape analysis (requires additional scripts)
       --screenshots         create screenshots of individual brains
+      --fornix              check fornix segmentation
       --norms <file>        path to file with normative values
 
     getting help:
@@ -140,12 +141,12 @@ import csv
 from datetime import datetime
 
 from wm_gm_anat_snr_checker import wm_gm_anat_snr_checker
-from recon_all_aseg_outlier_checker import recon_all_aseg_outlier_checker
 from cc_size_checker import cc_size_checker
 from holes_topo_checker import holes_topo_checker
 from contrast_checker import contrast_checker 
 from shape_checker import shape_checker
 from createScreenshots import createScreenshots
+from checkFornix import checkFornix
 
 # ------------------------------------------------------------------------------
 # functions
@@ -173,6 +174,7 @@ def parse_arguments():
     optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
     optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
+    optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
     optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # erode is currently a hidden option
     optional.add_argument('--output_suffix', dest='output_suffix', help=argparse.SUPPRESS, default=None, required=False) # output_suffix is currently a hidden option
@@ -235,6 +237,7 @@ if __name__ == "__main__":
     subjects = arguments.subjects
     shape = arguments.shape
     screenshots = arguments.screenshots
+    fornix = arguments.fornix
     normative_values = arguments.normative_values
     amount_erosion = arguments.amount_erosion
     output_suffix = arguments.output_suffix
@@ -266,6 +269,9 @@ if __name__ == "__main__":
             sys.exit(1)
 
     if screenshots is True:
+        if os.environ.get('FREESURFER_HOME') is None:
+            print('\nERROR: need to set the FREESURFER_HOME environment variable to create screenshots\n')
+            sys.exit(1)
         if os.path.isdir(os.path.join(output_dir,'screenshots')):
             print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
         else:
@@ -283,6 +289,26 @@ if __name__ == "__main__":
                     e.filename = os.path.join(output_dir,'screenshots')
                     raise
                 print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
+                sys.exit(1)
+
+    if fornix is True:
+        if os.path.isdir(os.path.join(output_dir,'fornix')):
+            print("Found fornix directory", os.path.join(output_dir,'fornix'))
+        else:
+            try:
+                os.mkdir(os.path.join(output_dir,'fornix'))
+            except:
+                print('ERROR: cannot create fornix directory '+os.path.join(output_dir,'fornix')+'\n')
+                sys.exit(1)
+
+            try:
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'fornix'))
+                testfile.close()
+            except OSError as e:
+                if e.errno != errno.EACCES:  # 13
+                    e.filename = os.path.join(output_dir,'fornix')
+                    raise
+                print('\nERROR: '+os.path.join(output_dir,'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     if shape is True:
@@ -415,15 +441,23 @@ if __name__ == "__main__":
             outfile = os.path.join(output_dir,'screenshots',subject+'.png')
             createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
 
+        if fornix is True:
+
+            # message
+            print("")
+            print("-----------------------------")
+            print("Checking fornix segmentation ...")
+            print("")
+
+            # process
+            outdir = os.path.join(output_dir,'fornix',subject)
+            if not os.path.isdir(outdir):
+                os.mkdir(outdir)
+            checkFornix(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True)
+
         # message
         print("Done with the quality check for subject", subject, "at", datetime.now())
         print("")
-
-    # look for aseg outliers across subjects: <todo> should return some data; currently we don't do this, because if there are outliers one should not use the 2*SD criterion to detect them (because it's not robust).
-    # recon_all_aseg_outlier_checker(subjects_dir, subjects, path_data_file, path_means_file, normative_values)
-
-    # flag subjects that reqire further checking: <todo> should return some data; we currently don't do this steps because of the questionable classification
-    # manual_check(path_check_file, subjects, metrics)    
 
     # --------------------------------------------------------------------------
     # generate output
