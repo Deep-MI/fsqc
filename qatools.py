@@ -3,52 +3,59 @@
 qatools-python
 
 
-description:
+============
+Description:
+============
 
-this is a set of quality assurance / quality control scripts for Freesurfer 6.0
+This is a set of quality assurance / quality control scripts for Freesurfer 6.0
 processed structural MRI data.
 
-it is a revision and translation to python of the original Freesurfer QA Tools
+It is a revision and translation to python of the original Freesurfer QA Tools
 that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
-it has been augmented by additional functions from the MRIQC toolbox, available 
+It has been augmented by additional functions from the MRIQC toolbox, available 
 at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu
 
 The current version is a development version that can be used for testing 
 purposes. It will be revised, and extended in the future.
 
-The program will use an existing OUTPUT_DIR (or try to create it) and 
-write a csv table into that location.
+The core functionality of this toolbox is to compute the following features:
 
-The csv table will contain the following variables/metrics:
-
-- subject       ...  subject ID
 - wm_snr_orig   ...  signal-to-noise for white matter in orig.mgz
 - gm_snr_orig   ...  signal-to-noise for gray matter in orig.mgz
 - wm_snr_norm   ...  signal-to-noise for white matter in norm.mgz
 - gm_snr_norm   ...  signal-to-noise for gray matter in norm.mgz
-- cc_size       ...  size of the corpus callosum
-- lh_holes      ...  number of holes in the left hemisphere
-- rh_holes      ...  number of holes in the right hemisphere
-- lh_defects    ...  number of defects in the left hemisphere
-- rh_defects    ...  number of defects in the right hemisphere
+- cc_size       ...  relative size of the corpus callosum
+- holes_lh      ...  number of holes in the left hemisphere
+- holes_rh      ...  number of holes in the right hemisphere
+- defects_lh    ...  number of defects in the left hemisphere
+- defects_rh    ...  number of defects in the right hemisphere
 - topo_lh       ...  topological fixing time for the left hemisphere
 - topo_rh       ...  topological fixing time for the right hemisphere
-- con_lh_snr    ...  wm/gm contrast signal-to-noise ration in the left hemisphere
-- con_rh_snr    ...  wm/gm contrast signal-to-noise ration in the right hemisphere
+- con_snr_lh    ...  wm/gm contrast signal-to-noise ratio in the left hemisphere
+- con_snr_rh    ...  wm/gm contrast signal-to-noise ratio in the right hemisphere
 
-Computing the above features is the core functionality of this toolbox. In 
-addition to that, there are two optional modules. One is the automated 
-generation of cross-sections of the brain that are overlaid with the anatomical 
-segmentations (asegs) and the white and pial surfaces. These images will be 
-saved to the 'screenshots' subdirectory that will be created within the output 
-directory. These images can be used for quickly glimpsing through the 
-processing results. Note that no display manager is required for this module, 
-i.e. it can be run on a remote server, for example.
+The program will use an existing OUTPUT_DIR (or try to create it) and write a 
+csv table into that location. The csv table will contain the above metrics plus
+a subject identifier.
 
-The other optional module is the computation of shape features, i.e. a 
-brainPrint anylsis. If this module is run, the output directory will also 
+In addition to the core functionality of the toolbox there are several optional
+modules that can be run according to need:
+
+- screenshots module
+
+This module allows for the automated generation of cross-sections of the brain 
+that are overlaid with the anatomical segmentations (asegs) and the white and 
+pial surfaces. These images will be saved to the 'screenshots' subdirectory 
+that will be created within the output directory. These images can be used for 
+quickly glimpsing through the processing results. Note that no display manager 
+is required for this module, i.e. it can be run on a remote server, for example.
+
+- shape features
+
+The purpose of this optional module is the computation of shape features, i.e. 
+a brainPrint anylsis. If this module is run, the output directory will also 
 contain results files of the brainPrint analysis, and the above csv table will 
 contain several additional metrics: for a number of lateralized brain 
 structures (e.g., ventricles, subcortical structures, gray and white matter), 
@@ -56,12 +63,34 @@ the lateral asymmetry will be computed, i.e. distances between numerical shape
 descriptors, where large values indicate large asymmetries and hence potential 
 issues with the segmentation of these structures.
 
+- fornix module
 
-usage: 
+This is a module to assess potential issues with the segementation of the 
+corpus callosum, which may incorrectly include parts of the fornix. To assess 
+segmentation quality, a screeshot of the contours of the corpus callosum 
+segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
+subdirectory of the output directory. Further, a shapeDNA / brainPrint analysis
+will be conducted on a surface model of the corpus callosum. By comparing the
+resulting shape descriptors, deviant segmentations may be detected.
 
-    python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
+
+=============
+Known Issues: 
+=============
+
+The program will analyze recon-all logfiles, and may fail or return erroneous
+results if the logfile is append by multiple restarts of recon-all runs. 
+Ideally, the logfile should therefore consist of just a single, successful 
+recon-all run.
+
+
+======
+Usage: 
+======
+
+    python3 quatools.py --subjects_dir <directory> --output_dir <directory>
                               [--subjects SubjectID [SubjectID ...]] [--shape]
-                              [--screenshots] [--fornix] [--norms <file>] [-h]
+                              [--screenshots] [--fornix] [-h]
 
     required arguments:
       --subjects_dir <directory>
@@ -76,15 +105,16 @@ usage:
       --shape               run shape analysis (requires additional scripts)
       --screenshots         create screenshots of individual brains
       --fornix              check fornix segmentation
-      --norms <file>        path to file with normative values
 
     getting help:
       -h, --help            display this help message and exit
 
 
-authors: 
+========
+Authors: 
+========
 
-- qatools-python: Tobias Wolff, Kersten Diers, and Martin Reuter.
+- qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
 - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
   and Louis Vinke. 
 - MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
@@ -92,7 +122,9 @@ authors:
 - shapeDNA and brainPrint toolboxes: Martin Reuter.
 
 
-citations:
+===========
+References:
+===========
 
 Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; MRIQC: 
 Advancing the Automatic Prediction of Image Quality in MRI from Unseen Sites; 
@@ -107,21 +139,28 @@ Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape
 Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
 
 
-requirements:
+=============
+Requirements:
+=============
 
-At least one subject whose structural MR image was processed with Freesurfer 6.0.
+A working installation of Freesurfer 6.0 or later must be sourced.
+
+At least one subject whose structural MR image was processed with Freesurfer 
+6.0 or later.
 
 A Python version >= 3.4 is required to run this script.
 
-Required packages include the matplotlib, pandas, scikit-image, nibabel, and
-future packages.
+Required packages include the nibabel and scikit-image package for the core
+functionality, plus the the matplotlib, pandas, and future packages for some
+optional modules.
 
-For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
-scripts and the brainPrint scripts are required. See https://reuter.mit.edu for
-download options.
+For (optional) shape analysis, the shapeDNA scripts and the brainPrint scripts 
+are required. See https://reuter.mit.edu for download options. # TODO
 
 
-license:
+========
+License:
+========
 
 <todo>
 
@@ -137,16 +176,16 @@ import argparse
 import tempfile
 import importlib
 import csv
+import time
 
-from datetime import datetime
-
-from wm_gm_anat_snr_checker import wm_gm_anat_snr_checker
-from cc_size_checker import cc_size_checker
-from holes_topo_checker import holes_topo_checker
-from contrast_checker import contrast_checker 
-from shape_checker import shape_checker
+from checkSNR import checkSNR
+from checkCCSize import checkCCSize
+from checkTopology import checkTopology
+from checkContrast import checkContrast 
+from runBrainPrint import runBrainPrint
+from evaluateFornixSegmentation import evaluateFornixSegmentation
 from createScreenshots import createScreenshots
-from checkFornix import checkFornix
+
 
 # ------------------------------------------------------------------------------
 # functions
@@ -178,8 +217,6 @@ def parse_arguments():
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
     optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # erode is currently a hidden option
     optional.add_argument('--output_suffix', dest='output_suffix', help=argparse.SUPPRESS, default=None, required=False) # output_suffix is currently a hidden option
-    #optional.add_argument('--norms', dest ="normative_values", help="path to file with normative values", default=None, metavar="<file>", required=False)
-    optional.add_argument('--norms', dest ="normative_values", help=argparse.SUPPRESS, default=None, metavar="<file>", required=False) # norms is currently a hidden option
 
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
@@ -209,6 +246,10 @@ if __name__ == "__main__":
     # --------------------------------------------------------------------------
     # check some basics
 
+    if os.environ.get('FREESURFER_HOME') is None:
+        print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
+        sys.exit(1)
+
     if sys.version_info <= (3, 4):
         print('\nERROR: Python version must be 3.4 or greater\n')
         sys.exit(1)
@@ -221,12 +262,13 @@ if __name__ == "__main__":
         print('\nERROR: the \'nibabel\' package is required for running this script, please install.\n')
         sys.exit(1)
 
-    if importlib.util.find_spec("nibabel") is None:
-        print('\nERROR: the \'nibabel\' package is required for running this script, please install.\n')
+    # TODO: maybe remove, depending on design of shapeDNA / brainPrint package
+    if importlib.util.find_spec("future") is None:
+        print('\nERROR: the \'future\' package is required for running this script, please install.\n')
         sys.exit(1)
 
     # --------------------------------------------------------------------------
-    # get and process inputs
+    # get inputs
 
     # parse arguments
     arguments = parse_arguments()
@@ -238,17 +280,20 @@ if __name__ == "__main__":
     shape = arguments.shape
     screenshots = arguments.screenshots
     fornix = arguments.fornix
-    normative_values = arguments.normative_values
     amount_erosion = arguments.amount_erosion
     output_suffix = arguments.output_suffix
 
+    # --------------------------------------------------------------------------
     # check arguments
+
+    # check if subject directory exists
     if os.path.isdir(subjects_dir):
         print("Found subjects directory", subjects_dir)
     else:
         print('ERROR: subjects directory '+subjects_dir+' is not an existing directory\n')
         sys.exit(1)
 
+    # check if output directory exists or can be created and is writable
     if os.path.isdir(output_dir):
         print("Found output directory", output_dir)
     else:
@@ -268,10 +313,8 @@ if __name__ == "__main__":
             print('\nERROR: '+output_dir+' not writeable (check access)!\n')
             sys.exit(1)
 
+    # check if screenshots subdirectory exists or can be created and is writable
     if screenshots is True:
-        if os.environ.get('FREESURFER_HOME') is None:
-            print('\nERROR: need to set the FREESURFER_HOME environment variable to create screenshots\n')
-            sys.exit(1)
         if os.path.isdir(os.path.join(output_dir,'screenshots')):
             print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
         else:
@@ -291,6 +334,16 @@ if __name__ == "__main__":
                 print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
                 sys.exit(1)
 
+    # check further screenshots dependencies
+    if screenshots is True and importlib.util.find_spec("pandas") is None:
+        print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
+        sys.exit(1)
+
+    if screenshots is True and importlib.util.find_spec("matplotlib") is None:
+        print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
+        sys.exit(1)
+
+    # check if fornix subdirectory exists or can be created and is writable
     if fornix is True:
         if os.path.isdir(os.path.join(output_dir,'fornix')):
             print("Found fornix directory", os.path.join(output_dir,'fornix'))
@@ -311,10 +364,8 @@ if __name__ == "__main__":
                 print('\nERROR: '+os.path.join(output_dir,'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
+    # check if shapeDNA / brainPrint dependencies # TODO: adjust to python version of shapeDNA
     if shape is True:
-        if os.environ.get('FREESURFER_HOME') is None:
-            print('\nERROR: need to set the FREESURFER_HOME environment variable for shape analysis\n')
-            sys.exit(1)
         if os.environ.get('SHAPEDNA_HOME') is None:
             print('\nERROR: need to set the SHAPEDNA_HOME environment variable for shape analysis\n')
             sys.exit(1)
@@ -328,10 +379,10 @@ if __name__ == "__main__":
             print("\nERROR: could not import the fs_brainPrint scripts, are they on the PYTHONPATH?") 
             sys.exit(1)
 
-    if normative_values is not None:
-        if not os.path.isfile(normative_values):
-            print('\nERROR: '+normative_values+' is not a regular file\n')
-            sys.exit(1)
+    # TODO: maybe remove, depending on design of shapeDNA / brainPrint package
+    if importlib.util.find_spec("future") is None:
+        print('\nERROR: the \'future\' package is required for running this script, please install.\n')
+        sys.exit(1)
 
     # if subjects are not given, get contents of the subject directory and 
     # check if aseg.stats exists; otherwise, just check that aseg.stats exists
@@ -350,7 +401,7 @@ if __name__ == "__main__":
                 subjects_to_remove.extend([subject])
         [ subjects.remove(x) for x in subjects_to_remove ]
 
-    # check if we have any subjects at all
+    # check if we have any subjects after all
     if subjects == []:
         print("\nERROR: no subjects to process") 
         sys.exit(1)
@@ -363,17 +414,6 @@ if __name__ == "__main__":
     path_means_file = os.path.join(output_dir,'qatools-means.csv')
     path_check_file = os.path.join(output_dir,'qatools-check.csv')
     path_shape_file = os.path.join(output_dir,'qatools-shape.csv')
-
-    # --------------------------------------------------------------------------
-    # check some optional dependencies
-
-    if screenshots is True and importlib.util.find_spec("pandas") is None:
-        print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
-        sys.exit(1)
-
-    if screenshots is True and importlib.util.find_spec("matplotlib") is None:
-        print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
-        sys.exit(1)
 
     # --------------------------------------------------------------------------
     # process
@@ -389,22 +429,26 @@ if __name__ == "__main__":
     for subject in subjects:
 
         #
-        print("Starting quality check for subject", subject, "at", datetime.now())
+        print("Starting qatools-python for subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
+        print("")
+
+        # ----------------------------------------------------------------------
+        # compute core metrics
 
         # get WM and GM SNR for orig.mgz
-        wm_snr_orig, gm_snr_orig = wm_gm_anat_snr_checker(subjects_dir, subject, amount_erosion, ref_image="orig.mgz")
+        wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, amount_erosion, ref_image="orig.mgz")
 
         # get WM and GM SNR for norm.mgz
-        wm_snr_norm, gm_snr_norm = wm_gm_anat_snr_checker(subjects_dir, subject, amount_erosion, ref_image="norm.mgz")
+        wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, amount_erosion, ref_image="norm.mgz")
 
         # check CC size
-        cc_size = cc_size_checker(subjects_dir, subject)
+        cc_size = checkCCSize(subjects_dir, subject)
 
         # check topology
-        lh_holes, rh_holes, lh_defects, rh_defects, topo_lh, topo_rh = holes_topo_checker(subjects_dir, subject)
+        holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(subjects_dir, subject)
 
         # check contrast
-        con_lh_snr, con_rh_snr = contrast_checker(subjects_dir, subject)
+        con_snr_lh, con_snr_rh = checkContrast(subjects_dir, subject)
 
         # store data
         metricsDict.update( { subject : {
@@ -412,15 +456,26 @@ if __name__ == "__main__":
             'wm_snr_orig': wm_snr_orig, 'gm_snr_orig' : gm_snr_orig, 
             'wm_snr_norm' : wm_snr_norm, 'gm_snr_norm' : gm_snr_norm, 
             'cc_size' : cc_size, 
-            'lh_holes' : lh_holes, 'rh_holes' : rh_holes, 'lh_defects' : lh_defects, 'rh_defects' : rh_defects, 'topo_lh' : topo_lh, 'topo_rh' : topo_rh,
-            'con_lh_snr' : con_lh_snr, 'con_rh_snr' : con_rh_snr
+            'holes_lh' : holes_lh, 'holes_rh' : holes_rh, 'defects_lh' : defects_lh, 'defects_rh' : defects_rh, 'topo_lh' : topo_lh, 'topo_rh' : topo_rh,
+            'con_snr_lh' : con_snr_lh, 'con_snr_rh' : con_snr_rh
             }})
 
+        # 
+        print("")
+
+        # ----------------------------------------------------------------------
+        # run optional modules
+
         # shape analysis
-        if shape == True:
+        if shape is True:
+    
+            # message
+            print("-----------------------------")
+            print("Running brainPrint analysis ...")
+            print("")
 
             # compute brainprint
-            brainprint = shape_checker(subjects_dir, subject, output_dir)
+            brainprint = runBrainPrint(subjects_dir, subject, output_dir)
 
             # get a subset of the brainprint results
             dist = { subject : brainprint[os.path.abspath(os.path.join(output_dir,subject+"-brainprint.csv"))]['dist'] }
@@ -429,10 +484,9 @@ if __name__ == "__main__":
             metricsDict[subject].update(dist[subject])
 
         # screenshots
-        if screenshots == True:
+        if screenshots is True:
 
             # message
-            print("")
             print("-----------------------------")
             print("Creating screenshots ...")
             print("")
@@ -444,7 +498,6 @@ if __name__ == "__main__":
         if fornix is True:
 
             # message
-            print("")
             print("-----------------------------")
             print("Checking fornix segmentation ...")
             print("")
@@ -453,24 +506,23 @@ if __name__ == "__main__":
             outdir = os.path.join(output_dir,'fornix',subject)
             if not os.path.isdir(outdir):
                 os.mkdir(outdir)
-            checkFornix(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True)
+            evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True)
 
         # message
-        print("Done with the quality check for subject", subject, "at", datetime.now())
+        print("Finished subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
         print("")
 
     # --------------------------------------------------------------------------
     # generate output
 
     # we pre-specify the fieldnames because we want to have this particular order
-    metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','lh_holes','rh_holes','lh_defects','rh_defects','topo_lh','topo_rh','con_lh_snr','con_rh_snr']
+    metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','holes_lh','holes_rh','defects_lh','defects_rh','topo_lh','topo_rh','con_snr_lh','con_snr_rh']
  
     if shape == True:
         metricsFieldnames.extend(dist[subject].keys())
 
     # write csv
     with open(path_data_file, 'w') as datafile:
-        #csvwriter = csv.DictWriter(datafile, fieldnames=list(metricsDict[list(metricsDict.keys())[0]].keys()), delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL) # this requires less preceding code, but gives an unsorted list of fieldnames
         csvwriter = csv.DictWriter(datafile, fieldnames=metricsFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
         for subject in list(metricsDict.keys()):
@@ -479,4 +531,4 @@ if __name__ == "__main__":
     # --------------------------------------------------------------------------
     # exit
 
-    print("Done with the quality control at:", datetime.now())
+    sys.exit(0)

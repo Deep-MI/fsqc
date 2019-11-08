@@ -1,4 +1,4 @@
-def checkFornix(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True):
+def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True):
 
     # imports
 
@@ -80,7 +80,7 @@ def checkFornix(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT=True,RUN_SHAPE
 
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
+    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
 
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
