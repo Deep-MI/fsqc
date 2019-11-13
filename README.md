@@ -16,9 +16,7 @@ shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
 **The current version is a development version that can be used for testing 
 purposes. It will be revised and extended in the future.**
 
-The program will use an existing output directory (or try to create it) and 
-write a csv table (qatools-results.csv) into that location. The csv table 
-will contain the following variables/metrics:
+The core functionality of this toolbox is to compute the following features:
 
 variable       |   description
 ---------------|----------------------------------------------------------------
@@ -37,24 +35,51 @@ topo_rh        |   topological fixing time for the right hemisphere
 con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
 con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
 
-Computing the above features is the core functionality of this toolbox. In 
-addition to that, there are two optional modules:
+The program will use an existing OUTPUT_DIR (or try to create it) and write a 
+csv table into that location. The csv table will contain the above metrics plus
+a subject identifier.
 
-One is the automated generation of cross-sections of the brain that are overlaid 
-with the anatomical segmentations (asegs) and the white and pial surfaces. These 
-images will be saved to the 'screenshots' subdirectory that will be created 
-within the output directory. These images can be used for quickly glimpsing 
-through the processing results. Note that no display manager is required for this 
-module, i.e. it can be run on a remote server, for example.
+In addition to the core functionality of the toolbox there are several optional
+modules that can be run according to need:
 
-The other optional module is the computation of shape features, i.e. a 
-brainPrint anylsis. If this module is run, the output directory will also 
+- screenshots module
+
+This module allows for the automated generation of cross-sections of the brain 
+that are overlaid with the anatomical segmentations (asegs) and the white and 
+pial surfaces. These images will be saved to the 'screenshots' subdirectory 
+that will be created within the output directory. These images can be used for 
+quickly glimpsing through the processing results. Note that no display manager 
+is required for this module, i.e. it can be run on a remote server, for example.
+
+- shape features
+
+The purpose of this optional module is the computation of shape features, i.e. 
+a brainPrint anylsis. If this module is run, the output directory will also 
 contain results files of the brainPrint analysis, and the above csv table will 
 contain several additional metrics: for a number of lateralized brain 
 structures (e.g., ventricles, subcortical structures, gray and white matter), 
 the lateral asymmetry will be computed, i.e. distances between numerical shape 
 descriptors, where large values indicate large asymmetries and hence potential 
 issues with the segmentation of these structures.
+
+- fornix module
+
+This is a module to assess potential issues with the segementation of the 
+corpus callosum, which may incorrectly include parts of the fornix. To assess 
+segmentation quality, a screeshot of the contours of the corpus callosum 
+segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
+subdirectory of the output directory. Further, a shapeDNA / brainPrint analysis
+will be conducted on a surface model of the corpus callosum. By comparing the
+resulting shape descriptors, deviant segmentations may be detected.
+
+___
+
+## Known Issues
+
+The program will analyze recon-all logfiles, and may fail or return erroneous
+results if the logfile is append by multiple restarts of recon-all runs. 
+Ideally, the logfile should therefore consist of just a single, successful 
+recon-all run.
 
 ___
 
@@ -63,7 +88,7 @@ ___
 ```
 python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [--shape]
-                          [--screenshots] [-h]
+                          [--screenshots] [--fornix] [-h]
 
 
 required arguments:
@@ -78,7 +103,7 @@ optional arguments:
                         list of subject IDs
   --screenshots         create screenshots
   --shape               run shape analysis (requires additional scripts)
-
+  --fornix              check fornix segmentation
 
 getting help:
   -h, --help            display this help message and exit
@@ -109,7 +134,7 @@ ___
 
 ## Authors
 
-- qatools-python: Tobias Wolff, Kersten Diers, and Martin Reuter.
+- qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
 - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
   and Louis Vinke. 
 - MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
@@ -136,16 +161,18 @@ ___
 
 ## Requirements
 
+- A working installation of Freesurfer 6.0 or later must be sourced.
+
 - At least one structural MR image that was processed with Freesurfer 6.0.
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the matplotlib, pandas, scikit-image, nibabel, and
-  future packages.
+- Required packages include the nibabel and scikit-image package for the core
+  functionality, plus the the matplotlib, pandas, and future packages for some
+  optional modules.
 
-- For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
-  scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
-  for download options.
+- For (optional) shape analysis, the shapeDNA scripts and the brainPrint scripts 
+  are required. See https://reuter.mit.edu for download options.
 
 ___
 
