@@ -1,5 +1,9 @@
 def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True):
 
+    # TODO
+
+    # need to improve EV output --> format as a nice summary vector
+
     # imports
 
     import os
@@ -74,13 +78,25 @@ def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT
             raise
         my_print('\n')
 
+    # run make_upright
+    
+    cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCupTest.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
+
+    run_cmd(cmd,"Could not run make_upright")
+
+    # convert lta to xfm
+
+    cmd = "lta_convert --inlta "+os.path.join(OUTPUT_DIR,"cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
+
+    run_cmd(cmd,"Could not convert lta")
+
     # conduct transform for aseg and norm
 
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
+    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
 
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
+    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
 
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 

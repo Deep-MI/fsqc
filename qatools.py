@@ -35,6 +35,9 @@ The core functionality of this toolbox is to compute the following features:
 - topo_rh       ...  topological fixing time for the right hemisphere
 - con_snr_lh    ...  wm/gm contrast signal-to-noise ratio in the left hemisphere
 - con_snr_rh    ...  wm/gm contrast signal-to-noise ratio in the right hemisphere
+- rot_tal_x     ...  rotation component of the Talairach transform around the x axis
+- rot_tal_y     ...  rotation component of the Talairach transform around the y axis
+- rot_tal_z     ...  rotation component of the Talairach transform around the z axis
 
 The program will use an existing OUTPUT_DIR (or try to create it) and write a 
 csv table into that location. The csv table will contain the above metrics plus
@@ -151,8 +154,8 @@ At least one subject whose structural MR image was processed with Freesurfer
 A Python version >= 3.4 is required to run this script.
 
 Required packages include the nibabel and scikit-image package for the core
-functionality, plus the the matplotlib, pandas, and future packages for some
-optional modules.
+functionality, plus the the matplotlib, pandas, transforms3d, and future 
+packages for some optional modules and functions.
 
 For (optional) shape analysis, the shapeDNA scripts and the brainPrint scripts 
 are required. See https://reuter.mit.edu for download options. # TODO
@@ -182,6 +185,7 @@ from checkSNR import checkSNR
 from checkCCSize import checkCCSize
 from checkTopology import checkTopology
 from checkContrast import checkContrast 
+from checkRotation import checkRotation
 from runBrainPrint import runBrainPrint
 from evaluateFornixSegmentation import evaluateFornixSegmentation
 from createScreenshots import createScreenshots
@@ -261,6 +265,11 @@ if __name__ == "__main__":
     if importlib.util.find_spec("nibabel") is None:
         print('\nERROR: the \'nibabel\' package is required for running this script, please install.\n')
         sys.exit(1)
+
+    if importlib.util.find_spec("transforms3d") is None:
+        # this package is less important and less stanard, so we just return a
+        # warning (and NaNs) if it is not found.
+        print('\nWARNING: the \'transforms3d\' package is recommended, please install.\n')
 
     # TODO: maybe remove, depending on design of shapeDNA / brainPrint package
     if importlib.util.find_spec("future") is None:
@@ -450,6 +459,9 @@ if __name__ == "__main__":
         # check contrast
         con_snr_lh, con_snr_rh = checkContrast(subjects_dir, subject)
 
+        # check rotation
+        rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(subjects_dir, subject)
+
         # store data
         metricsDict.update( { subject : {
             'subject' : subject,
@@ -457,7 +469,8 @@ if __name__ == "__main__":
             'wm_snr_norm' : wm_snr_norm, 'gm_snr_norm' : gm_snr_norm, 
             'cc_size' : cc_size, 
             'holes_lh' : holes_lh, 'holes_rh' : holes_rh, 'defects_lh' : defects_lh, 'defects_rh' : defects_rh, 'topo_lh' : topo_lh, 'topo_rh' : topo_rh,
-            'con_snr_lh' : con_snr_lh, 'con_snr_rh' : con_snr_rh
+            'con_snr_lh' : con_snr_lh, 'con_snr_rh' : con_snr_rh,
+            'rot_tal_x' : rot_tal_x, 'rot_tal_y' : rot_tal_y , 'rot_tal_z' : rot_tal_z  
             }})
 
         # 
@@ -495,6 +508,7 @@ if __name__ == "__main__":
             outfile = os.path.join(output_dir,'screenshots',subject+'.png')
             createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
 
+        # fornix
         if fornix is True:
 
             # message
@@ -506,7 +520,7 @@ if __name__ == "__main__":
             outdir = os.path.join(output_dir,'fornix',subject)
             if not os.path.isdir(outdir):
                 os.mkdir(outdir)
-            evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True)
+            evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=False) # TODO: improve shapeDNA output
 
         # message
         print("Finished subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
@@ -516,8 +530,8 @@ if __name__ == "__main__":
     # generate output
 
     # we pre-specify the fieldnames because we want to have this particular order
-    metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','holes_lh','holes_rh','defects_lh','defects_rh','topo_lh','topo_rh','con_snr_lh','con_snr_rh']
- 
+    metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','holes_lh','holes_rh','defects_lh','defects_rh','topo_lh','topo_rh','con_snr_lh','con_snr_rh','rot_tal_x', 'rot_tal_y', 'rot_tal_z']
+
     if shape == True:
         metricsFieldnames.extend(dist[subject].keys())
 

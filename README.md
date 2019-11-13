@@ -86,7 +86,7 @@ ___
 ## Usage
 
 ```
-python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
+python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [--shape]
                           [--screenshots] [--fornix] [-h]
 
