@@ -10,8 +10,9 @@ Description:
 This is a set of quality assurance / quality control scripts for Freesurfer 6.0
 processed structural MRI data.
 
-It is a revision and translation to python of the original Freesurfer QA Tools
-that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
+It is a revision, extension, and translation to the Python language of the 
+original Freesurfer QA Tools that are provided at 
+https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
 It has been augmented by additional functions from the MRIQC toolbox, available 
 at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
@@ -70,21 +71,12 @@ issues with the segmentation of these structures.
 
 This is a module to assess potential issues with the segementation of the 
 corpus callosum, which may incorrectly include parts of the fornix. To assess 
-segmentation quality, a screeshot of the contours of the corpus callosum 
+segmentation quality, a screesnhot of the contours of the corpus callosum 
 segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
 subdirectory of the output directory. Further, a shapeDNA / brainPrint analysis
 will be conducted on a surface model of the corpus callosum. By comparing the
-resulting shape descriptors, deviant segmentations may be detected.
-
-
-=============
-Known Issues: 
-=============
-
-The program will analyze recon-all logfiles, and may fail or return erroneous
-results if the logfile is append by multiple restarts of recon-all runs. 
-Ideally, the logfile should therefore consist of just a single, successful 
-recon-all run.
+resulting shape descriptors, which will appear in the main csv table, deviant 
+segmentations may be detected.
 
 
 ======
@@ -111,6 +103,16 @@ Usage:
 
     getting help:
       -h, --help            display this help message and exit
+
+
+=============
+Known Issues: 
+=============
+
+The program will analyze recon-all logfiles, and may fail or return erroneous
+results if the logfile is append by multiple restarts of recon-all runs. 
+Ideally, the logfile should therefore consist of just a single, successful 
+recon-all run.
 
 
 ========
@@ -168,6 +170,13 @@ License:
 <todo>
 
 """
+
+# ------------------------------------------------------------------------------
+# internal settings (might be turned into command-line arguments in the future)
+
+FORNIX_SCREENSHOT = True
+FORNIX_SHAPE = False
+FORNIX_N_EIGEN = 15
 
 # ------------------------------------------------------------------------------
 # imports
@@ -270,11 +279,6 @@ if __name__ == "__main__":
         # this package is less important and less stanard, so we just return a
         # warning (and NaNs) if it is not found.
         print('\nWARNING: the \'transforms3d\' package is recommended, please install.\n')
-
-    # TODO: maybe remove, depending on design of shapeDNA / brainPrint package
-    if importlib.util.find_spec("future") is None:
-        print('\nERROR: the \'future\' package is required for running this script, please install.\n')
-        sys.exit(1)
 
     # --------------------------------------------------------------------------
     # get inputs
@@ -387,11 +391,9 @@ if __name__ == "__main__":
         if  importlib.util.find_spec("fs_brainPrint") is None:
             print("\nERROR: could not import the fs_brainPrint scripts, are they on the PYTHONPATH?") 
             sys.exit(1)
-
-    # TODO: maybe remove, depending on design of shapeDNA / brainPrint package
-    if importlib.util.find_spec("future") is None:
-        print('\nERROR: the \'future\' package is required for running this script, please install.\n')
-        sys.exit(1)
+        if importlib.util.find_spec("future") is None:
+            print('\nERROR: the \'future\' package is required for running the shape analysis, please install.\n')
+            sys.exit(1)
 
     # if subjects are not given, get contents of the subject directory and 
     # check if aseg.stats exists; otherwise, just check that aseg.stats exists
@@ -491,10 +493,10 @@ if __name__ == "__main__":
             brainprint = runBrainPrint(subjects_dir, subject, output_dir)
 
             # get a subset of the brainprint results
-            dist = { subject : brainprint[os.path.abspath(os.path.join(output_dir,subject+"-brainprint.csv"))]['dist'] }
+            distDict = { subject : brainprint[os.path.abspath(os.path.join(output_dir,subject+"-brainprint.csv"))]['dist'] }
     
             # store data
-            metricsDict[subject].update(dist[subject])
+            metricsDict[subject].update(distDict[subject])
 
         # screenshots
         if screenshots is True:
@@ -504,8 +506,13 @@ if __name__ == "__main__":
             print("Creating screenshots ...")
             print("")
 
+            # check / create outdir
+            outdir = os.path.join(output_dir,'screenshots',subject)
+            if not os.path.isdir(outdir):
+                os.mkdir(outdir)
+            outfile = os.path.join(outdir,subject+'.png')
+
             # process
-            outfile = os.path.join(output_dir,'screenshots',subject+'.png')
             createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
 
         # fornix
@@ -516,11 +523,20 @@ if __name__ == "__main__":
             print("Checking fornix segmentation ...")
             print("")
 
-            # process
+            # check / create outdir
             outdir = os.path.join(output_dir,'fornix',subject)
             if not os.path.isdir(outdir):
                 os.mkdir(outdir)
-            evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=False) # TODO: improve shapeDNA output
+
+            # process
+            fornixShapeOutput = evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=outdir,CREATE_SCREENSHOT=FORNIX_SCREENSHOT,RUN_SHAPEDNA=FORNIX_SHAPE,N_EIGEN=FORNIX_N_EIGEN)
+
+            # create a dictionary from fornix shape ouput
+            fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format,range(FORNIX_N_EIGEN)), fornixShapeOutput)) }
+       
+            # store data
+            if FORNIX_SHAPE:
+                metricsDict[subject].update(fornixShapeDict[subject])
 
         # message
         print("Finished subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
@@ -532,8 +548,11 @@ if __name__ == "__main__":
     # we pre-specify the fieldnames because we want to have this particular order
     metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','holes_lh','holes_rh','defects_lh','defects_rh','topo_lh','topo_rh','con_snr_lh','con_snr_rh','rot_tal_x', 'rot_tal_y', 'rot_tal_z']
 
-    if shape == True:
-        metricsFieldnames.extend(dist[subject].keys())
+    if shape is True:
+        metricsFieldnames.extend(distDict[subject].keys())
+
+    if fornix is True and FORNIX_SHAPE is True:
+        metricsFieldnames.extend(sorted(fornixShapeDict[subject].keys()))
 
     # write csv
     with open(path_data_file, 'w') as datafile:

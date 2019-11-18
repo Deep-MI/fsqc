@@ -15,13 +15,6 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     """
 
     # -----------------------------------------------------------------------------
-    # TODO
-
-    # - talairch?
-    # - remove white background
-    # - add linewidth parameter
-
-    # -----------------------------------------------------------------------------
     # auxiliary functions
 
     def computeLayout(n):
@@ -56,7 +49,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # -----------------------------------------------------------------------------
     # settings
 
-    FIGSIZE = 32
+    FIGSIZE = 8
 
     FIGDPI = 100
 

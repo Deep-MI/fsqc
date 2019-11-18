@@ -5,9 +5,10 @@ ___
 ## Description
 
 This is a set of quality assurance / quality control scripts for Freesurfer 6.0
-processed structural MRI data. It is a revision and translation to python of 
-the original Freesurfer QA Tools that are provided at 
-https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
+processed structural MRI data. 
+
+It is a revision, extension, and translation to the Python language of the 
+Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
 It has been augmented by additional functions from the MRIQC toolbox, available 
 at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
@@ -34,6 +35,9 @@ topo_lh        |   topological fixing time for the left hemisphere
 topo_rh        |   topological fixing time for the right hemisphere
 con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
 con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
+rot_tal_x      |   rotation component of the Talairach transform around the x axis
+rot_tal_y      |   rotation component of the Talairach transform around the y axis
+rot_tal_z      |   rotation component of the Talairach transform around the z axis
 
 The program will use an existing OUTPUT_DIR (or try to create it) and write a 
 csv table into that location. The csv table will contain the above metrics plus
@@ -66,20 +70,12 @@ issues with the segmentation of these structures.
 
 This is a module to assess potential issues with the segementation of the 
 corpus callosum, which may incorrectly include parts of the fornix. To assess 
-segmentation quality, a screeshot of the contours of the corpus callosum 
-segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
-subdirectory of the output directory. Further, a shapeDNA / brainPrint analysis
-will be conducted on a surface model of the corpus callosum. By comparing the
-resulting shape descriptors, deviant segmentations may be detected.
-
-___
-
-## Known Issues
-
-The program will analyze recon-all logfiles, and may fail or return erroneous
-results if the logfile is append by multiple restarts of recon-all runs. 
-Ideally, the logfile should therefore consist of just a single, successful 
-recon-all run.
+segmentation quality, a screenshot of the contours of the corpus callosum 
+segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each 
+subject within the 'fornix' subdirectory of the output directory. Further, a 
+shapeDNA / brainPrint analysis will be conducted on a surface model of the 
+corpus callosum. By comparing the resulting shape descriptors, which will 
+appear in the main csv table, deviant segmentations may be detected. 
 
 ___
 
@@ -126,9 +122,23 @@ ___
 
     `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
+- The following example will run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
+
+    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+
 - The following example will run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+
+
+___
+
+## Known Issues
+
+The program will analyze recon-all logfiles, and may fail or return erroneous
+results if the logfile is append by multiple restarts of recon-all runs. 
+Ideally, the logfile should therefore consist of just a single, successful 
+recon-all run.
 
 ___
 
@@ -168,8 +178,8 @@ ___
 - A Python version >= 3.4 is required to run this script.
 
 - Required packages include the nibabel and scikit-image package for the core
-  functionality, plus the the matplotlib, pandas, and future packages for some
-  optional modules.
+  functionality, plus the the matplotlib, pandas, transform3d, and future 
+  packages for some optional functions and modules.
 
 - For (optional) shape analysis, the shapeDNA scripts and the brainPrint scripts 
   are required. See https://reuter.mit.edu for download options.

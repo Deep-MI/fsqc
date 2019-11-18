@@ -1,13 +1,42 @@
-def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT=True,RUN_SHAPEDNA=True):
+# -*- coding: utf-8 -*-
+def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, RUN_SHAPEDNA = True, N_EIGEN = 30):
+    """
+    A function to evaluate potential missegmentation of the fornix.
 
-    # TODO
+    This script evaluates potential missegmentation of the fornix, which may 
+    erroneously be attached to the 'corpus collosum' label.
 
-    # need to improve EV output --> format as a nice summary vector
+    It will run Freesurfer's 'make_upright' script to get an oriented norm.mgz
+    file, apply this transform to the aseg file, and create a binary corpus 
+    callosum mask and surface. Resulting files are saved to subject-specific
+    directories witin the 'fornix' subdirectory of the output directory.
 
+    If the corresponding arguments are set to 'True', the script will also 
+    create screenshots and run a shape analysis of the corpus callosum surface.
+    Resulting files will be saved to the same directory as indicated above.
+
+    Required arguments:
+        - SUBJECT
+        - SUBJECTS_DIR
+        - OUTPUT_DIR
+
+    Optional arguments:
+        - CREATE_SCREENSHOT <bool> (default: True)
+        - RUN_SHAPEDNA <bool> (default: True)
+        - N_EIGEN <int> number of Eigenvalues for shape analyis (default: 30)
+
+    Returns:
+        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA == True, 
+          otherwise a numpy array of NaNs of the same dimension
+
+    """
+
+    # --------------------------------------------------------------------------
     # imports
 
     import os
     import sys
+    import numpy as np
     from createScreenshots import createScreenshots
 
     from builtins import str
@@ -23,6 +52,7 @@ def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT
     import errno
     import glob
 
+    # --------------------------------------------------------------------------
     # auxiliary functions
 
     def split_callback(option, opt, value, parser):
@@ -78,27 +108,28 @@ def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT
             raise
         my_print('\n')
 
+    # --------------------------------------------------------------------------
+    # main part
+
     # run make_upright
     
-    cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCupTest.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
-
+    cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCup.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
     run_cmd(cmd,"Could not run make_upright")
 
     # convert lta to xfm
 
     cmd = "lta_convert --inlta "+os.path.join(OUTPUT_DIR,"cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
-
     run_cmd(cmd,"Could not convert lta")
 
     # conduct transform for aseg and norm
 
     cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
-
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
-
-    run_cmd(cmd,"Could not conduct cc_up.xfm transform")
+    # when using 'make_upright', conducting the transform for nom.mgz is no
+    # longer necessary (and will produce the same results)
+    # cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
+    # run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
     # create fornix mask and surface
 
@@ -106,13 +137,15 @@ def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT
 
     run_cmd(cmd,"Could not create fornix mask and surface")
 
+    # --------------------------------------------------------------------------
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
         createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, 
-            INTERACTIVE = False, VIEWS = [('x',0)],  
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = None, SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = os.path.join(OUTPUT_DIR,"cc.png"))
+            INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
+            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = os.path.join(OUTPUT_DIR,"cc.png"))
 
+    # --------------------------------------------------------------------------
     # run shapeDNA
 
     if RUN_SHAPEDNA is True:
@@ -124,18 +157,29 @@ def evaluateFornixSegmentation(SUBJECT,SUBJECTS_DIR,OUTPUT_DIR,CREATE_SCREENSHOT
 
         surf = nb.freesurfer.io.read_geometry(os.path.join(OUTPUT_DIR,"cc.surf"), read_metadata=True)
 
-        ev, evec = laplaceTria(surf[0],surf[1],k=30)
+        ev, evec = laplaceTria(surf[0], surf[1], k=N_EIGEN)
 
-        d=dict()
-        d['Refine']=0
-        d['Degree']=1
-        d['Dimension']=2
-        d['Elements']=len(surf[1])
-        d['DoF']=len(surf[0])
-        d['NumEW']=30
-        d['Eigenvalues']=ev
-        d['Eigenvectors']=evec
+        d = dict()
+        d['Refine'] = 0
+        d['Degree'] = 1
+        d['Dimension'] = 2
+        d['Elements'] = len(surf[1])
+        d['DoF'] = len(surf[0])
+        d['NumEW'] = N_EIGEN
+        d['Eigenvalues'] = ev
+        d['Eigenvectors'] = evec
 
+        # write EV
         exportEV(d,os.path.join(OUTPUT_DIR,"cc.surf.ev"))
+
+        # return
+        return d['Eigenvalues']
+
+    else:
+
+        out = np.empty(N_EIGEN)
+        out[:] = np.nan
+
+        return out
 
 
