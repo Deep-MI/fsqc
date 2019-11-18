@@ -112,23 +112,23 @@ ___
 
 - The following example will run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
 - The following example will run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - The following example will run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
 - The following example will run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
 - The following example will run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
 
 ___
