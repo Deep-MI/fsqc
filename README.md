@@ -188,3 +188,4 @@ ___
 
 ## License
 
+We use the Apache 2.0 license; the full license is in the `LICENSE` file.
