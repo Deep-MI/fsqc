@@ -148,8 +148,3 @@ ___
 - For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
   scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
   for download options.
-
-___
-
-## License
-
