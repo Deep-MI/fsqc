@@ -2,6 +2,11 @@
 
 ___
 
+**This branch is a discontinued development version that is kept to maintain 
+compatibility for existing projects. Development is continued within the 
+`freesurfer-module` branch. The two branches are not compatible.**
+___
+
 ## Description
 
 This is a set of quality assurance / quality control scripts for Freesurfer 6.0
@@ -12,9 +17,6 @@ https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 It has been augmented by additional functions from the MRIQC toolbox, available 
 at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
-
-**The current version is a development version that can be used for testing 
-purposes. It will be revised and extended in the future.**
 
 The program will use an existing output directory (or try to create it) and 
 write a csv table (qatools-results.csv) into that location. The csv table 
