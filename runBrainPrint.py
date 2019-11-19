@@ -12,7 +12,7 @@ Required arguments:
     - output_dir
 """
 
-def shape_checker(subjects_dir, subject, output_dir): 
+def runBrainPrint(subjects_dir, subject, output_dir): 
 
     import os
 

@@ -2,25 +2,22 @@
 
 ___
 
-**This branch is a discontinued development version that is kept to maintain 
-compatibility for existing projects. Development is continued within the 
-`freesurfer-module` branch. The two branches are not compatible.**
-___
-
 ## Description
 
 This is a set of quality assurance / quality control scripts for Freesurfer 6.0
-processed structural MRI data. It is a revision and translation to python of 
-the original Freesurfer QA Tools that are provided at 
-https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
+processed structural MRI data. 
+
+It is a revision, extension, and translation to the Python language of the 
+Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
 It has been augmented by additional functions from the MRIQC toolbox, available 
 at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
 shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
 
-The program will use an existing output directory (or try to create it) and 
-write a csv table (qatools-results.csv) into that location. The csv table 
-will contain the following variables/metrics:
+**The current version is a development version that can be used for testing 
+purposes. It will be revised and extended in the future.**
+
+The core functionality of this toolbox is to compute the following features:
 
 variable       |   description
 ---------------|----------------------------------------------------------------
@@ -38,19 +35,30 @@ topo_lh        |   topological fixing time for the left hemisphere
 topo_rh        |   topological fixing time for the right hemisphere
 con_lh_snr     |   wm/gm contrast signal-to-noise ratio in the left hemisphere
 con_rh_snr     |   wm/gm contrast signal-to-noise ratio in the right hemisphere
+rot_tal_x      |   rotation component of the Talairach transform around the x axis
+rot_tal_y      |   rotation component of the Talairach transform around the y axis
+rot_tal_z      |   rotation component of the Talairach transform around the z axis
 
-Computing the above features is the core functionality of this toolbox. In 
-addition to that, there are two optional modules:
+The program will use an existing OUTPUT_DIR (or try to create it) and write a 
+csv table into that location. The csv table will contain the above metrics plus
+a subject identifier.
 
-One is the automated generation of cross-sections of the brain that are overlaid 
-with the anatomical segmentations (asegs) and the white and pial surfaces. These 
-images will be saved to the 'screenshots' subdirectory that will be created 
-within the output directory. These images can be used for quickly glimpsing 
-through the processing results. Note that no display manager is required for this 
-module, i.e. it can be run on a remote server, for example.
+In addition to the core functionality of the toolbox there are several optional
+modules that can be run according to need:
 
-The other optional module is the computation of shape features, i.e. a 
-brainPrint anylsis. If this module is run, the output directory will also 
+- screenshots module
+
+This module allows for the automated generation of cross-sections of the brain 
+that are overlaid with the anatomical segmentations (asegs) and the white and 
+pial surfaces. These images will be saved to the 'screenshots' subdirectory 
+that will be created within the output directory. These images can be used for 
+quickly glimpsing through the processing results. Note that no display manager 
+is required for this module, i.e. it can be run on a remote server, for example.
+
+- shape features
+
+The purpose of this optional module is the computation of shape features, i.e. 
+a brainPrint anylsis. If this module is run, the output directory will also 
 contain results files of the brainPrint analysis, and the above csv table will 
 contain several additional metrics: for a number of lateralized brain 
 structures (e.g., ventricles, subcortical structures, gray and white matter), 
@@ -58,14 +66,25 @@ the lateral asymmetry will be computed, i.e. distances between numerical shape
 descriptors, where large values indicate large asymmetries and hence potential 
 issues with the segmentation of these structures.
 
+- fornix module
+
+This is a module to assess potential issues with the segementation of the 
+corpus callosum, which may incorrectly include parts of the fornix. To assess 
+segmentation quality, a screenshot of the contours of the corpus callosum 
+segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each 
+subject within the 'fornix' subdirectory of the output directory. Further, a 
+shapeDNA / brainPrint analysis will be conducted on a surface model of the 
+corpus callosum. By comparing the resulting shape descriptors, which will 
+appear in the main csv table, deviant segmentations may be detected. 
+
 ___
 
 ## Usage
 
 ```
-python3 quality_checker.py --subjects_dir <directory> --output_dir <directory>
+python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [--shape]
-                          [--screenshots] [-h]
+                          [--screenshots] [--fornix] [-h]
 
 
 required arguments:
@@ -80,7 +99,7 @@ optional arguments:
                         list of subject IDs
   --screenshots         create screenshots
   --shape               run shape analysis (requires additional scripts)
-
+  --fornix              check fornix segmentation
 
 getting help:
   -h, --help            display this help message and exit
@@ -93,25 +112,39 @@ ___
 
 - The following example will run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
 - The following example will run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - The following example will run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+
+- The following example will run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
+
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
 - The following example will run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/quality_checker.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+
+
+___
+
+## Known Issues
+
+The program will analyze recon-all logfiles, and may fail or return erroneous
+results if the logfile is append by multiple restarts of recon-all runs. 
+Ideally, the logfile should therefore consist of just a single, successful 
+recon-all run.
 
 ___
 
 ## Authors
 
-- qatools-python: Tobias Wolff, Kersten Diers, and Martin Reuter.
+- qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
 - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
   and Louis Vinke. 
 - MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
@@ -138,13 +171,31 @@ ___
 
 ## Requirements
 
+- A working installation of Freesurfer 6.0 or later must be sourced.
+
 - At least one structural MR image that was processed with Freesurfer 6.0.
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the matplotlib, pandas, scikit-image, nibabel, and
-  future packages.
+- Required packages include the nibabel and scikit-image package for the core
+  functionality, plus the the matplotlib, pandas, transform3d, and future 
+  packages for some optional functions and modules.
 
-- For (optional) shape analysis, a working version of Freesurfer, the shapeDNA 
-  scripts and the brainPrint scripts are required. See https://reuter.mit.edu 
-  for download options.
+___
+
+## License
+
+Copyright yyyy name of copyright owner
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+use this file except in compliance with the License. You may obtain a copy 
+of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
