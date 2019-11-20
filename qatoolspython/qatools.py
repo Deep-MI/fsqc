@@ -173,7 +173,7 @@ def get_help():
 
     A Python version >= 3.4 is required to run this script.
 
-    Required packages include the nibabel and skimage package for the core
+    Required packages include the nibabel and scikit-image package for the core
     functionality, plus the the matplotlib, pandas, and transform3d packages for 
     some optional functions and modules. For (optional) shape analysis, an 
     installation of the brainprintpython package is required.
