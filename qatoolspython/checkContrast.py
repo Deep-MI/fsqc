@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to compute the WM/GM contrast SNR.
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def checkContrast(subjects_dir, subject):
     """
     A function to compute the WM/GM contrast SNR.
@@ -16,6 +24,7 @@ def checkContrast(subjects_dir, subject):
 
     Requires surf/[lr]h.w-g.pct.mgh and label/[lr]h.cortex.label. If not found, 
     NaNs will be returned.
+
     """
 
     # Imports
@@ -23,7 +32,7 @@ def checkContrast(subjects_dir, subject):
     import sys
     import numpy
     import nibabel
-    from importMGH import importMGH
+    from qatoolsUtils import importMGH
 
     # Message
     print('Checking WM/GM contrast SNR ...')

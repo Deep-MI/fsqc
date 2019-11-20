@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to check the relative size of the corpus callosum
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def checkCCSize(subjects_dir, subject):
     """
     A function to check the relative size of the corpus callosum.
@@ -16,6 +24,7 @@ def checkCCSize(subjects_dir, subject):
         - relative_cc
 
     Requires a valid stats/aseg.stats file. If not found, NaNs are returned.
+
     """
 
     # Imports

@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to determine the rotation angles of the Talairach transform
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def checkRotation(subjects_dir, subject):
     """
     A function to determine the rotation angles of the Talairach transform.
@@ -19,6 +27,7 @@ def checkRotation(subjects_dir, subject):
 
     Requires valid mri/transforms/talairach.lta file and the 'transforms3d' 
     python packge. If not found, NaNs will be returned.
+
     """
 
     #

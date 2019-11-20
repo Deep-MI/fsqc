@@ -1,7 +1,15 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to check the topology of left and right surfaces
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def checkTopology(subjects_dir, subject):
     """
-    A function to check topology of left and right surfaces.
+    A function to check the topology of left and right surfaces.
 
     This scripts extract the information about the number of holes and defects 
     in the left and right hemisphere, and also returns topological fixing time.
@@ -15,6 +23,7 @@ def checkTopology(subjects_dir, subject):
 
     Requires valid scripts/recon-all.log file. If not found, NaNs will be 
     returned.
+
     """
 
     # Imports

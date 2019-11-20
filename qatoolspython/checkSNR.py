@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to check the SNR of the white and gray matter
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
     """
     A function to check the SNR of the white and gray matter.
@@ -23,6 +31,7 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
 
     Requires valid aparc+aseg.mgz and aseg.mgz files. If not found, NaNs will
     be returned.
+
     """
 
     # Imports

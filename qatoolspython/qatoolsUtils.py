@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+This module provides various import/export functions
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def importMGH(filename):
     """
     A function read Freesurfer MGH files.
@@ -9,6 +18,7 @@ def importMGH(filename):
         - vol
 
     Requires valid mgh file. If not found, NaNs will be returned.
+
     """
 
     import os

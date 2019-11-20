@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+This module provides a function to create screenshots
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None, 
     BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"], 
     VIEWS = ["default"]

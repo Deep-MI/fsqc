@@ -1,4 +1,12 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+This module provides a function to evaluate potential missegmentation of the fornix
+
+"""
+
+# -----------------------------------------------------------------------------
+
 def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, RUN_SHAPEDNA = True, N_EIGEN = 30):
     """
     A function to evaluate potential missegmentation of the fornix.

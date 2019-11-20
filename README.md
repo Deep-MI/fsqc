@@ -11,8 +11,9 @@ It is a revision, extension, and translation to the Python language of the
 Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
 It has been augmented by additional functions from the MRIQC toolbox, available 
-at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with the
-shapeDNA and brainPrint toolboxes, available at https://reuter.mit.edu.
+at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with code
+derived from the shapeDNA and brainPrint toolboxes, available at 
+https://reuter.mit.edu.
 
 **The current version is a development version that can be used for testing 
 purposes. It will be revised and extended in the future.**
@@ -110,26 +111,54 @@ ___
 
 ## Examples
 
-- The following example will run the QC pipeline for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
-- The following example will run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
-- The following example will run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
-- The following example will run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
-- The following example will run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
+- Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
+
+___
+
+## Installation
+
+This software can be cloned from its github repository so that the `qatools.py` 
+script is directly executable from the command line, as detailed above.
+
+`git clone https://github.com/reuter-lab/qatools-python`
+
+Alternatively, if the scripts will primarily be run from within a python 
+environment, they can also be installed as a python package. Use the following 
+code to download, build and install a package from its github repository into 
+your local python package directory:
+
+`pip3 install --user git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
+
+Use the following code to install the package in editable mode to a location of
+your choice:
+
+`pip3 install --user --src /my/preferred/location --editable git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
+
+Use `import qatoolspython` to import the package within a python environment.
+
+The (optional) shape analysis module of this software depends on the 
+`brainprintpython` package, which can be installed as follows:
+
+`pip3 install --user git+https://github.com/reuter-lab/BrainPrint-python.git@freesurfer-module#egg=brainprintpython`
 
 ___
 
@@ -147,8 +176,6 @@ ___
 - qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
 - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
   and Louis Vinke. 
-- MRIQC toolbox: Oscar Esteban, Daniel Birman, Marie Schaer, Oluwasanmi Koyejo, 
-  Russell Poldrack, and Krzysztof Gorgolewski.
 - shapeDNA and brainPrint toolboxes: Martin Reuter.
 
 ___
@@ -177,25 +204,19 @@ ___
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the nibabel and scikit-image package for the core
-  functionality, plus the the matplotlib, pandas, transform3d, and future 
-  packages for some optional functions and modules.
+- Required packages include the nibabel and skimage package for the core
+  functionality, plus the the matplotlib, pandas, and transform3d packages for 
+  some optional functions and modules.
+
+- For (optional) shape analysis, an installation of the brainprintpython
+  package is required.
 
 ___
 
 ## License
 
-Copyright yyyy name of copyright owner
+This software is licensed under the MIT License, see associated LICENSE file 
+for details.
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not 
-use this file except in compliance with the License. You may obtain a copy 
-of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Copyright (c) 2019 Image Analysis Group, DZNE e.V.
 
