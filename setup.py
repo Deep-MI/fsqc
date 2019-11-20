@@ -24,7 +24,7 @@ setuptools.setup(
 #        "Operating System :: OS Independent",
     ],
     python_requires='>=3.5',
-    keywords='Freesurfer'
+    keywords='Freesurfer',
     # This field lists other packages that your project depends on to run.
     # Any package you put here will be installed by pip when your project is
     # installed, so they must be valid existing projects.

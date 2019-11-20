@@ -40,9 +40,9 @@ rot_tal_x      |   rotation component of the Talairach transform around the x ax
 rot_tal_y      |   rotation component of the Talairach transform around the y axis
 rot_tal_z      |   rotation component of the Talairach transform around the z axis
 
-The program will use an existing OUTPUT_DIR (or try to create it) and write a 
-csv table into that location. The csv table will contain the above metrics plus
-a subject identifier.
+The program will use an existing output directory (or try to create it) and 
+write a csv table into that location. The csv table will contain the above 
+metrics plus a subject identifier.
 
 In addition to the core functionality of the toolbox there are several optional
 modules that can be run according to need:
@@ -153,12 +153,13 @@ your choice:
 
 `pip3 install --user --src /my/preferred/location --editable git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
 
-Use `import qatoolspython` to import the package within a python environment.
-
 The (optional) shape analysis module of this software depends on the 
 `brainprintpython` package, which can be installed as follows:
 
 `pip3 install --user git+https://github.com/reuter-lab/BrainPrint-python.git@freesurfer-module#egg=brainprintpython`
+
+Note: Use `import qatoolspython` to import the package within a python 
+environment.
 
 ___
 
@@ -208,7 +209,7 @@ ___
   functionality, plus the the matplotlib, pandas, and transform3d packages for 
   some optional functions and modules.
 
-- For (optional) shape analysis, an installation of the brainprintpython
+- For (optional) shape analysis, an installation of the `brainprintpython`
   package is required.
 
 ___
