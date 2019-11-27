@@ -14,8 +14,8 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     This script evaluates potential missegmentation of the fornix, which may 
     erroneously be attached to the 'corpus collosum' label.
 
-    It will run Freesurfer's 'make_upright' script to get an oriented norm.mgz
-    file, apply this transform to the aseg file, and create a binary corpus 
+    It will run Freesurfer's 'mri_convert' script to apply the cc_up.lta 
+    transform to the norm.mgz and the aseg files, and create a binary corpus 
     callosum mask and surface. Resulting files are saved to subject-specific
     directories witin the 'fornix' subdirectory of the output directory.
 
@@ -119,14 +119,15 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     # --------------------------------------------------------------------------
     # main part
 
-    # run make_upright
-    
-    cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCup.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
-    run_cmd(cmd,"Could not run make_upright")
+    ## run make_upright; note: rather than 'make_upright', better use 'mri_cc' 
+    ## to compute the transformation matrix, should this ever be necessary.
+    #
+    #cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCup.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
+    #run_cmd(cmd,"Could not run make_upright")
 
-    # convert lta to xfm
+    # convert lta to xfm (need to adjust some directories when using make_upright)
 
-    cmd = "lta_convert --inlta "+os.path.join(OUTPUT_DIR,"cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
+    cmd = "lta_convert --inlta "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
     run_cmd(cmd,"Could not convert lta")
 
     # conduct transform for aseg and norm
@@ -134,15 +135,14 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
     run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
-    # when using 'make_upright', conducting the transform for nom.mgz is no
+    # when using 'make_upright', conducting the transform for norm.mgz is no
     # longer necessary (and will produce the same results)
-    # cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
-    # run_cmd(cmd,"Could not conduct cc_up.xfm transform")
+    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
+    run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
     # create fornix mask and surface
 
     cmd = "mri_binarize --i "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")+" --match 251 252 253 254 255 --dilate 2 --erode 2 --surf "+os.path.join(OUTPUT_DIR,"cc.surf")+" --surf-smooth 1 --o "+os.path.join(OUTPUT_DIR,"cc.mgz")
-
     run_cmd(cmd,"Could not create fornix mask and surface")
 
     # --------------------------------------------------------------------------
