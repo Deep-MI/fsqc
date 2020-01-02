@@ -76,35 +76,21 @@ def get_help():
     quickly glimpsing through the processing results. Note that no display manager 
     is required for this module, i.e. it can be run on a remote server, for example.
 
-    - shape module
-
-    The purpose of this optional module is the computation of shape features, i.e. 
-    a brainPrint anylsis. If this module is run, the output directory will also 
-    contain results files of the brainPrint analysis, and the above csv table will 
-    contain several additional metrics: for a number of lateralized brain 
-    structures (e.g., ventricles, subcortical structures, gray and white matter), 
-    the lateral asymmetry will be computed, i.e. distances between numerical shape 
-    descriptors, where large values indicate large asymmetries and hence potential 
-    issues with the segmentation of these structures.
-
     - fornix module
 
     This is a module to assess potential issues with the segementation of the 
     corpus callosum, which may incorrectly include parts of the fornix. To assess 
     segmentation quality, a screesnhot of the contours of the corpus callosum 
     segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
-    subdirectory of the output directory. Further, a shapeDNA / brainPrint analysis
-    will be conducted on a surface model of the corpus callosum. By comparing the
-    resulting shape descriptors, which will appear in the main csv table, deviant 
-    segmentations may be detected.
-
+    subdirectory of the output directory. 
+    
 
     ======
     Usage: 
     ======
 
         python3 quatools.py --subjects_dir <directory> --output_dir <directory>
-                                  [--subjects SubjectID [SubjectID ...]] [--shape]
+                                  [--subjects SubjectID [SubjectID ...]] 
                                   [--screenshots] [--fornix] [-h]
 
         required arguments:
@@ -117,7 +103,6 @@ def get_help():
         optional arguments:
           --subjects SubjectID [SubjectID ...]
                                 list of subject IDs
-          --shape               run shape analysis (requires additional scripts)
           --screenshots         create screenshots of individual brains
           --fornix              check fornix segmentation
 
@@ -142,7 +127,6 @@ def get_help():
     - qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
     - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
       and Louis Vinke. 
-    - shapeDNA and brainPrint toolboxes: Martin Reuter.
 
 
     ===========
@@ -175,8 +159,7 @@ def get_help():
 
     Required packages include the nibabel and scikit-image package for the core
     functionality, plus the the matplotlib, pandas, and transform3d packages for 
-    some optional functions and modules. For (optional) shape analysis, an 
-    installation of the brainprintpython package is required.
+    some optional functions and modules. 
 
 
     ========
@@ -226,7 +209,8 @@ def parse_arguments():
 
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
-    optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
+    #optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
+    optional.add_argument('--shape', dest='shape', help=argparse.SUPPRESS, default=False, action="store_true", required=False) # shape is currently a hidden option
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
@@ -263,137 +247,109 @@ def check_arguments(arguments):
     import importlib
 
     # --------------------------------------------------------------------------
-    # assign arguments
-
-    subjects_dir = arguments.subjects_dir
-    output_dir = arguments.output_dir
-    subjects = arguments.subjects
-    shape = arguments.shape
-    screenshots = arguments.screenshots
-    fornix = arguments.fornix
-    #amount_erosion = arguments.amount_erosion
-
-    # --------------------------------------------------------------------------
     # check arguments
 
     # check if subject directory exists
-    if os.path.isdir(subjects_dir):
-        print("Found subjects directory", subjects_dir)
+    if os.path.isdir(arguments.subjects_dir):
+        print("Found subjects directory", arguments.subjects_dir)
     else:
-        print('ERROR: subjects directory '+subjects_dir+' is not an existing directory\n')
+        print('ERROR: subjects directory '+arguments.subjects_dir+' is not an existing directory\n')
         sys.exit(1)
 
     # check if output directory exists or can be created and is writable
-    if os.path.isdir(output_dir):
-        print("Found output directory", output_dir)
+    if os.path.isdir(arguments.output_dir):
+        print("Found output directory", arguments.output_dir)
     else:
         try:
-            os.mkdir(output_dir)
+            os.mkdir(arguments.output_dir)
         except:
-            print('ERROR: cannot create output directory '+output_dir+'\n')
+            print('ERROR: cannot create output directory '+arguments.output_dir+'\n')
             sys.exit(1)
 
         try:
-            testfile = tempfile.TemporaryFile(dir=output_dir)
+            testfile = tempfile.TemporaryFile(dir=arguments.output_dir)
             testfile.close()
         except OSError as e:
             if e.errno != errno.EACCES:  # 13
-                e.filename = output_dir
+                e.filename = arguments.output_dir
                 raise
-            print('\nERROR: '+output_dir+' not writeable (check access)!\n')
+            print('\nERROR: '+arguments.output_dir+' not writeable (check access)!\n')
             sys.exit(1)
 
     # check if screenshots subdirectory exists or can be created and is writable
-    if screenshots is True:
-        if os.path.isdir(os.path.join(output_dir,'screenshots')):
-            print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
+    if arguments.screenshots is True:
+        if os.path.isdir(os.path.join(arguments.output_dir,'screenshots')):
+            print("Found screenshots directory", os.path.join(arguments.output_dir,'screenshots'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir,'screenshots'))
+                os.mkdir(os.path.join(arguments.output_dir,'screenshots'))
             except:
-                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir,'screenshots')+'\n')
+                print('ERROR: cannot create screenshots directory '+os.path.join(arguments.output_dir,'screenshots')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'screenshots'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'screenshots'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'screenshots')
+                    e.filename = os.path.join(arguments.output_dir,'screenshots')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(arguments.output_dir,'screenshots')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check further screenshots dependencies
-    if screenshots is True and importlib.util.find_spec("pandas") is None:
+    if arguments.screenshots is True and importlib.util.find_spec("pandas") is None:
         print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
         sys.exit(1)
 
-    if screenshots is True and importlib.util.find_spec("matplotlib") is None:
+    if arguments.screenshots is True and importlib.util.find_spec("matplotlib") is None:
         print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
         sys.exit(1)
 
     # check if fornix subdirectory exists or can be created and is writable
-    if fornix is True:
-        if os.path.isdir(os.path.join(output_dir,'fornix')):
-            print("Found fornix directory", os.path.join(output_dir,'fornix'))
+    if arguments.fornix is True:
+        if os.path.isdir(os.path.join(arguments.output_dir,'fornix')):
+            print("Found fornix directory", os.path.join(arguments.output_dir,'fornix'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir,'fornix'))
+                os.mkdir(os.path.join(arguments.output_dir,'fornix'))
             except:
-                print('ERROR: cannot create fornix directory '+os.path.join(output_dir,'fornix')+'\n')
+                print('ERROR: cannot create fornix directory '+os.path.join(arguments.output_dir,'fornix')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'fornix'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'fornix'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'fornix')
+                    e.filename = os.path.join(arguments.output_dir,'fornix')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'fornix')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(arguments.output_dir,'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shape subdirectory exists or can be created and is writable
-    if shape is True:
-        if os.path.isdir(os.path.join(output_dir, 'brainprint')):
-            print("Found brainprint directory", os.path.join(output_dir,'brainprint'))
+    if arguments.shape is True:
+        if os.path.isdir(os.path.join(arguments.output_dir, 'brainprint')):
+            print("Found brainprint directory", os.path.join(arguments.output_dir,'brainprint'))
         else:
             try:
-                os.makedirs(os.path.join(output_dir,'brainprint'))
+                os.makedirs(os.path.join(arguments.output_dir,'brainprint'))
             except:
-                print('ERROR: cannot create brainprint directory '+os.path.join(output_dir, 'brainprint')+'\n')
+                print('\nERROR: cannot create brainprint directory '+os.path.join(arguments.output_dir, 'brainprint')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'brainprint'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'brainprint'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'brainprint')
+                    e.filename = os.path.join(arguments.output_dir,'brainprint')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'brainprint')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(arguments.output_dir,'brainprint')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shapeDNA / brainPrint dependencies
-    if shape is True:
-        # TODO: potentially obsolete
-        #if os.environ.get('SHAPEDNA_HOME') is None:
-        #    print('\nERROR: need to set the SHAPEDNA_HOME environment variable for shape analysis\n')
-        #    sys.exit(1)
-        #if not os.path.isfile(os.path.join(os.environ.get('SHAPEDNA_HOME'),"key.txt")):
-        #    print("\nERROR: could not find file key.txt within "+os.environ.get('SHAPEDNA_HOME')) 
-        #    sys.exit(1)
-        #if not os.path.isfile(os.path.join(os.environ.get('SHAPEDNA_HOME'),"shapeDNA-tria")):
-        #    print("\nERROR: could not find file shapeDNA-tria within "+os.environ.get('SHAPEDNA_HOME')) 
-        #    sys.exit(1)
-        # TODO: potentially obsolete
-        #if  importlib.util.find_spec("fs_brainPrint") is None:
-        #    print("\nERROR: could not import the fs_brainPrint scripts, are they on the PYTHONPATH?") 
-        #    sys.exit(1)
-        #if importlib.util.find_spec("future") is None:
-        #    print('\nERROR: the \'future\' package is required for running the shape analysis, please install.\n')
-        #    sys.exit(1)
+    if arguments.shape is True:
         # check if brainprintpython can be imported
         if  importlib.util.find_spec("brainprintpython") is None:
             print("\nERROR: could not import the brainprintpython package, is it installed?") 
@@ -401,28 +357,28 @@ def check_arguments(arguments):
 
     # if subjects are not given, get contents of the subject directory and 
     # check if aseg.stats exists; otherwise, just check that aseg.stats exists
-    if subjects == []:
-        for subject in os.listdir(subjects_dir):
-            path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+    if arguments.subjects == []:
+        for subject in os.listdir(arguments.subjects_dir):
+            path_aseg_stat = os.path.join(arguments.subjects_dir,subject,"stats","aseg.stats")
             if os.path.isfile(path_aseg_stat):
                 print("Found aseg.stats file for subject",subject)
-                subjects.extend([subject])
+                arguments.subjects.extend([subject])
     else:
         subjects_to_remove = list()
-        for subject in subjects:
-            path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+        for subject in arguments.subjects:
+            path_aseg_stat = os.path.join(arguments.subjects_dir,subject,"stats","aseg.stats")
             if not os.path.isfile(path_aseg_stat):
                 print("Could not find.aseg stats file for subject",subject)
                 subjects_to_remove.extend([subject])
-        [ subjects.remove(x) for x in subjects_to_remove ]
+        [ arguments.subjects.remove(x) for x in subjects_to_remove ]
 
     # check if we have any subjects after all
-    if subjects == []:
+    if arguments.subjects == []:
         print("\nERROR: no subjects to process") 
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, shape, screenshots, fornix
+    return arguments.subjects_dir, arguments.output_dir, arguments.subjects, arguments.shape, arguments.screenshots, arguments.fornix
 
 
 
@@ -474,7 +430,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
     # imports
 
     import os 
-    import sys
     import csv
     import time
 
@@ -483,7 +438,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
     from checkTopology import checkTopology
     from checkContrast import checkContrast 
     from checkRotation import checkRotation
-    #from runBrainPrint import runBrainPrint # TODO: previous version
     from evaluateFornixSegmentation import evaluateFornixSegmentation
     from createScreenshots import createScreenshots
 
@@ -568,7 +522,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
             print("")
 
             # compute brainprint (will also compute shapeDNA)
-            from brainprintpython import pyShapeDNA
             from brainprintpython import pyBrainPrint
             from brainprintpython import pyPostProc
 
@@ -601,9 +554,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
                 asy = "euc"
 
             # TODO: what about checking options?
-
-#            # run brainPrint #  TODO: previous version 
-#            brainprint = runBrainPrint(subjects_dir, subject, output_dir)
 
             # run brainPrint
             structures, evmat = pyBrainPrint.compute_brainprint(options)
