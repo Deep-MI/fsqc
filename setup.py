@@ -16,19 +16,20 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
-    packages=['qatoolspython'],
-#    py_modules=[
-#        'checkCCSize',
-#        'checkContrast',
-#        'checkRotation',
-#        'checkSNR',
-#        'checkTopology',
-#        'createScreenshots',
-#        'evaluateFornixSegmentation',
-#        'outlierDetection',
-#        'qatools',
-#        'qatoolsUtils',
-#    ],
+    #packages=['qatoolspython'],
+    package_dir = {'': 'qatoolspython'}
+    py_modules=[
+        'checkCCSize',
+        'checkContrast',
+        'checkRotation',
+        'checkSNR',
+        'checkTopology',
+        'createScreenshots',
+        'evaluateFornixSegmentation',
+        'outlierDetection',
+        'qatools',
+        'qatoolsUtils',
+    ],
     # see https://pypi.org/classifiers/
     classifiers=[ 
         "Programming Language :: Python :: 3",
