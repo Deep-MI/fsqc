@@ -218,7 +218,7 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
     import csv
     import numpy as np
     import pandas as pd
-    from outlierDetection import readAsegStats
+    from qatoolspython.outlierDetection import readAsegStats
 
     # create a dictionary with all data from all subjects, and create a list of all available keys
 

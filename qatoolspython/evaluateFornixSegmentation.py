@@ -52,7 +52,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     import shlex
     import subprocess
     import numpy as np
-    from createScreenshots import createScreenshots
+    from qatoolspython.createScreenshots import createScreenshots
 
     # --------------------------------------------------------------------------
     # auxiliary functions
