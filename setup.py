@@ -15,7 +15,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
-    packages=setuptools.find_packages(),
+    package_dir={'': 'qatoolspython'},
+    packages=find_packages(where='qatoolspython'),
     # see https://pypi.org/classifiers/
     classifiers=[ 
         "Programming Language :: Python :: 3",
