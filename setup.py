@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
     #packages=['qatoolspython'],
-    package_dir = {'': 'qatoolspython'}
+    package_dir = {'': 'qatoolspython'},
     py_modules=[
         'checkCCSize',
         'checkContrast',
