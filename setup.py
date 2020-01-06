@@ -16,8 +16,19 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
-    #package_dir={'': 'qatoolspython'},
     packages=find_packages(),
+    py_modules=[
+        'checkCCSize',
+        'checkContrast.py'
+        'checkRotation.py'
+        'checkSNR.py'
+        'checkTopology.py'
+        'createScreenshots.py'
+        'evaluateFornixSegmentation.py'
+        'outlierDetection.py'
+        'qatools.py'
+        'qatoolsUtils.py'
+    ],
     # see https://pypi.org/classifiers/
     classifiers=[ 
         "Programming Language :: Python :: 3",
@@ -34,3 +45,4 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['numpy', 'nibabel', 'scikit-image' ]
 )
+
