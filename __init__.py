@@ -1,1 +1,0 @@
-from .qatoolspython import checkContrast

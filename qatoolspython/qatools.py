@@ -534,15 +534,15 @@ def do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fals
     import csv
     import time
 
-    from checkSNR import checkSNR
-    from checkCCSize import checkCCSize
-    from checkTopology import checkTopology
-    from checkContrast import checkContrast 
-    from checkRotation import checkRotation
-    from evaluateFornixSegmentation import evaluateFornixSegmentation
-    from createScreenshots import createScreenshots
-    from outlierDetection import outlierTable
-    from outlierDetection import outlierDetection
+    from qatoolspython.checkSNR import checkSNR
+    from qatoolspython.checkCCSize import checkCCSize
+    from qatoolspython.checkTopology import checkTopology
+    from qatoolspython.checkContrast import checkContrast 
+    from qatoolspython.checkRotation import checkRotation
+    from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
+    from qatoolspython.createScreenshots import createScreenshots
+    from qatoolspython.outlierDetection import outlierTable
+    from qatoolspython.outlierDetection import outlierDetection
 
     # ------------------------------------------------------------------------------
     # internal settings (might be turned into command-line arguments in the future)
