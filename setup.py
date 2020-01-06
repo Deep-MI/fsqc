@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 # see: https://github.com/pypa/sampleproject/blob/master/setup.py for an example
 # see: https://pip.pypa.io/en/stable/reference/pip_install for a description how to use pip install in conjunction with a git repository
 
-setuptools.setup(
+setup(
     name="qatoolspython",
     version="0.9.5-beta",
     author="Kersten Diers, Martin Reuter, and others (see README)",
@@ -16,8 +16,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
-    package_dir={'': 'qatoolspython'},
-    packages=find_packages(where='qatoolspython'),
+    #package_dir={'': 'qatoolspython'},
+    packages=find_packages(),
     # see https://pypi.org/classifiers/
     classifiers=[ 
         "Programming Language :: Python :: 3",
