@@ -40,20 +40,17 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # imports
 
     import os
-
-    import pandas as pd
+    import matplotlib
 
     import numpy as np
+    import pandas as pd
     import nibabel as nb
-
-    import matplotlib
 
     if not INTERACTIVE:
         matplotlib.use('Agg')
 
     from matplotlib import pyplot as plt
-
-    from levelsetsTria import levelsetsTria
+    from qatoolsUtils import levelsetsTria
 
     # -----------------------------------------------------------------------------
     # settings
@@ -149,11 +146,11 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         for i in range(len(CutsRRAS)):
             
             # determine dimension
-            if CutsRRAS[i][0] is 'x':
+            if CutsRRAS[i][0] == 'x':
                 iDim = 0
-            elif CutsRRAS[i][0] is 'y':
+            elif CutsRRAS[i][0] == 'y':
                 iDim = 1
-            elif CutsRRAS[i][0] is 'z':
+            elif CutsRRAS[i][0] == 'z':
                 iDim = 2
 
             # compute levelsets: e.g., LVL[SURF][VIEWS][vLVL|tLVL|iLVL][0][elementDimnnnnn1][elementDim2]
@@ -212,11 +209,11 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     for i in range(len(CutsRRAS)):
         
         # determine dimension
-        if CutsRRAS[i][0] is 'x':
+        if CutsRRAS[i][0] == 'x':
             iDim = 0
-        elif CutsRRAS[i][0] is 'y':
+        elif CutsRRAS[i][0] == 'y':
             iDim = 1
-        elif CutsRRAS[i][0] is 'z':
+        elif CutsRRAS[i][0] == 'z':
             iDim = 2
 
         #
@@ -265,7 +262,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         axsy = myLayoutList[p][1]
 
         # determine dimensions
-        if CutsRRAS[p][0] is 'x':
+        if CutsRRAS[p][0] == 'x':
             # x axis of the image should be towards anterior, y axis should be towards superior in RAS image
             dims = (1, 2)
             # determine extent
@@ -282,7 +279,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
                     axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
-        elif CutsRRAS[p][0] is 'y':
+        elif CutsRRAS[p][0] == 'y':
             #
             dims = (0, 2)
             # determine extent
@@ -299,7 +296,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
                     axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
-        elif CutsRRAS[p][0] is 'z':
+        elif CutsRRAS[p][0] == 'z':
             #
             dims = (0, 1)
             # determine extent

@@ -60,10 +60,10 @@ def get_help():
     - rot_tal_y     ...  rotation component of the Talairach transform around the y axis
     - rot_tal_z     ...  rotation component of the Talairach transform around the z axis
 
-    The program will use an existing OUTPUT_DIR (or try to create it) and write a 
-    csv table into that location. The csv table will contain the above metrics plus
-    a subject identifier.
-
+    The program will use an existing output directory (or try to create it) and 
+    write a csv table into that location. The csv table will contain the above 
+    metrics plus a subject identifier.
+    
     In addition to the core functionality of the toolbox there are several optional
     modules that can be run according to need:
 
@@ -78,11 +78,46 @@ def get_help():
 
     - fornix module
 
-    This is a module to assess potential issues with the segementation of the 
+    This is a module to assess potential issues with the segmentation of the 
     corpus callosum, which may incorrectly include parts of the fornix. To assess 
     segmentation quality, a screesnhot of the contours of the corpus callosum 
     segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
     subdirectory of the output directory. 
+    
+    - outlier module 
+    
+    This is a module to detect extreme values among the subcortical ('aseg') 
+    segmentations. The outlier detection is based on comparisons with the 
+    distributions of the sample as well as normative values taken from the 
+    literature (see References).
+    
+    For comparisons with the sample distributions, extreme values are defined in 
+    two ways: nonparametrically, i.e. values that are 1.5 times the interquartile 
+    range below or above the 25th or 75th percentile of the sample, respectively, 
+    and parametrically, i.e. values that are more than 2 standard deviations above 
+    or below the sample mean. Note that a minimum of 5 supplied subjects is 
+    required for running these analyses, otherwise `NaNs` will be returned.  
+    
+    For comparisons with the normative values, lower and upper bounds are computed 
+    from the 95% prediction intervals of the regression models given in Potvin et 
+    al., 1996, and values exceeding these bounds will be flagged. As an 
+    alternative, users may specify their own normative values by using the 
+    '--outlier-table' argument. This requires a custom csv table with headers
+    `label`, `upper`, and `lower`, where `label` indicates a column of anatomical  
+    names. It can be a subset and the order is arbitrary, but naming must exactly 
+    match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
+    specified upper and lower bounds.    
+      
+    The main csv table will be appended with the following summary variables, and 
+    more detailed output about will be saved as csv tables in the 'outliers' 
+    subdirectory of the main output directory.
+    
+    n_outliers_sample_nonpar ... number of structures that are 1.5 times the IQR  
+                                 above/below the 75th/25th percentile  
+    n_outliers_sample_param  ... number of structures that are 2 SD above/below 
+                                 the mean
+    n_outliers_norms         ... number of structures exceeding the upper and      
+                                 lower bounds of the normative values
     
 
     ======
@@ -105,6 +140,9 @@ def get_help():
                                 list of subject IDs
           --screenshots         create screenshots of individual brains
           --fornix              check fornix segmentation
+          --outlier             run outlier detection
+          --outlier-table       specify normative values (only in conjunction with
+                                --outlier)          
 
         getting help:
           -h, --help            display this help message and exit
@@ -213,8 +251,8 @@ def parse_arguments():
     optional.add_argument('--shape', dest='shape', help=argparse.SUPPRESS, default=False, action="store_true", required=False) # shape is currently a hidden option
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
-    #optional.add_argument('--erode', dest='amount_erosion', help="Amount of erosion steps during the CNR computation", default=3, required=False)
-    optional.add_argument('--erode', dest='amount_erosion', help=argparse.SUPPRESS, default=3, required=False) # erode is currently a hidden option
+    optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
+    optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
 
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
@@ -355,8 +393,38 @@ def check_arguments(arguments):
             print("\nERROR: could not import the brainprintpython package, is it installed?") 
             sys.exit(1)
 
+    # check if outlier subdirectory exists or can be created and is writable
+    if arguments.outlier is True:
+        if os.path.isdir(os.path.join(arguments.output_dir, 'outliers')):
+            print("Found outliers directory", os.path.join(arguments.output_dir,'outliers'))
+        else:
+            try:
+                os.makedirs(os.path.join(arguments.output_dir,'outliers'))
+            except:
+                print('\nERROR: cannot create outliers directory '+os.path.join(arguments.output_dir, 'outliers')+'\n')
+                sys.exit(1)
+
+            try:
+                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'outliers'))
+                testfile.close()
+            except OSError as e:
+                if e.errno != errno.EACCES:  # 13
+                    e.filename = os.path.join(arguments.output_dir,'outliers')
+                    raise
+                print('\nERROR: '+os.path.join(arguments.output_dir,'outliers')+' not writeable (check access)!\n')
+                sys.exit(1)
+
+    # check if outlier-table exists if it was given, otherwise exit
+    if arguments.outlier_table is not None:
+        if os.path.isfile(arguments.outlier_table):
+            print("Found table with normative values ", arguments.outlier_table)
+        else:
+            print("Could not find table with normative values ", arguments.outlier_table)
+            sys.exit(1)
+
     # if subjects are not given, get contents of the subject directory and 
-    # check if aseg.stats exists; otherwise, just check that aseg.stats exists
+    # check if aseg.stats (as a proxy) exists; otherwise, just check that 
+    # aseg.stats exists
     if arguments.subjects == []:
         for subject in os.listdir(arguments.subjects_dir):
             path_aseg_stat = os.path.join(arguments.subjects_dir,subject,"stats","aseg.stats")
@@ -378,7 +446,7 @@ def check_arguments(arguments):
         sys.exit(1)
 
     # now return
-    return arguments.subjects_dir, arguments.output_dir, arguments.subjects, arguments.shape, arguments.screenshots, arguments.fornix
+    return arguments.subjects_dir, arguments.output_dir, arguments.subjects, arguments.shape, arguments.screenshots, arguments.fornix, arguments.outlier, arguments.outlier_table
 
 
 
@@ -412,7 +480,7 @@ def check_packages():
         sys.exit(1)
 
     if importlib.util.find_spec("transforms3d") is None:
-        # this package is less important and less stanard, so we just return a
+        # this package is less important and less standard, so we just return a
         # warning (and NaNs) if it is not found.
         print('\nWARNING: the \'transforms3d\' package is recommended, please install.\n')
 
@@ -420,7 +488,7 @@ def check_packages():
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
+def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table):
     """
     a function to run the various qatools submodules
 
@@ -440,6 +508,8 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
     from checkRotation import checkRotation
     from evaluateFornixSegmentation import evaluateFornixSegmentation
     from createScreenshots import createScreenshots
+    from outlierDetection import outlierTable
+    from outlierDetection import outlierDetection
 
     # ------------------------------------------------------------------------------
     # internal settings (might be turned into command-line arguments in the future)
@@ -448,6 +518,7 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
     FORNIX_SCREENSHOT = True
     FORNIX_SHAPE = False
     FORNIX_N_EIGEN = 15
+    OUTLIER_N_MIN = 5
 
     # --------------------------------------------------------------------------
     # say hello
@@ -511,9 +582,8 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
         print("")
 
         # ----------------------------------------------------------------------
-        # run optional modules
+        # run optional modules: shape analysis
 
-        # shape analysis
         if shape is True:
     
             # message
@@ -525,13 +595,10 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
             from brainprintpython import pyBrainPrint
             from brainprintpython import pyPostProc
 
-            # check / create brainprint_outdir
+            # check / create subject-specific brainprint_outdir
             brainprint_outdir = os.path.join(output_dir,'brainprint',subject)
             if not os.path.isdir(brainprint_outdir):
                 os.mkdir(brainprint_outdir)
-
-            import pdb
-            pdb.set_trace()
 
             # set options
             class options:
@@ -553,8 +620,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
                 lin = True
                 asy = "euc"
 
-            # TODO: what about checking options?
-
             # run brainPrint
             structures, evmat = pyBrainPrint.compute_brainprint(options)
 
@@ -570,7 +635,9 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
             # store data
             metricsDict[subject].update(distDict[subject])
 
-        # screenshots
+        # ----------------------------------------------------------------------
+        # run optional modules: screenshots
+
         if screenshots is True:
 
             # message
@@ -578,16 +645,18 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
             print("Creating screenshots ...")
             print("")
 
-            # check / create screenshots_outdir
+            # check / create subject-specific screenshots_outdir
             screenshots_outdir = os.path.join(output_dir,'screenshots',subject)
             if not os.path.isdir(screenshots_outdir):
                 os.mkdir(screenshots_outdir)
             outfile = os.path.join(screenshots_outdir,subject+'.png')
 
             # process
-            createScreenshots(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTFILE=outfile,INTERACTIVE=False)
+            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False)
 
-        # fornix
+        # ----------------------------------------------------------------------
+        # run optional modules: fornix
+
         if fornix is True:
 
             # message
@@ -595,7 +664,7 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
             print("Checking fornix segmentation ...")
             print("")
 
-            # check / create fornix_outdir
+            # check / create subject-specific fornix_outdir
             fornix_outdir = os.path.join(output_dir,'fornix',subject)
             if not os.path.isdir(fornix_outdir):
                 os.mkdir(fornix_outdir)
@@ -615,6 +684,48 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
         print("")
 
     # --------------------------------------------------------------------------
+    # run optional modules: outlier detection
+
+    if outliers is True:
+
+        # message
+        print("---------------------------------------")
+        print("Running outlier detection module ...")
+        print("")
+
+        # determine outlier-table and get data
+        if outlier_table is None:
+            outlierDict = outlierTable()
+        else:
+            outlierDict = dict()
+            with open(outlier_table, newline='') as csvfile:
+                outlierCsv = csv.DictReader(csvfile, delimiter=',')
+                for row in outlierCsv:
+                    outlierDict.update({row['label']: {'lower': row['lower'], 'upper': row['upper']}})
+
+        # process
+        outlier_outdir = os.path.join(output_dir, 'outliers')
+        n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = od.outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
+
+        # create a dictionary from outlier module ouput
+        outlierDict = dict()
+        for subject in subjects:
+            outlierDict.update({subject : {
+                'n_outlier_sample_nonpar' : n_outlier_sample_nonpar[subject],
+                'n_outlier_sample_param': n_outlier_sample_param[subject],
+                'n_outlier_norms': n_outlier_norms[subject]
+                }
+            })
+
+        # store data
+        for subject in subjects:
+            metricsDict[subject].update(outlierDict[subject])
+
+        # message
+        print("Done")
+        print("")
+
+    # --------------------------------------------------------------------------
     # generate output
 
     # we pre-specify the fieldnames because we want to have this particular order
@@ -625,6 +736,9 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix):
 
     if fornix is True and FORNIX_SHAPE is True:
         metricsFieldnames.extend(sorted(fornixShapeDict[subject].keys()))
+
+    if outlier is True:
+        metricsFieldnames.extend(sorted(outlierDict[subject].keys()))
 
     # determine output file names
     path_data_file = os.path.join(output_dir,'qatools-results.csv')
@@ -646,10 +760,10 @@ if __name__ == "__main__":
     arguments = parse_arguments()
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix = check_arguments(arguments)
+    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = check_arguments(arguments)
 
     # check packages
     check_packages()
 
     # run qatools
-    run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix)
+    run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)

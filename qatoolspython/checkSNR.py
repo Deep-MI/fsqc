@@ -29,8 +29,8 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
     Returns:
         - wm_snr, gm_snr
 
-    Requires valid aparc+aseg.mgz and aseg.mgz files. If not found, NaNs will
-    be returned.
+    Requires valid mri/norm.mgz, mri/aseg.mgz, and mri/aparc+aseg.mgz files. 
+    If not found, NaNs will be returned.
 
     """
 
@@ -85,13 +85,12 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
         b_wm_data[x,y,z] = 1
 
     # Erode white matter image
-    nb_erode = int(nb_erode) + 4 # this must be some obscure bugfix
+    nb_erode = nb_erode
     b_wm_data = binary_erosion(b_wm_data,np.ones((nb_erode, nb_erode,nb_erode)))
 
     # Computation of the SNR of the white matter
     x, y, z = np.where(b_wm_data == 1)
-    signal_wm = []
-    signal_wm.append(norm_data[x,y,z])
+    signal_wm = norm_data[x,y,z]
     signal_wm_mean = np.mean(signal_wm)
     signal_wm_std = np.std(signal_wm)
     wm_snr = signal_wm_mean/signal_wm_std
@@ -112,8 +111,7 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
 
     # Computation of the SNR of the gray matter
     x, y, z = np.where(b_gm_data == 1)
-    signal_gm =[]
-    signal_gm.extend(norm_data[x,y,z])
+    signal_gm = norm_data[x,y,z]
     signal_gm_mean = np.mean(signal_gm)
     signal_gm_std = np.std(signal_gm)
     gm_snr =signal_gm_mean/signal_gm_std

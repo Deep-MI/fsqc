@@ -7,7 +7,7 @@ This module provides a function to evaluate potential missegmentation of the for
 
 # -----------------------------------------------------------------------------
 
-def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, RUN_SHAPEDNA = True, N_EIGEN = 30):
+def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, RUN_SHAPEDNA = True, N_EIGEN = 15):
     """
     A function to evaluate potential missegmentation of the fornix.
 
@@ -33,8 +33,13 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         - RUN_SHAPEDNA <bool> (default: True)
         - N_EIGEN <int> number of Eigenvalues for shape analyis (default: 30)
 
+    Requires (if not found, returns NaNs):
+        - mri/transforms/cc_up.lta
+        - mri/aseg.mgz
+        - mri/norm.mgz
+
     Returns:
-        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA == True, 
+        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA is True, 
           otherwise a numpy array of NaNs of the same dimension
 
     """
@@ -44,21 +49,10 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     import os
     import sys
+    import shlex
+    import subprocess
     import numpy as np
     from createScreenshots import createScreenshots
-
-    from builtins import str
-    from builtins import range
-
-    import warnings
-    import sys
-    import shlex
-    import optparse
-    import subprocess
-    import tempfile
-    import uuid
-    import errno
-    import glob
 
     # --------------------------------------------------------------------------
     # auxiliary functions
@@ -119,6 +113,36 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     # --------------------------------------------------------------------------
     # main part
 
+
+    # check files
+
+    if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")):
+
+        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")+', returning NaNs')
+
+        out = np.empty(N_EIGEN)
+        out[:] = np.nan
+
+        return out
+
+    elif not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")):
+
+        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+', returning NaNs')
+
+        out = np.empty(N_EIGEN)
+        out[:] = np.nan
+
+        return out
+
+    elif not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")):
+
+        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+', returning NaNs')
+
+        out = np.empty(N_EIGEN)
+        out[:] = np.nan
+
+        return out
+
     ## run make_upright; note: rather than 'make_upright', better use 'mri_cc' 
     ## to compute the transformation matrix, should this ever be necessary.
     #
@@ -158,10 +182,9 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     if RUN_SHAPEDNA is True:
 
-        from exportEV import exportEV
-        from fs_shapeDNA import laplaceTria, computeABtria
-
         import nibabel as nb
+
+        from brainPrintPython import laplaceTria
 
         surf = nb.freesurfer.io.read_geometry(os.path.join(OUTPUT_DIR,"cc.surf"), read_metadata=True)
 
@@ -176,9 +199,6 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         d['NumEW'] = N_EIGEN
         d['Eigenvalues'] = ev
         d['Eigenvectors'] = evec
-
-        # write EV
-        exportEV(d,os.path.join(OUTPUT_DIR,"cc.surf.ev"))
 
         # return
         return d['Eigenvalues']

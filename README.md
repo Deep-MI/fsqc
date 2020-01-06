@@ -56,27 +56,47 @@ that will be created within the output directory. These images can be used for
 quickly glimpsing through the processing results. Note that no display manager 
 is required for this module, i.e. it can be run on a remote server, for example.
 
-- shape features
-
-The purpose of this optional module is the computation of shape features, i.e. 
-a brainPrint anylsis. If this module is run, the output directory will also 
-contain results files of the brainPrint analysis, and the above csv table will 
-contain several additional metrics: for a number of lateralized brain 
-structures (e.g., ventricles, subcortical structures, gray and white matter), 
-the lateral asymmetry will be computed, i.e. distances between numerical shape 
-descriptors, where large values indicate large asymmetries and hence potential 
-issues with the segmentation of these structures.
-
 - fornix module
 
 This is a module to assess potential issues with the segementation of the 
 corpus callosum, which may incorrectly include parts of the fornix. To assess 
 segmentation quality, a screenshot of the contours of the corpus callosum 
 segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each 
-subject within the 'fornix' subdirectory of the output directory. Further, a 
-shapeDNA / brainPrint analysis will be conducted on a surface model of the 
-corpus callosum. By comparing the resulting shape descriptors, which will 
-appear in the main csv table, deviant segmentations may be detected. 
+subject within the 'fornix' subdirectory of the output directory. 
+
+- outlier module
+
+This is a module to detect extreme values among the subcortical ('aseg') 
+segmentations. The outlier detection is based on comparisons with the 
+distributions of the sample as well as normative values taken from the 
+literature (see References).
+
+For comparisons with the sample distributions, extreme values are defined in 
+two ways: nonparametrically, i.e. values that are 1.5 times the interquartile 
+range below or above the 25th or 75th percentile of the sample, respectively, 
+and parametrically, i.e. values that are more than 2 standard deviations above 
+or below the sample mean. Note that a minimum of 10 supplied subjects is 
+required for running these analyses, otherwise `NaNs` will be returned.  
+
+For comparisons with the normative values, lower and upper bounds are computed 
+from the 95% prediction intervals of the regression models given in Potvin et 
+al., 1996, and values exceeding these bounds will be flagged. As an 
+alternative, users may specify their own normative values by using the 
+'--outlier-table' argument. This requires a custom csv table with headers
+`label`, `upper`, and `lower`, where `label` indicates a column of anatomical 
+names. It can be a subset and the order is arbitrary, but naming must exactly 
+match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
+specified upper and lower bounds.    
+  
+The main csv table will be appended with the following summary variables, and 
+more detailed output about will be saved as csv tables in the 'outliers' 
+subdirectory of the main output directory.
+
+variable                 |   description
+-------------------------|---------------------------------------------------
+n_outliers_sample_nonpar | number of structures that are 1.5 times the IQR above/below the 75th/25th percentile   
+n_outliers_sample_param  | number of structures that are 2 SD above/below the mean
+n_outliers_norms         | number of structures exceeding the upper and lower bounds of the normative values
 
 ___
 
@@ -84,8 +104,8 @@ ___
 
 ```
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
-                          [--subjects SubjectID [SubjectID ...]] [--shape]
-                          [--screenshots] [--fornix] [-h]
+                          [--subjects SubjectID [SubjectID ...]]
+                          [--screenshots] [--fornix] [--outlier] [-h]
 
 
 required arguments:
@@ -99,8 +119,10 @@ optional arguments:
   --subjects SubjectID [SubjectID ...]
                         list of subject IDs
   --screenshots         create screenshots
-  --shape               run shape analysis (requires additional scripts)
   --fornix              check fornix segmentation
+  --outlier             run outlier detection
+  --outlier-table       specify normative values (only in conjunction with
+                        --outlier)
 
 getting help:
   -h, --help            display this help message and exit
@@ -123,15 +145,19 @@ ___
 
     `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
-- Run the QC pipeline plus the shape pipeline for all subjects found in `/my/subjects/directory`:
-
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
-
 - Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
+- Run the QC pipeline plus the the outlier detection module for all subjects found in `/my/subjects/directory`:
 
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
+
+- Run the QC pipeline plus the the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
+
+    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+
+Note that the `--screenshots`, `--fornix`, and `--outlier`arguments can also be used in conjunction.
 ___
 
 ## Installation
@@ -152,11 +178,6 @@ Use the following code to install the package in editable mode to a location of
 your choice:
 
 `pip3 install --user --src /my/preferred/location --editable git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
-
-The (optional) shape analysis module of this software depends on the 
-`brainprintpython` package, which can be installed as follows:
-
-`pip3 install --user git+https://github.com/reuter-lab/BrainPrint-python.git@freesurfer-module#egg=brainprintpython`
 
 Note: Use `import qatoolspython` to import the package within a python 
 environment.
@@ -208,9 +229,6 @@ ___
 - Required packages include the nibabel and skimage package for the core
   functionality, plus the the matplotlib, pandas, and transform3d packages for 
   some optional functions and modules.
-
-- For (optional) shape analysis, an installation of the `brainprintpython`
-  package is required.
 
 ___
 
