@@ -38,9 +38,6 @@ def get_help():
     derived from the shapeDNA and brainPrint toolboxes, available at 
     https://reuter.mit.edu.
 
-    The current version is a development version that can be used for testing 
-    purposes. It will be revised, and extended in the future.
-
     The core functionality of this toolbox is to compute the following features:
 
     - wm_snr_orig   ...  signal-to-noise for white matter in orig.mgz
@@ -488,7 +485,43 @@ def check_packages():
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table):
+def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
+    """
+    a function to prepare running the qatools script
+
+    """
+
+    # ------------------------------------------------------------------------------
+
+    #  set up arguments
+    class argumentsClass:
+        pass
+
+    arguments = argumentsClass()
+    arguments.subjects_dir = subjects_dir
+    arguments.output_dir = output_dir
+    arguments.subjects = subjects
+    arguments.shape = shape
+    arguments.screenshots = screenshots
+    arguments.fornix = fornix
+    arguments.outlier = outlier
+    arguments.outlier_table = outlier_table
+
+    # check arguments
+    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = check_arguments(arguments)
+
+    # check packages
+    check_packages()
+
+    # run qatools
+    do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+
+
+
+# ------------------------------------------------------------------------------
+# run qatools
+
+def do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
     """
     a function to run the various qatools submodules
 
@@ -519,15 +552,6 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, 
     FORNIX_SHAPE = False
     FORNIX_N_EIGEN = 15
     OUTLIER_N_MIN = 5
-
-    # --------------------------------------------------------------------------
-    # say hello
-
-    print("")
-    print("-----------------------------")
-    print("qatools-python")
-    print("-----------------------------")
-    print("")
 
     # --------------------------------------------------------------------------
     # process
@@ -686,7 +710,7 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, 
     # --------------------------------------------------------------------------
     # run optional modules: outlier detection
 
-    if outliers is True:
+    if outlier is True:
 
         # message
         print("---------------------------------------")
@@ -701,11 +725,11 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, 
             with open(outlier_table, newline='') as csvfile:
                 outlierCsv = csv.DictReader(csvfile, delimiter=',')
                 for row in outlierCsv:
-                    outlierDict.update({row['label']: {'lower': row['lower'], 'upper': row['upper']}})
+                    outlierDict.update({row['label']: {'lower': float(row['lower']), 'upper': float(row['upper'])}})
 
         # process
         outlier_outdir = os.path.join(output_dir, 'outliers')
-        n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = od.outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
+        n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
 
         # create a dictionary from outlier module ouput
         outlierDict = dict()
@@ -756,6 +780,13 @@ def run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, 
     
 if __name__ == "__main__":
 
+    # say hello
+    print("")
+    print("-----------------------------")
+    print("qatools-python")
+    print("-----------------------------")
+    print("")
+
     # parse arguments
     arguments = parse_arguments()
 
@@ -766,4 +797,4 @@ if __name__ == "__main__":
     check_packages()
 
     # run qatools
-    run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+    do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
