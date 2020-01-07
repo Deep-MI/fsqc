@@ -15,9 +15,6 @@ at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with code
 derived from the shapeDNA and brainPrint toolboxes, available at 
 https://reuter.mit.edu.
 
-**The current version is a development version that can be used for testing 
-purposes. It will be revised and extended in the future.**
-
 The core functionality of this toolbox is to compute the following features:
 
 variable       |   description
@@ -76,7 +73,7 @@ two ways: nonparametrically, i.e. values that are 1.5 times the interquartile
 range below or above the 25th or 75th percentile of the sample, respectively, 
 and parametrically, i.e. values that are more than 2 standard deviations above 
 or below the sample mean. Note that a minimum of 10 supplied subjects is 
-required for running these analyses, otherwise `NaNs` will be returned.  
+required for running these analyses, otherwise `NaNs` will be returned.
 
 For comparisons with the normative values, lower and upper bounds are computed 
 from the 95% prediction intervals of the regression models given in Potvin et 
@@ -86,7 +83,7 @@ alternative, users may specify their own normative values by using the
 `label`, `upper`, and `lower`, where `label` indicates a column of anatomical 
 names. It can be a subset and the order is arbitrary, but naming must exactly 
 match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
-specified upper and lower bounds.    
+specified upper and lower bounds.
   
 The main csv table will be appended with the following summary variables, and 
 more detailed output about will be saved as csv tables in the 'outliers' 
@@ -94,7 +91,7 @@ subdirectory of the main output directory.
 
 variable                 |   description
 -------------------------|---------------------------------------------------
-n_outliers_sample_nonpar | number of structures that are 1.5 times the IQR above/below the 75th/25th percentile   
+n_outliers_sample_nonpar | number of structures that are 1.5 times the IQR above/below the 75th/25th percentile
 n_outliers_sample_param  | number of structures that are 2 SD above/below the mean
 n_outliers_norms         | number of structures exceeding the upper and lower bounds of the normative values
 
@@ -157,20 +154,39 @@ ___
 
     `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
-Note that the `--screenshots`, `--fornix`, and `--outlier`arguments can also be used in conjunction.
+- Note that the `--screenshots`, `--fornix`, and `--outlier`arguments can also be used in conjunction.
+
+- Note that `/my/scripts/directory` must be on the PYTHONPATH.
+
 ___
 
 ## Installation
 
-This software can be cloned from its github repository so that the `qatools.py` 
-script is directly executable from the command line, as detailed above.
+This software can be downloaded from its github repository at `https://github.com/reuter-lab/qatools-python`.
+
+Alternatively, it can be cloned directly from its repository via:
 
 `git clone https://github.com/reuter-lab/qatools-python`
 
-Alternatively, if the scripts will primarily be run from within a python 
-environment, they can also be installed as a python package. Use the following 
-code to download, build and install a package from its github repository into 
-your local python package directory:
+The parent directory of the `qatoolspython` directory must be put onto the 
+PYTHONPATH. For example, if the scripts are put into `/home/user/scripts/qatoolspython`, 
+then use `export PYTHONPATH=${PYTHONPATH}:/home/user/scripts` to 
+add their parent directory to the PYTHONPATH. 
+
+
+The `qatools.py` script will then be executable from the command line, as 
+detailed above.
+
+___
+
+## Use as a python package
+
+As an alternative to their command-line usage, the qc scripts can also be run 
+within a pure python environment, i.e. installed and imported as a python 
+package. 
+
+Use the following code to download, build and install a package from its github 
+repository into your local python package directory:
 
 `pip3 install --user git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
 
@@ -179,8 +195,16 @@ your choice:
 
 `pip3 install --user --src /my/preferred/location --editable git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
 
-Note: Use `import qatoolspython` to import the package within a python 
-environment.
+Use `import qatoolspython` (or sth. equivalent) to import the package within a 
+python environment.
+
+Use the `run_qatools` function from the `qatools` module to run an analysis:
+
+`from qatoolspython import qatools`
+
+`qatools.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+
+See `help(qatools)` for further usage info and options.
 
 ___
 
@@ -214,7 +238,11 @@ ___
 
 - Reuter M, Wolter FE, Shenton M, Niethammer M; 2009; Laplace-Beltrami 
   Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape 
-  Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
+  Analysis; Computer-Aided Design: 41, 739-755; doi:10.1016/j.cad.2009.02.007.
+
+- Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease Neuroimaging 
+  Initiative; 2016; Normative data for subcortical regional volumes over the lifetime 
+  of the adult human brain; Neuroimage: 137, 9-20; doi.org/10.1016/j.neuroimage.2016.05.016
 
 ___
 

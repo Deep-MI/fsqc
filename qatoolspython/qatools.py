@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This module provides the main function of the qatoolspython package.
+This module provides the main functionality of the qatoolspython package.
 
 """
 
@@ -11,9 +11,9 @@ This module provides the main function of the qatoolspython package.
 # ------------------------------------------------------------------------------
 # get_help()
 
-def get_help():
+def get_help(print_help=True, return_help=False):
     """
-    A function to return a help message
+    a function to return a help message
 
     """
 
@@ -145,6 +145,26 @@ def get_help():
           -h, --help            display this help message and exit
 
 
+    ========================
+    Use as a python package:
+    ========================
+
+    As an alternative to their command-line usage, the qc scripts can also be run 
+    within a pure python environment, i.e. installed and imported as a python 
+    package. 
+
+    Use `import qatoolspython` (or sth. equivalent) to import the package within a 
+    python environment.
+    
+    Use the `run_qatools` function from the `qatools` module to run an analysis:
+    
+    `from qatoolspython import qatools`
+    
+    `qatools.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+    
+    See `help(qatools)` for further usage info and options.
+
+
     =============
     Known Issues: 
     =============
@@ -180,6 +200,10 @@ def get_help():
     Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape 
     Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
 
+    Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease Neuroimaging 
+    Initiative; 2016; Normative data for subcortical regional volumes over the lifetime 
+    of the adult human brain; Neuroimage: 137, 9-20; 
+    doi.org/10.1016/j.neuroimage.2016.05.016
 
     =============
     Requirements:
@@ -208,15 +232,19 @@ def get_help():
 
     """
 
-    return HELPTEXT
+    if print_help:
+        print(HELPTEXT)
+
+    if return_help:
+        return HELPTEXT
 
 
 # ------------------------------------------------------------------------------
 # parse_arguments
 
-def parse_arguments():
+def _parse_arguments():
     """
-    A function to parse input arguments
+    an internal function to parse input arguments
 
     """
 
@@ -265,9 +293,9 @@ def parse_arguments():
 # ------------------------------------------------------------------------------
 # check arguments
 
-def check_arguments(arguments):
+def _check_arguments(arguments):
     """
-    a function to check input arguments
+    an internal function to check input arguments
 
     """
 
@@ -450,9 +478,9 @@ def check_arguments(arguments):
 # ------------------------------------------------------------------------------
 # check packages
 
-def check_packages():
+def _check_packages():
     """
-    a function to check required / recommended packages
+    an internal function to check required / recommended packages
 
     """
 
@@ -487,7 +515,7 @@ def check_packages():
 
 def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
     """
-    a function to prepare running the qatools script
+    a function to run the qatools submodules
 
     """
 
@@ -508,22 +536,20 @@ def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=
     arguments.outlier_table = outlier_table
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = check_arguments(arguments)
+    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(arguments)
 
     # check packages
-    check_packages()
+    _check_packages()
 
     # run qatools
-    do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
-
-
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
 
 # ------------------------------------------------------------------------------
 # run qatools
 
-def do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
     """
-    a function to run the various qatools submodules
+    an internal function to run the qatools submodules
 
     """
 
@@ -788,13 +814,13 @@ if __name__ == "__main__":
     print("")
 
     # parse arguments
-    arguments = parse_arguments()
+    arguments = _parse_arguments()
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = check_arguments(arguments)
+    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(arguments)
 
     # check packages
-    check_packages()
+    _check_packages()
 
     # run qatools
-    do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
