@@ -799,7 +799,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     with open(path_data_file, 'w') as datafile:
         csvwriter = csv.DictWriter(datafile, fieldnames=metricsFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
-        for subject in list(metricsDict.keys()):
+        for subject in sorted(list(metricsDict.keys())):
             csvwriter.writerow(metricsDict[subject])
 
 

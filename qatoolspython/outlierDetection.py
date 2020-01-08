@@ -175,23 +175,23 @@ def outlierTable():
     # define
 
     outlierDict = dict([
-        ('Left-Accumbens-area',   dict([('upper' ,    210.87844594754), ('lower',   718.01022026916)])),
-        ('Right-Accumbens-area',  dict([('upper' ,    304.86134907845), ('lower',   751.63838456345)])),
-        ('Left-Amygdala',         dict([('upper' ,   1179.73655974083), ('lower',  1935.09415214717)])),
-        ('Right-Amygdala',        dict([('upper' ,   1161.54746836742), ('lower',  2002.14187676668)])),
-        ('Brain-Stem',            dict([('upper' ,  18048.54263155760), ('lower', 25300.51090318110)])),
-        ('Left-Caudate',          dict([('upper' ,   2702.73311142764), ('lower',  4380.54479618196)])),
-        ('Right-Caudate',         dict([('upper' ,   2569.61140834210), ('lower',  4412.61035536070)])),
-        ('Left-Hippocampus',      dict([('upper' ,   3432.26483953083), ('lower',  4934.43236139507)])),
-        ('Right-Hippocampus',     dict([('upper' ,   3580.74371035841), ('lower',  5067.49668145829)])),
-        ('Left-Pallidum',         dict([('upper' ,    935.47686324176), ('lower',  1849.42861796994)])),
-        ('Right-Pallidum',        dict([('upper' ,   1078.14975428593), ('lower',  1864.08951102817)])),
-        ('Left-Putamen',          dict([('upper' ,   3956.23134409153), ('lower',  6561.97642872937)])),
-        ('Right-Putamen',         dict([('upper' ,   3768.88684356957), ('lower',  6142.52870810603)])),
-        ('Left-Thalamus-Proper',  dict([('upper' ,   6483.36121320953), ('lower',  9489.46749012527)])),
-        ('Right-Thalamus-Proper', dict([('upper' ,   6065.70220487045), ('lower',  8346.88382091555)])),
-        ('Left-VentralDC',        dict([('upper' ,   3182.42264293449), ('lower',  4495.77412707751)])),
-        ('Right-VentralDC',       dict([('upper' ,   3143.88280953869), ('lower',  4407.63641978371)]))
+        ('Left-Accumbens-area',   dict([('lower' ,    210.87844594754), ('upper',   718.01022026916)])),
+        ('Right-Accumbens-area',  dict([('lower' ,    304.86134907845), ('upper',   751.63838456345)])),
+        ('Left-Amygdala',         dict([('lower' ,   1179.73655974083), ('upper',  1935.09415214717)])),
+        ('Right-Amygdala',        dict([('lower' ,   1161.54746836742), ('upper',  2002.14187676668)])),
+        ('Brain-Stem',            dict([('lower' ,  18048.54263155760), ('upper', 25300.51090318110)])),
+        ('Left-Caudate',          dict([('lower' ,   2702.73311142764), ('upper',  4380.54479618196)])),
+        ('Right-Caudate',         dict([('lower' ,   2569.61140834210), ('upper',  4412.61035536070)])),
+        ('Left-Hippocampus',      dict([('lower' ,   3432.26483953083), ('upper',  4934.43236139507)])),
+        ('Right-Hippocampus',     dict([('lower' ,   3580.74371035841), ('upper',  5067.49668145829)])),
+        ('Left-Pallidum',         dict([('lower' ,    935.47686324176), ('upper',  1849.42861796994)])),
+        ('Right-Pallidum',        dict([('lower' ,   1078.14975428593), ('upper',  1864.08951102817)])),
+        ('Left-Putamen',          dict([('lower' ,   3956.23134409153), ('upper',  6561.97642872937)])),
+        ('Right-Putamen',         dict([('lower' ,   3768.88684356957), ('upper',  6142.52870810603)])),
+        ('Left-Thalamus-Proper',  dict([('lower' ,   6483.36121320953), ('upper',  9489.46749012527)])),
+        ('Right-Thalamus-Proper', dict([('lower' ,   6065.70220487045), ('upper',  8346.88382091555)])),
+        ('Left-VentralDC',        dict([('lower' ,   3182.42264293449), ('upper',  4495.77412707751)])),
+        ('Right-VentralDC',       dict([('lower' ,   3143.88280953869), ('upper',  4407.63641978371)]))
         ])
 
     # return
@@ -247,8 +247,8 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
 
         iqr = np.percentile(df, 75, axis=0) - np.percentile(df, 25, axis=0)
 
-        sample_nonpar_lower = dict(zip(dict(df).keys(), np.percentile(df, 25, axis=0) - 1.5 * iqr))
-        sample_nonpar_upper = dict(zip(dict(df).keys(), np.percentile(df, 75, axis=0) + 1.5 * iqr))
+        sample_nonpar_lower = dict(zip(df.columns, np.percentile(df, 25, axis=0) - 1.5 * iqr))
+        sample_nonpar_upper = dict(zip(df.columns, np.percentile(df, 75, axis=0) + 1.5 * iqr))
 
         sample_param_lower = dict(np.mean(df, axis=0) - 2 * np.std(df, axis=0))
         sample_param_upper = dict(np.mean(df, axis=0) + 2 * np.std(df, axis=0))
@@ -306,16 +306,22 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
 
         normsDict = dict()
 
-        for key in outlierDict:
+        for key in aseg[subject]:
 
-            if (aseg[subject][key] < outlierDict[key]['lower']) or (aseg[subject][key] > outlierDict[key]['upper']):
-                normsDict.update({key: True})
+            if key in outlierDict:
+
+                if (aseg[subject][key] < outlierDict[key]['lower']) or (aseg[subject][key] > outlierDict[key]['upper']):
+                    normsDict.update({key: True})
+                else:
+                    normsDict.update({key: False})
+
             else:
-                normsDict.update({key: False})
+
+                normsDict.update({key: np.nan})
 
         outlierNorms.update({subject : normsDict})
 
-        outlierNormsNum.update({subject: np.sum(list(normsDict.values()))})
+        outlierNormsNum.update({subject: np.nansum(list(normsDict.values()))})
 
     # write to csv files
 
@@ -325,7 +331,7 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
     with open(os.path.join(output_dir, 'all.aseg.stats'), 'w') as datafile:
         csvwriter = csv.DictWriter(datafile, fieldnames=asegFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
-        for subject in list(aseg.keys()):
+        for subject in sorted(list(aseg.keys())):
             tmp = aseg[subject]
             tmp.update({'subject' : subject})
             csvwriter.writerow(tmp)
@@ -333,7 +339,7 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
     with open(os.path.join(output_dir, 'all.outliers.sample.nonpar.stats'), 'w') as datafile:
         csvwriter = csv.DictWriter(datafile, fieldnames=asegFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
-        for subject in list(outlierSampleNonpar.keys()):
+        for subject in sorted(list(outlierSampleNonpar.keys())):
             tmp = outlierSampleNonpar[subject]
             tmp.update({'subject' : subject})
             csvwriter.writerow(tmp)
@@ -341,7 +347,7 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
     with open(os.path.join(output_dir, 'all.outliers.sample.param.stats'), 'w') as datafile:
         csvwriter = csv.DictWriter(datafile, fieldnames=asegFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
-        for subject in list(outlierSampleParam.keys()):
+        for subject in sorted(list(outlierSampleParam.keys())):
             tmp = outlierSampleParam[subject]
             tmp.update({'subject' : subject})
             csvwriter.writerow(tmp)
@@ -349,7 +355,7 @@ def outlierDetection(subjects, subjects_dir, output_dir, outlierDict, min_no_sub
     with open(os.path.join(output_dir, 'all.outliers.norms.stats'), 'w') as datafile:
         csvwriter = csv.DictWriter(datafile, fieldnames=asegFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
-        for subject in list(outlierNorms.keys()):
+        for subject in sorted(list(outlierNorms.keys())):
             tmp = outlierNorms[subject]
             tmp.update({'subject' : subject})
             csvwriter.writerow(tmp)
