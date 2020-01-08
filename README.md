@@ -212,7 +212,7 @@ Included with this toolbox is a `testing` subdirectory which contains two
 testing routines, `testing.sh` and `testing.py`. These can be used to test the 
 installation and verify results.
 
-These operate on a subset of the [Freesurfer tutorial data!](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/Data), 
+These operate on a subset of the [Freesurfer tutorial data](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/Data), 
 which must be downloaded separately.
 
 Extracting the downloaded file with `tar -xzvf tutorial_data.tar.gz` should 

@@ -31,7 +31,5 @@ setup(
     # installed, so they must be valid existing projects.
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['os', 'sys', 'csv', 'numpy', 'argparse', 'time', 'errno', 'tempfile', 'importlib', 'transforms3d', 'pandas', 'matplotlib', 'shlex', 'subprocess', 'struct', 'scipy']
+    install_requires=['importlib','argparse','numpy','scipy','pandas','matplotlib','transforms3d']
 )
-
-
