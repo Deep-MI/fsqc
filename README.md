@@ -164,15 +164,12 @@ ___
 
 This software can be downloaded from its github repository at `https://github.com/reuter-lab/qatools-python`.
 
-Alternatively, it can be cloned directly from its repository via:
-
-`git clone https://github.com/reuter-lab/qatools-python`
+Alternatively, it can be cloned directly from its repository via `git clone https://github.com/reuter-lab/qatools-python`.
 
 The parent directory of the `qatoolspython` directory must be put onto the 
 PYTHONPATH. For example, if the scripts are put into `/home/user/scripts/qatoolspython`, 
 then use `export PYTHONPATH=${PYTHONPATH}:/home/user/scripts` to 
 add their parent directory to the PYTHONPATH. 
-
 
 The `qatools.py` script will then be executable from the command line, as 
 detailed above.
