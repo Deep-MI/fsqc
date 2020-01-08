@@ -175,24 +175,23 @@ def outlierTable():
     # define
 
     outlierDict = dict([
-        ('Left_Accumbens_area',   dict([('upper' ,    210.87844594754), ('lower',   718.01022026916)])),
-        ('Right_Accumbens_area',  dict([('upper' ,    304.86134907845), ('lower',   751.63838456345)])),
-        ('Left_Amygdala',         dict([('upper' ,   1179.73655974083), ('lower',  1935.09415214717)])),
-        ('Right_Amygdala',        dict([('upper' ,   1161.54746836742), ('lower',  2002.14187676668)])),
-        ('Brain_Stem',            dict([('upper' ,  18048.54263155760), ('lower', 25300.51090318110)])),
-        ('Left_Caudate',          dict([('upper' ,   2702.73311142764), ('lower',  4380.54479618196)])),
-        ('Right_Caudate',         dict([('upper' ,   2569.61140834210), ('lower',  4412.61035536070)])),
-        ('Left_Hippocampus',      dict([('upper' ,   3432.26483953083), ('lower',  4934.43236139507)])),
-        ('Right_Hippocampus',     dict([('upper' ,   3580.74371035841), ('lower',  5067.49668145829)])),
-        ('Left_Pallidum',         dict([('upper' ,    935.47686324176), ('lower',  1849.42861796994)])),
-        ('Right_Pallidum',        dict([('upper' ,   1078.14975428593), ('lower',  1864.08951102817)])),
-        ('Left_Putamen',          dict([('upper' ,   3956.23134409153), ('lower',  6561.97642872937)])),
-        ('Right_Putamen',         dict([('upper' ,   3768.88684356957), ('lower',  6142.52870810603)])),
-        ('Left_Thalamus_Proper',  dict([('upper' ,   6483.36121320953), ('lower',  9489.46749012527)])),
-        ('Right_Thalamus_Proper', dict([('upper' ,   6065.70220487045), ('lower',  8346.88382091555)])),
-        ('Left_VentralDC',        dict([('upper' ,   3182.42264293449), ('lower',  4495.77412707751)])),
-        ('Right_VentralDC',       dict([('upper' ,   3143.88280953869), ('lower',  4407.63641978371)])),
-        ('SubCortGrayVol',        dict([('upper' ,  50199.24507852570), ('lower', 63431.70560741160)]))
+        ('Left-Accumbens-area',   dict([('upper' ,    210.87844594754), ('lower',   718.01022026916)])),
+        ('Right-Accumbens-area',  dict([('upper' ,    304.86134907845), ('lower',   751.63838456345)])),
+        ('Left-Amygdala',         dict([('upper' ,   1179.73655974083), ('lower',  1935.09415214717)])),
+        ('Right-Amygdala',        dict([('upper' ,   1161.54746836742), ('lower',  2002.14187676668)])),
+        ('Brain-Stem',            dict([('upper' ,  18048.54263155760), ('lower', 25300.51090318110)])),
+        ('Left-Caudate',          dict([('upper' ,   2702.73311142764), ('lower',  4380.54479618196)])),
+        ('Right-Caudate',         dict([('upper' ,   2569.61140834210), ('lower',  4412.61035536070)])),
+        ('Left-Hippocampus',      dict([('upper' ,   3432.26483953083), ('lower',  4934.43236139507)])),
+        ('Right-Hippocampus',     dict([('upper' ,   3580.74371035841), ('lower',  5067.49668145829)])),
+        ('Left-Pallidum',         dict([('upper' ,    935.47686324176), ('lower',  1849.42861796994)])),
+        ('Right-Pallidum',        dict([('upper' ,   1078.14975428593), ('lower',  1864.08951102817)])),
+        ('Left-Putamen',          dict([('upper' ,   3956.23134409153), ('lower',  6561.97642872937)])),
+        ('Right-Putamen',         dict([('upper' ,   3768.88684356957), ('lower',  6142.52870810603)])),
+        ('Left-Thalamus-Proper',  dict([('upper' ,   6483.36121320953), ('lower',  9489.46749012527)])),
+        ('Right-Thalamus-Proper', dict([('upper' ,   6065.70220487045), ('lower',  8346.88382091555)])),
+        ('Left-VentralDC',        dict([('upper' ,   3182.42264293449), ('lower',  4495.77412707751)])),
+        ('Right-VentralDC',       dict([('upper' ,   3143.88280953869), ('lower',  4407.63641978371)]))
         ])
 
     # return

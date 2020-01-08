@@ -205,6 +205,26 @@ See `help(qatools)` for further usage info and options.
 
 ___
 
+## Testing
+
+
+Included with this toolbox is a `testing` subdirectory which contains two 
+testing routines, `testing.sh` and `testing.py`. These can be used to test the 
+installation and verify results.
+
+These operate on a subset of the [Freesurfer tutorial data!](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/Data), 
+which must be downloaded separately.
+
+Extracting the downloaded file with `tar -xzvf tutorial_data.tar.gz` should 
+give a `tutorial_data` directory. From `tutorial_data/buckner_data/tutorial_subjs/group_analysis_tutorial`, 
+copy the following subjects to the `testing/data` subdirectory within the 
+toolbox directory: `017`, `091`, `092`, `124`, `129`, `130`, `136`, and `145`.
+
+Run the tests by executing `testing.sh` and/or `python3 testing.py` from within 
+the `testing` subdirectory of this toolbox.
+
+___
+
 ## Known Issues
 
 The program will analyze recon-all logfiles, and may fail or return erroneous
@@ -251,9 +271,11 @@ ___
 
 - A Python version >= 3.4 is required to run this script.
 
-- Required packages include the nibabel and skimage package for the core
-  functionality, plus the the matplotlib, pandas, and transform3d packages for 
-  some optional functions and modules.
+- Required packages include (among others) the nibabel and skimage package for 
+  the core functionality, plus the the matplotlib, pandas, and transform3d 
+  packages for some optional functions and modules. See the `requirements.txt` 
+  file for a complete list. Use `pip3 install -r requirements.txt` to install 
+  these packages.
 
 ___
 

@@ -216,9 +216,11 @@ def get_help(print_help=True, return_help=False):
 
     A Python version >= 3.4 is required to run this script.
 
-    Required packages include the nibabel and scikit-image package for the core
-    functionality, plus the the matplotlib, pandas, and transform3d packages for 
-    some optional functions and modules. 
+    Required packages include (among others) the nibabel and skimage package for 
+    the core functionality, plus the the matplotlib, pandas, and transform3d 
+    packages for some optional functions and modules. See the `requirements.txt` 
+    file for a complete list. Use `pip3 install -r requirements.txt` to install 
+    these packages.
 
 
     ========

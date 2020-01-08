@@ -10,25 +10,13 @@ with open("README.md", "r") as fh:
 
 setup(
     name="qatoolspython",
-    version="0.9.5-beta",
+    version="0.9.6-beta",
     author="Kersten Diers, Martin Reuter, and others (see README)",
     description="A set of quality assurance / quality control scripts for Freesurfer 6.0 processed structural MRI data",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
     packages=['qatoolspython'],
-#    py_modules=[
-#        'qatoolspython.checkCCSize',
-#        'qatoolspython.checkContrast',
-#        'qatoolspython.checkRotation',
-#        'qatoolspython.checkSNR',
-#        'qatoolspython.checkTopology',
-#        'qatoolspython.createScreenshots',
-#        'qatoolspython.evaluateFornixSegmentation',
-#        'qatoolspython.outlierDetection',
-#        'qatoolspython.qatools',
-#        'qatoolspython.qatoolsUtils',
-#    ],
     # see https://pypi.org/classifiers/
     classifiers=[ 
         "Programming Language :: Python :: 3",
@@ -43,6 +31,7 @@ setup(
     # installed, so they must be valid existing projects.
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy', 'nibabel', 'scikit-image' ]
+    install_requires=['os', 'sys', 'csv', 'numpy', 'argparse', 'time', 'errno', 'tempfile', 'importlib', 'transforms3d', 'pandas', 'matplotlib', 'shlex', 'subprocess', 'struct', 'scipy']
 )
+
 
