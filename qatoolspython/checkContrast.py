@@ -32,7 +32,7 @@ def checkContrast(subjects_dir, subject):
     import sys
     import numpy
     import nibabel
-    from qatoolspython.qatoolsUtils import importMGH
+    from qatoolspython.qatoolspythonUtils import importMGH
 
     # Message
     print('Checking WM/GM contrast SNR ...')

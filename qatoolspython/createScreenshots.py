@@ -50,7 +50,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         matplotlib.use('Agg')
 
     from matplotlib import pyplot as plt
-    from qatoolspython.qatoolsUtils import levelsetsTria
+    from qatoolspython.qatoolspythonUtils import levelsetsTria
 
     # -----------------------------------------------------------------------------
     # settings

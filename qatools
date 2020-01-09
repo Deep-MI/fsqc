@@ -8,11 +8,11 @@ print("-----------------------------")
 print("")
 
 # imports
-from qatoolspython import qatoolsMain
+from qatoolspython import qatoolspython
 
 # parse arguments
-subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = qatoolsMain._parse_arguments()
+subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = qatoolspython._parse_arguments()
 
 # run qatools
-qatoolsMain.run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+qatoolspython.run_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
 
