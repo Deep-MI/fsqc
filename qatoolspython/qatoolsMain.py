@@ -214,7 +214,7 @@ def get_help(print_help=True, return_help=False):
     At least one subject whose structural MR image was processed with Freesurfer 
     6.0 or later.
 
-    A Python version >= 3.4 is required to run this script.
+    A Python version >= 3.5 is required to run this script.
 
     Required packages include (among others) the nibabel and skimage package for 
     the core functionality, plus the the matplotlib, pandas, and transform3d 
@@ -290,12 +290,11 @@ def _parse_arguments():
     else:
         args = parser.parse_args()
 
-    return args
-
+    return args.subjects_dir, args.output_dir, args.subjects, args.shape, args.screenshots, args.fornix, args.outlier, args.outlier_table
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(arguments):
+def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table):
     """
     an internal function to check input arguments
 
@@ -315,166 +314,257 @@ def _check_arguments(arguments):
     # check arguments
 
     # check if subject directory exists
-    if os.path.isdir(arguments.subjects_dir):
-        print("Found subjects directory", arguments.subjects_dir)
+    if os.path.isdir(subjects_dir):
+        print("Found subjects directory", subjects_dir)
     else:
-        print('ERROR: subjects directory '+arguments.subjects_dir+' is not an existing directory\n')
+        print('ERROR: subjects directory '+subjects_dir+' is not an existing directory\n')
         sys.exit(1)
 
     # check if output directory exists or can be created and is writable
-    if os.path.isdir(arguments.output_dir):
-        print("Found output directory", arguments.output_dir)
+    if os.path.isdir(output_dir):
+        print("Found output directory", output_dir)
     else:
         try:
-            os.mkdir(arguments.output_dir)
+            os.mkdir(output_dir)
         except:
-            print('ERROR: cannot create output directory '+arguments.output_dir+'\n')
+            print('ERROR: cannot create output directory '+output_dir+'\n')
             sys.exit(1)
 
         try:
-            testfile = tempfile.TemporaryFile(dir=arguments.output_dir)
+            testfile = tempfile.TemporaryFile(dir=output_dir)
             testfile.close()
         except OSError as e:
             if e.errno != errno.EACCES:  # 13
-                e.filename = arguments.output_dir
+                e.filename = output_dir
                 raise
-            print('\nERROR: '+arguments.output_dir+' not writeable (check access)!\n')
+            print('\nERROR: '+output_dir+' not writeable (check access)!\n')
             sys.exit(1)
 
     # check if screenshots subdirectory exists or can be created and is writable
-    if arguments.screenshots is True:
-        if os.path.isdir(os.path.join(arguments.output_dir,'screenshots')):
-            print("Found screenshots directory", os.path.join(arguments.output_dir,'screenshots'))
+    if screenshots is True:
+        if os.path.isdir(os.path.join(output_dir,'screenshots')):
+            print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
         else:
             try:
-                os.mkdir(os.path.join(arguments.output_dir,'screenshots'))
+                os.mkdir(os.path.join(output_dir,'screenshots'))
             except:
-                print('ERROR: cannot create screenshots directory '+os.path.join(arguments.output_dir,'screenshots')+'\n')
+                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir,'screenshots')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'screenshots'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'screenshots'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(arguments.output_dir,'screenshots')
+                    e.filename = os.path.join(output_dir,'screenshots')
                     raise
-                print('\nERROR: '+os.path.join(arguments.output_dir,'screenshots')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check further screenshots dependencies
-    if arguments.screenshots is True and importlib.util.find_spec("pandas") is None:
+    if screenshots is True and importlib.util.find_spec("pandas") is None:
         print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
         sys.exit(1)
 
-    if arguments.screenshots is True and importlib.util.find_spec("matplotlib") is None:
+    if screenshots is True and importlib.util.find_spec("matplotlib") is None:
         print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
         sys.exit(1)
 
+    if screenshots is True:
+        path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
+        if not os.path.isfile(path_check):
+            print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
+            sys.exit(1)
+
     # check if fornix subdirectory exists or can be created and is writable
-    if arguments.fornix is True:
-        if os.path.isdir(os.path.join(arguments.output_dir,'fornix')):
-            print("Found fornix directory", os.path.join(arguments.output_dir,'fornix'))
+    if fornix is True:
+        if os.path.isdir(os.path.join(output_dir,'fornix')):
+            print("Found fornix directory", os.path.join(output_dir,'fornix'))
         else:
             try:
-                os.mkdir(os.path.join(arguments.output_dir,'fornix'))
+                os.mkdir(os.path.join(output_dir,'fornix'))
             except:
-                print('ERROR: cannot create fornix directory '+os.path.join(arguments.output_dir,'fornix')+'\n')
+                print('ERROR: cannot create fornix directory '+os.path.join(output_dir,'fornix')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'fornix'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'fornix'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(arguments.output_dir,'fornix')
+                    e.filename = os.path.join(output_dir,'fornix')
                     raise
-                print('\nERROR: '+os.path.join(arguments.output_dir,'fornix')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir,'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shape subdirectory exists or can be created and is writable
-    if arguments.shape is True:
-        if os.path.isdir(os.path.join(arguments.output_dir, 'brainprint')):
-            print("Found brainprint directory", os.path.join(arguments.output_dir,'brainprint'))
+    if shape is True:
+        if os.path.isdir(os.path.join(output_dir, 'brainprint')):
+            print("Found brainprint directory", os.path.join(output_dir,'brainprint'))
         else:
             try:
-                os.makedirs(os.path.join(arguments.output_dir,'brainprint'))
+                os.makedirs(os.path.join(output_dir,'brainprint'))
             except:
-                print('\nERROR: cannot create brainprint directory '+os.path.join(arguments.output_dir, 'brainprint')+'\n')
+                print('\nERROR: cannot create brainprint directory '+os.path.join(output_dir, 'brainprint')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'brainprint'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'brainprint'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(arguments.output_dir,'brainprint')
+                    e.filename = os.path.join(output_dir,'brainprint')
                     raise
-                print('\nERROR: '+os.path.join(arguments.output_dir,'brainprint')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir,'brainprint')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shapeDNA / brainPrint dependencies
-    if arguments.shape is True:
+    if shape is True:
         # check if brainprintpython can be imported
         if  importlib.util.find_spec("brainprintpython") is None:
             print("\nERROR: could not import the brainprintpython package, is it installed?") 
             sys.exit(1)
 
     # check if outlier subdirectory exists or can be created and is writable
-    if arguments.outlier is True:
-        if os.path.isdir(os.path.join(arguments.output_dir, 'outliers')):
-            print("Found outliers directory", os.path.join(arguments.output_dir,'outliers'))
+    if outlier is True:
+        if os.path.isdir(os.path.join(output_dir, 'outliers')):
+            print("Found outliers directory", os.path.join(output_dir,'outliers'))
         else:
             try:
-                os.makedirs(os.path.join(arguments.output_dir,'outliers'))
+                os.makedirs(os.path.join(output_dir,'outliers'))
             except:
-                print('\nERROR: cannot create outliers directory '+os.path.join(arguments.output_dir, 'outliers')+'\n')
+                print('\nERROR: cannot create outliers directory '+os.path.join(output_dir, 'outliers')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(arguments.output_dir,'outliers'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'outliers'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(arguments.output_dir,'outliers')
+                    e.filename = os.path.join(output_dir,'outliers')
                     raise
-                print('\nERROR: '+os.path.join(arguments.output_dir,'outliers')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir,'outliers')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if outlier-table exists if it was given, otherwise exit
-    if arguments.outlier_table is not None:
-        if os.path.isfile(arguments.outlier_table):
-            print("Found table with normative values ", arguments.outlier_table)
+    if outlier_table is not None:
+        if os.path.isfile(outlier_table):
+            print("Found table with normative values ", outlier_table)
         else:
-            print("Could not find table with normative values ", arguments.outlier_table)
+            print("Could not find table with normative values ", outlier_table)
             sys.exit(1)
 
     # if subjects are not given, get contents of the subject directory and 
-    # check if aseg.stats (as a proxy) exists; otherwise, just check that 
-    # aseg.stats exists
-    if arguments.subjects == []:
-        for subject in os.listdir(arguments.subjects_dir):
-            path_aseg_stat = os.path.join(arguments.subjects_dir,subject,"stats","aseg.stats")
+    # check if aseg.stats (as a proxy) exists
+    if subjects == []:
+        for subject in os.listdir(subjects_dir):
+            path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
             if os.path.isfile(path_aseg_stat):
-                print("Found aseg.stats file for subject",subject)
-                arguments.subjects.extend([subject])
-    else:
-        subjects_to_remove = list()
-        for subject in arguments.subjects:
-            path_aseg_stat = os.path.join(arguments.subjects_dir,subject,"stats","aseg.stats")
-            if not os.path.isfile(path_aseg_stat):
-                print("Could not find.aseg stats file for subject",subject)
+                print("Found subject",subject)
+                subjects.extend([subject])
+
+    # check for required files
+    subjects_to_remove = list()
+    for subject in subjects:
+
+        # -files: stats/aseg.stats
+        path_check = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        # -files: surf/[lr]h.w-g.pct.mgh, label/[lr]h.cortex.label
+        path_check = os.path.join(subjects_dir, subject, "surf", "lh.w-g.pct.mgh")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        path_check = os.path.join(subjects_dir, subject, "surf", "rh.w-g.pct.mgh")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        path_check = os.path.join(subjects_dir, subject, "label", "lh.cortex.label")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        path_check = os.path.join(subjects_dir, subject, "label", "rh.cortex.label")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        # -files: mri/transforms/talairach.lta
+        path_check = os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz
+        path_check = os.path.join(subjects_dir, subject, "mri", "norm.mgz")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        path_check = os.path.join(subjects_dir, subject, "mri", "aseg.mgz")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.mgz")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        # -files: scripts/recon-all.log
+        path_check = os.path.join(subjects_dir, subject, "scripts", "recon-all.log")
+        if not os.path.isfile(path_check):
+            print("Could not find", path_check, "for subject", subject)
+            subjects_to_remove.extend([subject])
+
+        # check screenshots
+        if screenshots is True:
+
+            # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
+            path_check = os.path.join(subjects_dir, subject, "surf", "lh.white")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
-        [ arguments.subjects.remove(x) for x in subjects_to_remove ]
+
+            path_check = os.path.join(subjects_dir, subject, "surf", "rh.white")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(subjects_dir, subject, "surf", "lh.pial")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(subjects_dir, subject, "surf", "rh.pial")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+        # check fornix
+        if fornix is True:
+
+            # -files: mri/transforms/cc_up.lta
+            path_check = os.path.join(subjects_dir, subject, "mri", "transforms", "cc_up.lta")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+    # remove subjects with missing files
+    [ subjects.remove(x) for x in subjects_to_remove ]
 
     # check if we have any subjects after all
-    if arguments.subjects == []:
+    if subjects == []:
         print("\nERROR: no subjects to process") 
         sys.exit(1)
 
     # now return
-    return arguments.subjects_dir, arguments.output_dir, arguments.subjects, arguments.shape, arguments.screenshots, arguments.fornix, arguments.outlier, arguments.outlier_table
-
+    return subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table
 
 
 # ------------------------------------------------------------------------------
@@ -513,41 +603,7 @@ def _check_packages():
 
 
 # ------------------------------------------------------------------------------
-# run qatools
-
-def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
-    """
-    a function to run the qatools submodules
-
-    """
-
-    # ------------------------------------------------------------------------------
-
-    #  set up arguments
-    class argumentsClass:
-        pass
-
-    arguments = argumentsClass()
-    arguments.subjects_dir = subjects_dir
-    arguments.output_dir = output_dir
-    arguments.subjects = subjects
-    arguments.shape = shape
-    arguments.screenshots = screenshots
-    arguments.fornix = fornix
-    arguments.outlier = outlier
-    arguments.outlier_table = outlier_table
-
-    # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(arguments)
-
-    # check packages
-    _check_packages()
-
-    # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
-
-# ------------------------------------------------------------------------------
-# run qatools
+# do qatools
 
 def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
     """
@@ -558,14 +614,14 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     # ------------------------------------------------------------------------------
     # imports
 
-    import os 
+    import os
     import csv
     import time
 
     from qatoolspython.checkSNR import checkSNR
     from qatoolspython.checkCCSize import checkCCSize
     from qatoolspython.checkTopology import checkTopology
-    from qatoolspython.checkContrast import checkContrast 
+    from qatoolspython.checkContrast import checkContrast
     from qatoolspython.checkRotation import checkRotation
     from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
     from qatoolspython.createScreenshots import createScreenshots
@@ -804,22 +860,19 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
 
 # ------------------------------------------------------------------------------
-# main
-    
-if __name__ == "__main__":
+# run qatools
 
-    # say hello
-    print("")
-    print("-----------------------------")
-    print("qatools-python")
-    print("-----------------------------")
-    print("")
+def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
+    """
+    a function to run the qatools submodules
 
-    # parse arguments
-    arguments = _parse_arguments()
+    """
+
+    # ------------------------------------------------------------------------------
+    #
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(arguments)
+    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
 
     # check packages
     _check_packages()
