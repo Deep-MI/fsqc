@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 This module provides the main functionality of the qatoolspython package.
 
@@ -121,7 +119,7 @@ def get_help(print_help=True, return_help=False):
     Usage: 
     ======
 
-        python3 quatools.py --subjects_dir <directory> --output_dir <directory>
+        python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]] 
                                   [--screenshots] [--fornix] [-h]
 
@@ -156,13 +154,13 @@ def get_help(print_help=True, return_help=False):
     Use `import qatoolspython` (or sth. equivalent) to import the package within a 
     python environment.
     
-    Use the `run_qatools` function from the `qatools` module to run an analysis:
+    Use the `run_qatools` function from the `qatoolspython` module to run an analysis:
     
-    `from qatoolspython import qatools`
+    `from qatoolspython import qatoolspython`
     
-    `qatools.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+    `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
     
-    See `help(qatools)` for further usage info and options.
+    See `help(qatoolspython)` for further usage info and options.
 
 
     =============
@@ -182,6 +180,7 @@ def get_help(print_help=True, return_help=False):
     - qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
     - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
       and Louis Vinke. 
+    - shapeDNA and brainPrint toolboxes: Martin Reuter
 
 
     ===========
@@ -221,6 +220,8 @@ def get_help(print_help=True, return_help=False):
     packages for some optional functions and modules. See the `requirements.txt` 
     file for a complete list. Use `pip3 install -r requirements.txt` to install 
     these packages.
+    
+    This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14. 
 
 
     ========

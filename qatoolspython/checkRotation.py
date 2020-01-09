@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 This module provides a function to determine the rotation angles of the Talairach transform
 

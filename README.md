@@ -132,31 +132,29 @@ ___
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
 - Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
 - Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
 - Run the QC pipeline plus the the outlier detection module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
 
 - Run the QC pipeline plus the the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatoolspython/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
 - Note that the `--screenshots`, `--fornix`, and `--outlier`arguments can also be used in conjunction.
-
-- Note that `/my/scripts/directory` must be on the PYTHONPATH.
 
 ___
 
@@ -165,11 +163,6 @@ ___
 This software can be downloaded from its github repository at `https://github.com/reuter-lab/qatools-python`.
 
 Alternatively, it can be cloned directly from its repository via `git clone https://github.com/reuter-lab/qatools-python`.
-
-The parent directory of the `qatoolspython` directory must be put onto the 
-PYTHONPATH. For example, if the scripts are put into `/home/user/scripts/qatoolspython`, 
-then use `export PYTHONPATH=${PYTHONPATH}:/home/user/scripts` to 
-add their parent directory to the PYTHONPATH. 
 
 The `qatools.py` script will then be executable from the command line, as 
 detailed above.
@@ -195,13 +188,14 @@ your choice:
 Use `import qatoolspython` (or sth. equivalent) to import the package within a 
 python environment.
 
-Use the `run_qatools` function from the `qatools` module to run an analysis:
+Use the `run_qatools` function from the `qatoolspython` module to run an 
+analysis:
 
-`from qatoolspython import qatools`
+`from qatoolspython import qatoolspython`
 
-`qatools.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
 
-See `help(qatools)` for further usage info and options.
+See `help(qatoolspython)` for further usage info and additional options.
 
 ___
 
@@ -276,6 +270,8 @@ ___
   packages for some optional functions and modules. See the `requirements.txt` 
   file for a complete list. Use `pip3 install -r requirements.txt` to install 
   these packages.
+  
+- This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
 
 ___
 

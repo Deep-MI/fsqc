@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 This module provides a function to evaluate potential outliers in the aseg.stats
 values.
