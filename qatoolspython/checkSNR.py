@@ -52,7 +52,7 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
     except FileNotFoundError:
         print("WARNING: could not open "+path_reference_image+", returning NaNs.")
         return np.nan, np.nan
-    
+
     try:
         path_aseg = os.path.join(subjects_dir,subject,"mri","aseg.mgz")
         aseg = nib.load(path_aseg)
