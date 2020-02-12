@@ -292,6 +292,7 @@ def _parse_arguments():
         args = parser.parse_args()
 
     return args.subjects_dir, args.output_dir, args.subjects, args.shape, args.screenshots, args.fornix, args.outlier, args.outlier_table
+
 # ------------------------------------------------------------------------------
 # check arguments
 
@@ -585,8 +586,8 @@ def _check_packages():
         print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
         sys.exit(1)
 
-    if sys.version_info <= (3, 4):
-        print('\nERROR: Python version must be 3.4 or greater\n')
+    if sys.version_info <= (3, 5):
+        print('\nERROR: Python version must be 3.5 or greater\n')
         sys.exit(1)
 
     if importlib.util.find_spec("skimage") is None:
