@@ -59,6 +59,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
     ALPHA = 0.5
 
+    tol = 1e-16
+
     # -----------------------------------------------------------------------------
     # import image data
 
@@ -340,11 +342,19 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                 tmpx = np.array(tmpx)
                 tmpy = np.array(tmpy)
 
+                # remove duplicate points
+                tmpxy = np.unique(np.concatenate((tmpx, tmpy), axis=1), axis=0)
+                tmpx = tmpxy[:, 0:2]
+                tmpy = tmpxy[:, 2:4]
+
+                # remove segments which are de-facto points
+                tmpIdx = np.logical_or(np.abs(tmpx[:,0]-tmpx[:,1])>tol, np.abs(tmpy[:,0]-tmpy[:,1])>tol)
+                tmpx = tmpx[tmpIdx, :]
+                tmpy = tmpy[tmpIdx, :]
+
                 # need to order array of line segments; whenever we encounter a
                 # closed loop, we will already plot; otherwise, plot in the end
                 sortIdx = np.array(range(0, len(tmpx)))
-
-                tol = 1e-16
 
                 tmpxSort = np.array(tmpx[sortIdx[0], ], ndmin=2)
                 tmpySort = np.array(tmpy[sortIdx[0], ], ndmin=2)
