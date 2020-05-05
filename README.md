@@ -146,11 +146,11 @@ ___
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
-- Run the QC pipeline plus the the outlier detection module for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline plus the outlier detection module for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
 
-- Run the QC pipeline plus the the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
+- Run the QC pipeline plus the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
@@ -265,7 +265,7 @@ ___
 - A Python version >= 3.4 is required to run this script.
 
 - Required packages include (among others) the nibabel and skimage package for
-  the core functionality, plus the the matplotlib, pandas, and transform3d
+  the core functionality, plus the matplotlib, pandas, and transform3d
   packages for some optional functions and modules. See the `requirements.txt`
   file for a complete list. Use `pip3 install -r requirements.txt` to install
   these packages.
