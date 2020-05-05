@@ -398,10 +398,14 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
         sys.exit(1)
 
     if screenshots is True:
-        path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
-        if not os.path.isfile(path_check):
-            print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
+        if os.environ.get('FREESURFER_HOME') is None:
+            print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
             sys.exit(1)
+        else:
+            path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
+            if not os.path.isfile(path_check):
+                print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
+                sys.exit(1)
 
     # check screenshots_base
     if screenshots_base == 'default':
@@ -861,7 +865,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             outfile = os.path.join(screenshots_outdir,subject+'.png')
 
             # process
-            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, VIEWS=screenshots_views)
+            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views)
 
         # ----------------------------------------------------------------------
         # run optional modules: fornix
