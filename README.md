@@ -178,7 +178,7 @@ package.
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/deep-mi/qatools-python.git@freesurfer-module#egg=qatoolspython`
+`pip3 install --user git+https://github.com/deep-mi/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use the following code to install the package in editable mode to a location of
 your choice:
@@ -258,7 +258,7 @@ ___
 
 ## Requirements
 
-- A working installation of Freesurfer 6.0 or later must be sourced.
+- A working installation of Freesurfer 6.0 must be sourced.
 
 - At least one structural MR image that was processed with Freesurfer 6.0.
 
