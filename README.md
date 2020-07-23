@@ -259,7 +259,7 @@ ___
 
 ## Requirements
 
-- A working installation of Freesurfer 6.0 or later must be sourced.
+- A working installation of Freesurfer 6.0 must be sourced.
 
 - At least one structural MR image that was processed with Freesurfer 6.0.
 
