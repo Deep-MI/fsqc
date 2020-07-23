@@ -262,7 +262,7 @@ ___
 
 - At least one structural MR image that was processed with Freesurfer 6.0.
 
-- A Python version >= 3.4 is required to run this script.
+- A Python version >= 3.5 is required to run this script.
 
 - Required packages include (among others) the nibabel and skimage package for
   the core functionality, plus the matplotlib, pandas, and transform3d
@@ -270,7 +270,7 @@ ___
   file for a complete list. Use `pip3 install -r requirements.txt` to install
   these packages.
 
-- This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
+- This software has been tested on Ubuntu 20.04 and MacOS 10.15.
 
 ___
 
