@@ -160,9 +160,9 @@ ___
 
 ## Installation
 
-This software can be downloaded from its github repository at `https://github.com/reuter-lab/qatools-python`.
+This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
 
-Alternatively, it can be cloned directly from its repository via `git clone https://github.com/reuter-lab/qatools-python`.
+Alternatively, it can be cloned directly from its repository via `git clone https://github.com/Deep-MI/qatools-python`.
 
 The `qatools.py` script will then be executable from the command line, as 
 detailed above.
@@ -178,12 +178,12 @@ package.
 Use the following code to download, build and install a package from its github 
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
+`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use the following code to install the package in editable mode to a location of
 your choice:
 
-`pip3 install --user --src /my/preferred/location --editable git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module#egg=qatoolspython`
+`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a 
 python environment.
