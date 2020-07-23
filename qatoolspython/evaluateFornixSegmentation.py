@@ -149,7 +149,6 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     cmd = "lta_convert --inlta "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
     run_cmd(cmd,"Could not convert lta")
-    import pdb ; pdb.set_trace()
 
     # conduct transform for aseg and norm
 
