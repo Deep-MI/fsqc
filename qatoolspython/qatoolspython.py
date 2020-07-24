@@ -27,13 +27,13 @@ def get_help(print_help=True, return_help=False):
     This is a set of quality assurance / quality control scripts for Freesurfer 6.0
     processed structural MRI data.
 
-    It is a revision, extension, and translation to the Python language of the 
-    original Freesurfer QA Tools that are provided at 
+    It is a revision, extension, and translation to the Python language of the
+    original Freesurfer QA Tools that are provided at
     https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
 
-    It has been augmented by additional functions from the MRIQC toolbox, available 
+    It has been augmented by additional functions from the MRIQC toolbox, available
     at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with code
-    derived from the shapeDNA and brainPrint toolboxes, available at 
+    derived from the shapeDNA and brainPrint toolboxes, available at
     https://reuter.mit.edu.
 
     The core functionality of this toolbox is to compute the following features:
@@ -55,77 +55,77 @@ def get_help(print_help=True, return_help=False):
     - rot_tal_y     ...  rotation component of the Talairach transform around the y axis
     - rot_tal_z     ...  rotation component of the Talairach transform around the z axis
 
-    The program will use an existing output directory (or try to create it) and 
-    write a csv table into that location. The csv table will contain the above 
+    The program will use an existing output directory (or try to create it) and
+    write a csv table into that location. The csv table will contain the above
     metrics plus a subject identifier.
-    
+
     In addition to the core functionality of the toolbox there are several optional
     modules that can be run according to need:
 
     - screenshots module
 
-    This module allows for the automated generation of cross-sections of the brain 
-    that are overlaid with the anatomical segmentations (asegs) and the white and 
-    pial surfaces. These images will be saved to the 'screenshots' subdirectory 
-    that will be created within the output directory. These images can be used for 
-    quickly glimpsing through the processing results. Note that no display manager 
+    This module allows for the automated generation of cross-sections of the brain
+    that are overlaid with the anatomical segmentations (asegs) and the white and
+    pial surfaces. These images will be saved to the 'screenshots' subdirectory
+    that will be created within the output directory. These images can be used for
+    quickly glimpsing through the processing results. Note that no display manager
     is required for this module, i.e. it can be run on a remote server, for example.
 
     - fornix module
 
-    This is a module to assess potential issues with the segmentation of the 
-    corpus callosum, which may incorrectly include parts of the fornix. To assess 
-    segmentation quality, a screesnhot of the contours of the corpus callosum 
-    segmentation overlaid on the norm.mgz will be saved in the 'fornix' 
-    subdirectory of the output directory. 
-    
-    - outlier module 
-    
-    This is a module to detect extreme values among the subcortical ('aseg') 
-    segmentations. The outlier detection is based on comparisons with the 
-    distributions of the sample as well as normative values taken from the 
+    This is a module to assess potential issues with the segmentation of the
+    corpus callosum, which may incorrectly include parts of the fornix. To assess
+    segmentation quality, a screesnhot of the contours of the corpus callosum
+    segmentation overlaid on the norm.mgz will be saved in the 'fornix'
+    subdirectory of the output directory.
+
+    - outlier module
+
+    This is a module to detect extreme values among the subcortical ('aseg')
+    segmentations. The outlier detection is based on comparisons with the
+    distributions of the sample as well as normative values taken from the
     literature (see References).
-    
-    For comparisons with the sample distributions, extreme values are defined in 
-    two ways: nonparametrically, i.e. values that are 1.5 times the interquartile 
-    range below or above the 25th or 75th percentile of the sample, respectively, 
-    and parametrically, i.e. values that are more than 2 standard deviations above 
-    or below the sample mean. Note that a minimum of 5 supplied subjects is 
-    required for running these analyses, otherwise `NaNs` will be returned.  
-    
-    For comparisons with the normative values, lower and upper bounds are computed 
-    from the 95% prediction intervals of the regression models given in Potvin et 
-    al., 1996, and values exceeding these bounds will be flagged. As an 
-    alternative, users may specify their own normative values by using the 
+
+    For comparisons with the sample distributions, extreme values are defined in
+    two ways: nonparametrically, i.e. values that are 1.5 times the interquartile
+    range below or above the 25th or 75th percentile of the sample, respectively,
+    and parametrically, i.e. values that are more than 2 standard deviations above
+    or below the sample mean. Note that a minimum of 5 supplied subjects is
+    required for running these analyses, otherwise `NaNs` will be returned.
+
+    For comparisons with the normative values, lower and upper bounds are computed
+    from the 95% prediction intervals of the regression models given in Potvin et
+    al., 1996, and values exceeding these bounds will be flagged. As an
+    alternative, users may specify their own normative values by using the
     '--outlier-table' argument. This requires a custom csv table with headers
-    `label`, `upper`, and `lower`, where `label` indicates a column of anatomical  
-    names. It can be a subset and the order is arbitrary, but naming must exactly 
+    `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
+    names. It can be a subset and the order is arbitrary, but naming must exactly
     match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
-    specified upper and lower bounds.    
-      
-    The main csv table will be appended with the following summary variables, and 
-    more detailed output about will be saved as csv tables in the 'outliers' 
+    specified upper and lower bounds.
+
+    The main csv table will be appended with the following summary variables, and
+    more detailed output about will be saved as csv tables in the 'outliers'
     subdirectory of the main output directory.
-    
-    n_outliers_sample_nonpar ... number of structures that are 1.5 times the IQR  
-                                 above/below the 75th/25th percentile  
-    n_outliers_sample_param  ... number of structures that are 2 SD above/below 
+
+    n_outliers_sample_nonpar ... number of structures that are 1.5 times the IQR
+                                 above/below the 75th/25th percentile
+    n_outliers_sample_param  ... number of structures that are 2 SD above/below
                                  the mean
-    n_outliers_norms         ... number of structures exceeding the upper and      
+    n_outliers_norms         ... number of structures exceeding the upper and
                                  lower bounds of the normative values
-    
+
 
     ======
-    Usage: 
+    Usage:
     ======
 
         python3 qatools.py --subjects_dir <directory> --output_dir <directory>
-                                  [--subjects SubjectID [SubjectID ...]] 
+                                  [--subjects SubjectID [SubjectID ...]]
                                   [--screenshots] [--fornix] [-h]
 
         required arguments:
           --subjects_dir <directory>
-                                subjects directory with a set of Freesurfer 6.0 
+                                subjects directory with a set of Freesurfer 6.0
                                 processed individual datasets.
           --output_dir <directory>
                                 output directory
@@ -137,49 +137,67 @@ def get_help(print_help=True, return_help=False):
           --fornix              check fornix segmentation
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
-                                --outlier)          
+                                --outlier)
 
         getting help:
           -h, --help            display this help message and exit
+
+        expert options:
+          --screenshots_base <image>
+                                path to an image that should be used instead of
+                                norm.mgz as the base image for the screenshots
+          --screenshots_overlay <image>
+                                path to an image that should be used instead of
+                                aseg.mgz as the overlay image for the screenshots;
+                                can also be none
+          --screenshots_surf <surf> [<surf> ...]
+                                one or more path to surface files that should be
+                                used instead of [lr].white and [lr].pial; can
+                                also be none
+          --screenshots_views <view> [<view> ...]
+                                one or more views to use for the screenshots in
+                                the form of x=<numeric> y=<numeric> and/or
+                                z=<numeric>. order does not matter. default views
+                                are x=-10 x=10 y=0 z=0.
 
 
     ========================
     Use as a python package:
     ========================
 
-    As an alternative to their command-line usage, the qc scripts can also be run 
-    within a pure python environment, i.e. installed and imported as a python 
-    package. 
+    As an alternative to their command-line usage, the qc scripts can also be run
+    within a pure python environment, i.e. installed and imported as a python
+    package.
 
-    Use `import qatoolspython` (or sth. equivalent) to import the package within a 
+    Use `import qatoolspython` (or sth. equivalent) to import the package within a
     python environment.
-    
+
     Use the `run_qatools` function from the `qatoolspython` module to run an analysis:
-    
+
     `from qatoolspython import qatoolspython`
-    
+
     `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
-    
+
     See `help(qatoolspython)` for further usage info and options.
 
 
     =============
-    Known Issues: 
+    Known Issues:
     =============
 
     The program will analyze recon-all logfiles, and may fail or return erroneous
-    results if the logfile is append by multiple restarts of recon-all runs. 
-    Ideally, the logfile should therefore consist of just a single, successful 
+    results if the logfile is append by multiple restarts of recon-all runs.
+    Ideally, the logfile should therefore consist of just a single, successful
     recon-all run.
 
 
     ========
-    Authors: 
+    Authors:
     ========
 
     - qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
-    - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu, 
-      and Louis Vinke. 
+    - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu,
+      and Louis Vinke.
     - shapeDNA and brainPrint toolboxes: Martin Reuter
 
 
@@ -187,21 +205,21 @@ def get_help(print_help=True, return_help=False):
     References:
     ===========
 
-    Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; MRIQC: 
-    Advancing the Automatic Prediction of Image Quality in MRI from Unseen Sites; 
+    Esteban O, Birman D, Schaer M, Koyejo OO, Poldrack RA, Gorgolewski KJ; MRIQC:
+    Advancing the Automatic Prediction of Image Quality in MRI from Unseen Sites;
     PLOS ONE 12(9):e0184661; doi:10.1371/journal.pone.0184661.
 
-    Wachinger C, Golland P, Kremen W, Fischl B, Reuter M; 2015; BrainPrint: a 
-    Discriminative Characterization of Brain Morphology; Neuroimage: 109, 232-248; 
+    Wachinger C, Golland P, Kremen W, Fischl B, Reuter M; 2015; BrainPrint: a
+    Discriminative Characterization of Brain Morphology; Neuroimage: 109, 232-248;
     doi:10.1016/j.neuroimage.2015.01.032.
 
-    Reuter M, Wolter FE, Shenton M, Niethammer M; 2009; Laplace-Beltrami 
-    Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape 
+    Reuter M, Wolter FE, Shenton M, Niethammer M; 2009; Laplace-Beltrami
+    Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape
     Analysis; Computer-Aided Design: 41, 739-755, doi:10.1016/j.cad.2009.02.007.
 
-    Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease Neuroimaging 
-    Initiative; 2016; Normative data for subcortical regional volumes over the lifetime 
-    of the adult human brain; Neuroimage: 137, 9-20; 
+    Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease Neuroimaging
+    Initiative; 2016; Normative data for subcortical regional volumes over the lifetime
+    of the adult human brain; Neuroimage: 137, 9-20;
     doi.org/10.1016/j.neuroimage.2016.05.016
 
     =============
@@ -210,25 +228,25 @@ def get_help(print_help=True, return_help=False):
 
     A working installation of Freesurfer 6.0 or later must be sourced.
 
-    At least one subject whose structural MR image was processed with Freesurfer 
+    At least one subject whose structural MR image was processed with Freesurfer
     6.0 or later.
 
     A Python version >= 3.5 is required to run this script.
 
-    Required packages include (among others) the nibabel and skimage package for 
-    the core functionality, plus the the matplotlib, pandas, and transform3d 
-    packages for some optional functions and modules. See the `requirements.txt` 
-    file for a complete list. Use `pip3 install -r requirements.txt` to install 
+    Required packages include (among others) the nibabel and skimage package for
+    the core functionality, plus the the matplotlib, pandas, and transform3d
+    packages for some optional functions and modules. See the `requirements.txt`
+    file for a complete list. Use `pip3 install -r requirements.txt` to install
     these packages.
-    
-    This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14. 
+
+    This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
 
 
     ========
     License:
     ========
 
-    This software is licensed under the MIT License, see associated LICENSE file 
+    This software is licensed under the MIT License, see associated LICENSE file
     for details.
 
     Copyright (c) 2019 Image Analysis Group, DZNE e.V.
@@ -258,15 +276,15 @@ def _parse_arguments():
     # parse
     parser = argparse.ArgumentParser(description='''
         This program takes existing Freesurfer 6.0 analysis results of one
-        or more subjects and computes a set of quality metrics. These will be 
+        or more subjects and computes a set of quality metrics. These will be
         reported in a summary csv table.
 
-        For a description of these metrics, see the gitlab/github page or the 
+        For a description of these metrics, see the gitlab/github page or the
         header section of this script.
 
-        The (optional) analysis of shape features requires additional scripts 
+        The (optional) analysis of shape features requires additional scripts
         that can be obtained from https://reuter.mit.edu
-        ''', 
+        ''',
         add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
     required = parser.add_argument_group('required arguments')
@@ -278,6 +296,10 @@ def _parse_arguments():
     #optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
     optional.add_argument('--shape', dest='shape', help=argparse.SUPPRESS, default=False, action="store_true", required=False) # shape is currently a hidden option
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
+    optional.add_argument('--screenshots_base', dest='screenshots_base', help=argparse.SUPPRESS, default="default", metavar="<base image for screenshots>", required=False) # this is currently a hidden "expert" option
+    optional.add_argument('--screenshots_overlay', dest='screenshots_overlay', help=argparse.SUPPRESS, default="default", metavar="<overlay image for screenshots>", required=False) # this is currently a hidden "expert" option
+    optional.add_argument('--screenshots_surf', dest='screenshots_surf', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False) # this is currently a hidden "expert" option
+    optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
@@ -291,12 +313,15 @@ def _parse_arguments():
     else:
         args = parser.parse_args()
 
-    return args.subjects_dir, args.output_dir, args.subjects, args.shape, args.screenshots, args.fornix, args.outlier, args.outlier_table
+    return args.subjects_dir, args.output_dir, args.subjects, args.shape, \
+        args.screenshots, args.screenshots_base, args.screenshots_overlay, \
+        args.screenshots_surf, args.screenshots_views, args.fornix, \
+        args.outlier, args.outlier_table
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table):
+def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table):
     """
     an internal function to check input arguments
 
@@ -310,7 +335,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
     import errno
 
     import tempfile
-    import importlib
+    import importlib.util
 
     # --------------------------------------------------------------------------
     # check arguments
@@ -373,10 +398,88 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
         sys.exit(1)
 
     if screenshots is True:
-        path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
-        if not os.path.isfile(path_check):
-            print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
+        if os.environ.get('FREESURFER_HOME') is None:
+            print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
             sys.exit(1)
+        else:
+            path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
+            if not os.path.isfile(path_check):
+                print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
+                sys.exit(1)
+
+    # check screenshots_base
+    if screenshots_base == 'default':
+        screenshots_base = [screenshots_base]
+    else:
+        if len(subjects)!=1:
+            print('\nERROR: can only use the --screenshots_base argument for a single subject, which must be specified using --subject\n')
+            sys.exit(1)
+        if not os.path.isfile(screenshots_base):
+            print('\nERROR: cannot find the screenshots base file '+screenshots_base+'\n')
+            sys.exit(1)
+        else:
+            print("Using "+screenshots_base+" as screenshot base image")
+            screenshots_base = [screenshots_base]
+
+    # check screenshots_overlay
+    if screenshots_overlay == 'default':
+        screenshots_overlay = [screenshots_overlay]
+    elif screenshots_overlay.lower() == 'none':
+        screenshots_overlay = None
+        print("Found screenshot overlays set to None")
+    else:
+        if len(subjects)!=1:
+            print('\nERROR: can only use the --screenshots_overlay argument for a single subject, which must be specified using --subject\n')
+            sys.exit(1)
+        if not os.path.isfile(screenshots_overlay):
+            print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay+'\n')
+            sys.exit(1)
+        else:
+            print("Using "+screenshots_overlay+" as screenshot overlay image")
+            screenshots_overlay = [screenshots_overlay]
+
+    # check screenshots_surf (this is either 'default' or a list)
+    if screenshots_surf == 'default':
+        screenshots_surf = [screenshots_surf]
+    elif screenshots_surf[0].lower() == 'none':
+        screenshots_surf = None
+        print("Found screenshot surfaces set to None")
+    else:
+        if len(subjects)!=1:
+            print('\nERROR: can only use the --screenshots_surf argument for a single subject, which must be specified using --subject\n')
+            sys.exit(1)
+        for screenshots_surf_i in screenshots_surf:
+            if not os.path.isfile(screenshots_surf_i):
+                print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
+                sys.exit(1)
+            else:
+                print("Using "+screenshots_surf_i+" as screenshot surface")
+
+    # check if screenshots_views argument can be evaluated
+    if screenshots_views == 'default':
+        screenshots_views = [screenshots_views]
+    else:
+        for x in screenshots_views:
+            isXYZ = x.split("=")[0] == "x" or x.split("=")[0] == "y" or x.split("=")[0] == "z"
+            try:
+                int(x.split("=")[1])
+                isConvertible = True
+            except:
+                isConvertible = False
+            if not isXYZ or not isConvertible:
+                print()
+                print('ERROR: could not understand '+x)
+                print()
+                print('       the --screenshots_views argument can only contain one or more x=<numeric> y=<numeric> z=<numeric> expressions.')
+                print()
+                print('       for example: --screenshots_views x=0')
+                print('                    --screenshots_views x=-10 x=10 y=0')
+                print('                    --screenshots_views x=0 z=0')
+                print()
+                sys.exit(1)
+
+        print("Found screenshot coordinates ",screenshots_views)
+        screenshots_views = [ (y[0], int(y[1])) for y in [ x.split("=") for x in screenshots_views ] ]
 
     # check if fornix subdirectory exists or can be created and is writable
     if fornix is True:
@@ -424,7 +527,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
     if shape is True:
         # check if brainprintpython can be imported
         if  importlib.util.find_spec("brainprintpython") is None:
-            print("\nERROR: could not import the brainprintpython package, is it installed?") 
+            print("\nERROR: could not import the brainprintpython package, is it installed?")
             sys.exit(1)
 
     # check if outlier subdirectory exists or can be created and is writable
@@ -456,7 +559,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
             print("Could not find table with normative values ", outlier_table)
             sys.exit(1)
 
-    # if subjects are not given, get contents of the subject directory and 
+    # if subjects are not given, get contents of the subject directory and
     # check if aseg.stats (as a proxy) exists
     if subjects == []:
         for subject in os.listdir(subjects_dir):
@@ -525,7 +628,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
             subjects_to_remove.extend([subject])
 
         # check screenshots
-        if screenshots is True:
+        if screenshots is True and screenshots_surf=="default":
 
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(subjects_dir, subject, "surf", "lh.white")
@@ -562,11 +665,11 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, for
 
     # check if we have any subjects after all
     if subjects == []:
-        print("\nERROR: no subjects to process") 
+        print("\nERROR: no subjects to process")
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table
+    return subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table
 
 
 # ------------------------------------------------------------------------------
@@ -580,7 +683,7 @@ def _check_packages():
 
     import os
     import sys
-    import importlib
+    import importlib.util
 
     if os.environ.get('FREESURFER_HOME') is None:
         print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
@@ -607,7 +710,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], fornix=False, outlier=False, outlier_table=None):
     """
     an internal function to run the qatools submodules
 
@@ -680,22 +783,22 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # store data
         metricsDict.update( { subject : {
             'subject' : subject,
-            'wm_snr_orig': wm_snr_orig, 'gm_snr_orig' : gm_snr_orig, 
-            'wm_snr_norm' : wm_snr_norm, 'gm_snr_norm' : gm_snr_norm, 
-            'cc_size' : cc_size, 
+            'wm_snr_orig': wm_snr_orig, 'gm_snr_orig' : gm_snr_orig,
+            'wm_snr_norm' : wm_snr_norm, 'gm_snr_norm' : gm_snr_norm,
+            'cc_size' : cc_size,
             'holes_lh' : holes_lh, 'holes_rh' : holes_rh, 'defects_lh' : defects_lh, 'defects_rh' : defects_rh, 'topo_lh' : topo_lh, 'topo_rh' : topo_rh,
             'con_snr_lh' : con_snr_lh, 'con_snr_rh' : con_snr_rh,
-            'rot_tal_x' : rot_tal_x, 'rot_tal_y' : rot_tal_y , 'rot_tal_z' : rot_tal_z  
+            'rot_tal_x' : rot_tal_x, 'rot_tal_y' : rot_tal_y , 'rot_tal_z' : rot_tal_z
             }})
 
-        # 
+        #
         print("")
 
         # ----------------------------------------------------------------------
         # run optional modules: shape analysis
 
         if shape is True:
-    
+
             # message
             print("-----------------------------")
             print("Running brainPrint analysis ...")
@@ -741,7 +844,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
             # get a subset of the brainprint results
             distDict = { subject : postProcDict[os.path.join(brainprint_outdir, subject+".brainprint.csv")]['dist'] }
-    
+
             # store data
             metricsDict[subject].update(distDict[subject])
 
@@ -762,7 +865,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             outfile = os.path.join(screenshots_outdir,subject+'.png')
 
             # process
-            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False)
+            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views)
 
         # ----------------------------------------------------------------------
         # run optional modules: fornix
@@ -784,7 +887,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
             # create a dictionary from fornix shape ouput
             fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format,range(FORNIX_N_EIGEN)), fornixShapeOutput)) }
-       
+
             # store data
             if FORNIX_SHAPE:
                 metricsDict[subject].update(fornixShapeDict[subject])
@@ -864,7 +967,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, fornix=False, outlier=False, outlier_table=None):
+def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", fornix=False, outlier=False, outlier_table=None):
     """
     a function to run the qatools submodules
 
@@ -874,10 +977,10 @@ def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=
     #
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+    subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, fornix, outlier, outlier_table)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table)

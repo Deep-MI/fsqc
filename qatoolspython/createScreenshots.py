@@ -5,14 +5,14 @@ This module provides a function to create screenshots
 
 # -----------------------------------------------------------------------------
 
-def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None, 
-    BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"], 
+def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None,
+    BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"],
     VIEWS = ["default"]
     ):
 
     """
     function createScreenshots()
-    
+
     Requires FREESURFER_HOME environment variable
 
     BASE, VIEWS must be lists, can be ["default"]
@@ -25,13 +25,13 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # auxiliary functions
 
     def computeLayout(n):
-        
+
         import numpy as np
-        
+
         y = np.ceil(np.sqrt(n))
-        
+
         x = y - np.divmod(y**2 - n, y)[0]
-        
+
         return int(x), int(y)
 
     # -----------------------------------------------------------------------------
@@ -58,6 +58,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     FIGDPI = 100
 
     ALPHA = 0.5
+
+    tol = 1e-16
 
     # -----------------------------------------------------------------------------
     # import image data
@@ -142,7 +144,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         sLVL = list()
 
         for i in range(len(CutsRRAS)):
-            
+
             # determine dimension
             if CutsRRAS[i][0] == 'x':
                 iDim = 0
@@ -205,7 +207,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         asegValsRAS = list()
 
     for i in range(len(CutsRRAS)):
-        
+
         # determine dimension
         if CutsRRAS[i][0] == 'x':
             iDim = 0
@@ -256,6 +258,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
     for p in range(len(CutsRRAS)):
 
+        print("Panel "+str(p))
+
         axsx = myLayoutList[p][0]
         axsy = myLayoutList[p][1]
 
@@ -278,7 +282,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                 if aseg is not None:
                     axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
         elif CutsRRAS[p][0] == 'y':
-            #
+            # x axis of the image should be towards right, y axis should be towards superior in RAS image
             dims = (0, 2)
             # determine extent
             extent = (rasIdxFlat3[0, dims[0]], rasIdxFlat3[-1, dims[0]], rasIdxFlat3[0, dims[1]], rasIdxFlat3[-1, dims[1]])
@@ -287,25 +291,25 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
             axi = np.where(m[dims[1], 0:3])[0]
             #
             if axi < sag:
-                axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
+                axs[axsx,axsy].imshow(normValsRAS[p], cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
-                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                    axs[axsx,axsy].imshow(asegValsRAS[p] + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
             else:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
                     axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
         elif CutsRRAS[p][0] == 'z':
-            #
+            # x axis of the image should be towards right, y axis should be towards anterior in RAS image
             dims = (0, 1)
             # determine extent
             extent = (rasIdxFlat3[0, dims[0]], rasIdxFlat3[-1, dims[0]], rasIdxFlat3[0, dims[1]], rasIdxFlat3[-1, dims[1]])
             # imshow puts the first dimension (rows) of the data on the y axis, and the second (columns) on the x axis
             sag = np.where(m[dims[0], 0:3])[0]
             cor = np.where(m[dims[1], 0:3])[0]
-            if axi < sag:
-                axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
+            if cor < sag:
+                axs[axsx,axsy].imshow(normValsRAS[p], cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
-                    axs[axsx,axsy].imshow(asegValsRAS[p].transpose() + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
+                    axs[axsx,axsy].imshow(asegValsRAS[p] + 0.5, cmap=lutMap, origin='lower', extent=extent, vmin=0, vmax=len(lutTab), alpha=ALPHA)
             else:
                 axs[axsx,axsy].imshow(normValsRAS[p].transpose(), cmap='gray', origin='lower', extent=extent)
                 if aseg is not None:
@@ -322,11 +326,76 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
         # now plot
         for s in range(len(surf)):
-            for i in range(len(LVL[s][p][1][0])):
-                axs[axsx,axsy].plot(
-                    (LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[0]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[0]]),
-                    (LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[1]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[1]]),
-                    color=surfcolor[s],linewidth=np.round(FIGSIZE/8))
+
+            if len(LVL[s][p][0][0]) > 0:
+
+                print("Surface "+str(s))
+
+                # create array of line segments
+                tmpx = list()
+                tmpy = list()
+
+                for i in range(len(LVL[s][p][1][0])):
+                    tmpx.append((LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[0]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[0]]))
+                    tmpy.append((LVL[s][p][0][0][LVL[s][p][1][0][i][0] - 1][dims[1]], LVL[s][p][0][0][LVL[s][p][1][0][i][1] - 1][dims[1]]))
+
+                tmpx = np.array(tmpx)
+                tmpy = np.array(tmpy)
+
+                # remove duplicate points
+                tmpxy = np.unique(np.concatenate((tmpx, tmpy), axis=1), axis=0)
+                tmpx = tmpxy[:, 0:2]
+                tmpy = tmpxy[:, 2:4]
+
+                # remove segments which are de-facto points
+                tmpIdx = np.logical_or(np.abs(tmpx[:,0]-tmpx[:,1])>tol, np.abs(tmpy[:,0]-tmpy[:,1])>tol)
+                tmpx = tmpx[tmpIdx, :]
+                tmpy = tmpy[tmpIdx, :]
+
+                # need to order array of line segments; whenever we encounter a
+                # closed loop, we will already plot; otherwise, plot in the end
+                sortIdx = np.array(range(0, len(tmpx)))
+
+                tmpxSort = np.array(tmpx[sortIdx[0], ], ndmin=2)
+                tmpySort = np.array(tmpy[sortIdx[0], ], ndmin=2)
+
+                sortIdx = np.delete(sortIdx, sortIdx[0])
+
+                while len(sortIdx) > 1:
+
+                    findIdx = np.array(np.where(np.logical_and(
+                        np.abs(tmpx[sortIdx, ] - tmpxSort[tmpxSort.shape[0]-1, 1]) < tol,
+                        np.abs(tmpy[sortIdx, ] - tmpySort[tmpySort.shape[0]-1, 1]) < tol)), ndmin=2).T
+
+                    # delete existing finds
+                    findIdxKeep = list()
+                    for k in range(findIdx.shape[0]):
+                        if not np.any(np.all(np.logical_or(tmpx[sortIdx[findIdx[k, 0]], 0] == tmpxSort, tmpx[sortIdx[findIdx[k, 0]], 1] == tmpxSort), axis=1)):
+                            findIdxKeep.append(k)
+                    findIdx = findIdx[findIdxKeep, ]
+
+                    if findIdx.shape[0] == 0:
+                        # close loop and plot already
+                        axs[axsx,axsy].plot(tmpxSort, tmpySort, color=surfcolor[s], linewidth=np.round(FIGSIZE/8))
+                        # reset (start new loop)
+                        tmpxSort = np.array(tmpx[sortIdx[0], ], ndmin=2)
+                        tmpySort = np.array(tmpy[sortIdx[0], ], ndmin=2)
+                        sortIdx = np.delete(sortIdx, 0)
+                    elif findIdx.shape[0] == 1:
+                        # add to current set
+                        if findIdx[0, 1] == 0:
+                            tmpxSort = np.append(tmpxSort, np.array(tmpx[sortIdx[findIdx[0, 0]], ::1], ndmin=2), axis=0)
+                            tmpySort = np.append(tmpySort, np.array(tmpy[sortIdx[findIdx[0, 0]], ::1], ndmin=2), axis=0)
+                        elif findIdx[0, 1] == 1:
+                            tmpxSort = np.append(tmpxSort, np.array(tmpx[sortIdx[findIdx[0, 0]], ::-1], ndmin=2), axis=0)
+                            tmpySort = np.append(tmpySort, np.array(tmpy[sortIdx[findIdx[0, 0]], ::-1], ndmin=2), axis=0)
+                        sortIdx = np.delete(sortIdx, findIdx[0, 0])
+                    elif findIdx.shape[0] > 1:
+                        # error
+                        print("A problem occurred with the surface overlays")
+
+                # now final plot
+                axs[axsx,axsy].plot(tmpxSort, tmpySort, color=surfcolor[s], linewidth=np.round(FIGSIZE/8))
 
     # -----------------------------------------------------------------------------
     # output
@@ -334,3 +403,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     if not INTERACTIVE:
         plt.savefig(OUTFILE, facecolor=fig.get_facecolor())
         plt.close(fig)
+
+    # -----------------------------------------------------------------------------
+    #
+
+    print()

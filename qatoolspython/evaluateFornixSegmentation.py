@@ -72,8 +72,6 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
                     return exe_file
-            if is_exe(os.path.join(os.getenv('SHAPEDNA_HOME'),program)):
-                return os.path.join(os.getenv('SHAPEDNA_HOME'),program)
             if is_exe(os.path.join('.',program)):
                 return os.path.join('.',program)
 
