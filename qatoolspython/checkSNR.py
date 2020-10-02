@@ -5,7 +5,7 @@ This module provides a function to check the SNR of the white and gray matter
 
 # -----------------------------------------------------------------------------
 
-def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
+def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz", aparc_image="aparc+aseg.mgz"):
     """
     A function to check the SNR of the white and gray matter.
 
@@ -22,12 +22,17 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
 
     Optional arguments:
         - nb_erode : the number of erosions, default = 3
-        - ref_image : the reference image, default = "norm.mgz", can be changed to "orig.mgz"
+        - ref_image : the reference image, default = "norm.mgz", can be changed
+          to "orig.mgz"
+        - aparc_image : the aparc+aseg image, default = "aparc+aseg.mgz", can
+          be changed to "aparc+aseg.orig.mgz" for FastSurfer output
 
     Returns:
         - wm_snr, gm_snr
 
-    Requires valid mri/norm.mgz, mri/aseg.mgz, and mri/aparc+aseg.mgz files. 
+    Requires valid mri/norm.mgz, mri/aseg.mgz, and mri/aparc+aseg.mgz files for
+    FreeSurfer output, and valid mri/norm.mgz, mri/aseg.mgz, and
+    mri/aparc+aseg.orig.mgz files for FastSurfer output.
     If not found, NaNs will be returned.
 
     """
@@ -62,7 +67,7 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
         return np.nan, np.nan
 
     try:
-        path_aparc_aseg  = os.path.join(subjects_dir,subject,"mri","aparc+aseg.mgz")
+        path_aparc_aseg  = os.path.join(subjects_dir,subject,"mri",aparc_image)
         inseg = nib.load(path_aparc_aseg)
         data_aparc_aseg = inseg.get_fdata()
     except FileNotFoundError:
@@ -117,4 +122,3 @@ def checkSNR(subjects_dir, subject, nb_erode=3, ref_image="norm.mgz"):
 
     # Return
     return wm_snr, gm_snr
-

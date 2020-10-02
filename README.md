@@ -41,6 +41,12 @@ The program will use an existing output directory (or try to create it) and
 write a csv table into that location. The csv table will contain the above
 metrics plus a subject identifier.
 
+The program can also be run on images that were processed with [FastSurfer](https://github.com/Deep-MI/FastSurfer)
+instead of FreeSurfer. In that case, simply add a `--fastsurfer` switch to your
+shell command. Note that the full processing stream FastSurfer must have been
+run, including surface reconstruction (i.e. brain segmentation alone is not
+sufficient).
+
 In addition to the core functionality of the toolbox there are several optional
 modules that can be run according to need:
 
@@ -101,8 +107,8 @@ ___
 
 ```
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
-                          [--subjects SubjectID [SubjectID ...]]
-                          [--screenshots] [--fornix] [--outlier] [-h]
+                          [--subjects SubjectID [SubjectID ...]] [-h]
+                          [--screenshots] [--fornix] [--outlier] [--fastsurfer]
 
 
 required arguments:
@@ -120,6 +126,7 @@ optional arguments:
   --outlier             run outlier detection
   --outlier-table       specify normative values (only in conjunction with
                         --outlier)
+  --fastsurfer          use FastSurfer instead of FreeSurfer output
 
 getting help:
   -h, --help            display this help message and exit
@@ -138,6 +145,10 @@ ___
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
+- Run the QC pipeline for all subjects found in `/my/subjects/directory` after full FastSurfer processing:
+
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
+
 - Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
@@ -154,7 +165,7 @@ ___
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
-- Note that the `--screenshots`, `--fornix`, and `--outlier`arguments can also be used in conjunction.
+- Note that the `--screenshots`, `--fornix`, and `--outlier` arguments can also be used in conjunction.
 
 ___
 
@@ -193,7 +204,7 @@ analysis:
 
 `from qatoolspython import qatoolspython`
 
-`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
 
 See `help(qatoolspython)` for further usage info and additional options.
 
@@ -260,7 +271,8 @@ ___
 
 - A working installation of Freesurfer 6.0 must be sourced.
 
-- At least one structural MR image that was processed with Freesurfer 6.0.
+- At least one structural MR image that was processed with Freesurfer 6.0 or
+  FastSurfer (including the surface pipeline).
 
 - A Python version >= 3.5 is required to run this script.
 

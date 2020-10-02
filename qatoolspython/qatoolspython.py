@@ -138,6 +138,7 @@ def get_help(print_help=True, return_help=False):
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
                                 --outlier)
+          --fastsurfer          use FastSurfer instead of FreeSurfer output
 
         getting help:
           -h, --help            display this help message and exit
@@ -303,6 +304,7 @@ def _parse_arguments():
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
+    optional.add_argument('--fastsurfer', dest='fastsurfer', help="use FastSurfer output", default=False, action="store_true", required=False)
 
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
@@ -316,12 +318,12 @@ def _parse_arguments():
     return args.subjects_dir, args.output_dir, args.subjects, args.shape, \
         args.screenshots, args.screenshots_base, args.screenshots_overlay, \
         args.screenshots_surf, args.screenshots_views, args.fornix, \
-        args.outlier, args.outlier_table
+        args.outlier, args.outlier_table, args.fastsurfer
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table):
+def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer):
     """
     an internal function to check input arguments
 
@@ -605,7 +607,8 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz
+        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
+        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.orig.mgz for FastSurfer
         path_check = os.path.join(subjects_dir, subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
@@ -616,7 +619,10 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.mgz")
+        if fastsurfer is True:
+            path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.orig.mgz")
+        else:
+            path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
@@ -660,8 +666,8 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
-    # remove subjects with missing files
-    [ subjects.remove(x) for x in subjects_to_remove ]
+    # remove subjects with missing files after creating unique list
+    [ subjects.remove(x) for x in list(set(subjects_to_remove)) ]
 
     # check if we have any subjects after all
     if subjects == []:
@@ -669,7 +675,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table
+    return subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer
 
 
 # ------------------------------------------------------------------------------
@@ -710,7 +716,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], fornix=False, outlier=False, outlier_table=None):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     an internal function to run the qatools submodules
 
@@ -760,13 +766,21 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         print("")
 
         # ----------------------------------------------------------------------
+        # set images
+
+        if fastsurfer is True:
+            aparc_image = "aparc+aseg.orig.mgz"
+        else:
+            aparc_image = "aparc+aseg.mgz"
+
+        # ----------------------------------------------------------------------
         # compute core metrics
 
         # get WM and GM SNR for orig.mgz
-        wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="orig.mgz")
+        wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="orig.mgz", aparc_image=aparc_image)
 
         # get WM and GM SNR for norm.mgz
-        wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz")
+        wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
 
         # check CC size
         cc_size = checkCCSize(subjects_dir, subject)
@@ -967,7 +981,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", fornix=False, outlier=False, outlier_table=None):
+def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -977,10 +991,10 @@ def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=
     #
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table)
+    subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer)
