@@ -10,7 +10,7 @@ def checkRotation(subjects_dir, subject):
     A function to determine the rotation angles of the Talairach transform.
 
     This function determines the rotation angles of the Talairach transform.
-    It relies on the 'transforms3d' package by Matthew Brett 
+    It relies on the 'transforms3d' package by Matthew Brett
     (https://matthew-brett.github.io/transforms3d).
 
     Required arguments:
@@ -18,19 +18,19 @@ def checkRotation(subjects_dir, subject):
         - subject : subject ID
 
     Returns:
-        - rot_tal_x, rot_tal_y, rot_tal_z 
+        - rot_tal_x, rot_tal_y, rot_tal_z
 
-    Note: 
+    Note:
         - unit of rotations is radians
 
-    Requires valid mri/transforms/talairach.lta file and the 'transforms3d' 
+    Requires valid mri/transforms/talairach.lta file and the 'transforms3d'
     python packge. If not found, NaNs will be returned.
 
     """
 
     #
 
-    import os
+    import os, re
     import numpy as np
     import importlib.util
 
@@ -46,7 +46,7 @@ def checkRotation(subjects_dir, subject):
 
     print("Computing Talairach rotation angles ...")
 
-    # read talairach.lta 
+    # read talairach.lta
 
     if not os.path.isfile(os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta")):
         print("WARNING: could not open "+os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta")+", returning NaNs.")
@@ -55,20 +55,20 @@ def checkRotation(subjects_dir, subject):
     with open(os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta"), 'r') as datafile:
         lines = datafile.readlines()
 
-    lines = lines[8:12]
-
-    # convert to numpy array
+    # get first four rows with three entries in exp notation
 
     mat = list()
     for line in lines:
-        mat.append([ float(x) for x in line.replace('\n','').replace(';','').split() ])
+        res = re.search('^[\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+', line)
+        if res is not None:
+            mat.append([ float(x) for x in res.group().replace('\n','').replace(';','').split() ])
     mat = np.array(mat)
 
     # get translation, rotation, scale/zoom, and shear matrices
 
     T, R, Z, S = tr.affines.decompose44(mat)
 
-    # now need to decompose R into euler angles; note this implies 'sxyz' 
+    # now need to decompose R into euler angles; note this implies 'sxyz'
     # (=static/extrinsic, 1:x, 2:y, 3:z rotation type and sequence)
     # https://matthew-brett.github.io/transforms3d/reference/transforms3d.euler.html
 
