@@ -67,6 +67,14 @@ segmentation quality, a screenshot of the contours of the corpus callosum
 segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each
 subject within the 'fornix' subdirectory of the output directory.
 
+- shape module
+
+The shape module will run a shapeDNA / braiprint analysis to compute distances
+of shape descriptors between lateralized brain structures. This can be used
+to identify discrepancies and irregularities between pairs of corresponding
+structures. The results will be included in the main csv table, and the output
+directory will also contain a 'brainprint' subdirectory.
+
 - outlier module
 
 This is a module to detect extreme values among the subcortical ('aseg')
@@ -108,7 +116,8 @@ ___
 ```
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]] [-h]
-                          [--screenshots] [--fornix] [--outlier] [--fastsurfer]
+                          [--screenshots] [--fornix] [--shape] [--outlier]
+                          [--fastsurfer]
 
 
 required arguments:
@@ -123,6 +132,7 @@ optional arguments:
                         list of subject IDs
   --screenshots         create screenshots
   --fornix              check fornix segmentation
+  --shape               run shape analysis
   --outlier             run outlier detection
   --outlier-table       specify normative values (only in conjunction with
                         --outlier)
@@ -157,6 +167,10 @@ ___
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
+- Run the QC pipeline plus the shape analysis pipeline for all subjects found in `/my/subjects/directory`:
+
+    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+
 - Run the QC pipeline plus the outlier detection module for all subjects found in `/my/subjects/directory`:
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
@@ -165,7 +179,7 @@ ___
 
     `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
-- Note that the `--screenshots`, `--fornix`, and `--outlier` arguments can also be used in conjunction.
+- Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
 
 ___
 
@@ -178,6 +192,11 @@ Alternatively, it can be cloned directly from its repository via `git clone http
 The `qatools.py` script will then be executable from the command line, as
 detailed above.
 
+Optional packages (if running the shape analysis module) include the `brainprint-python`
+and `lapy` packages from . They can be installed using
+`pip3 install --user git+https://github.com/deep-mi/BrainPrint-python.git`
+and `pip3 install --user git+https://github.com/deep-mi/LaPy.git`. They should
+both be version 0.2 or newer.
 ___
 
 ## Use as a python package
@@ -281,6 +300,9 @@ ___
   packages for some optional functions and modules. See the `requirements.txt`
   file for a complete list. Use `pip3 install -r requirements.txt` to install
   these packages.
+
+- For the shape analysis module, the brainprint and lapy packages from https://github.com/Deep-MI
+  are required (both version 0.2 or newer).
 
 - This software has been tested on Ubuntu 20.04 and MacOS 10.15.
 
