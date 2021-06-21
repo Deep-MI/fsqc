@@ -79,6 +79,14 @@ def get_help(print_help=True, return_help=False):
     segmentation overlaid on the norm.mgz will be saved in the 'fornix'
     subdirectory of the output directory.
 
+    - shape module
+
+    The shape module will run a shapeDNA / braiprint analysis to compute distances
+    of shape descriptors between lateralized brain structures. This can be used
+    to identify discrepancies and irregularities between pairs of corresponding
+    structures. The results will be included in the main csv table, and the output
+    directory will also contain a "brainprint" subdirectory.
+
     - outlier module
 
     This is a module to detect extreme values among the subcortical ('aseg')
@@ -121,7 +129,8 @@ def get_help(print_help=True, return_help=False):
 
         python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
-                                  [--screenshots] [--fornix] [-h]
+                                  [--screenshots] [--fornix] [--shape]
+                                  [--outlier] [--fastsurfer] [-h]
 
         required arguments:
           --subjects_dir <directory>
@@ -135,6 +144,7 @@ def get_help(print_help=True, return_help=False):
                                 list of subject IDs
           --screenshots         create screenshots of individual brains
           --fornix              check fornix segmentation
+          --shape               run shape analysis
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
                                 --outlier)
@@ -240,6 +250,9 @@ def get_help(print_help=True, return_help=False):
     file for a complete list. Use `pip3 install -r requirements.txt` to install
     these packages.
 
+    For the shape analysis module, the brainprint and lapy packages from
+    https://github.com/Deep-MI are required (both version 0.2 or newer).
+
     This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
 
 
@@ -282,9 +295,6 @@ def _parse_arguments():
 
         For a description of these metrics, see the gitlab/github page or the
         header section of this script.
-
-        The (optional) analysis of shape features requires additional scripts
-        that can be obtained from https://reuter.mit.edu
         ''',
         add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
@@ -294,8 +304,7 @@ def _parse_arguments():
 
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
-    #optional.add_argument('--shape', dest='shape', help="run shape analysis (requires additional scripts)", default=False, action="store_true", required=False)
-    optional.add_argument('--shape', dest='shape', help=argparse.SUPPRESS, default=False, action="store_true", required=False) # shape is currently a hidden option
+    optional.add_argument('--shape', dest='shape', help="run shape analysis", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots_base', dest='screenshots_base', help=argparse.SUPPRESS, default="default", metavar="<base image for screenshots>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_overlay', dest='screenshots_overlay', help=argparse.SUPPRESS, default="default", metavar="<overlay image for screenshots>", required=False) # this is currently a hidden "expert" option
@@ -528,8 +537,8 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
     # check if shapeDNA / brainPrint dependencies
     if shape is True:
         # check if brainprintpython can be imported
-        if  importlib.util.find_spec("brainprintpython") is None:
-            print("\nERROR: could not import the brainprintpython package, is it installed?")
+        if  importlib.util.find_spec("brainprint") is None:
+            print("\nERROR: could not import the brainprint package, is it installed?")
             sys.exit(1)
 
     # check if outlier subdirectory exists or can be created and is writable
@@ -748,6 +757,13 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     FORNIX_N_EIGEN = 15
     OUTLIER_N_MIN = 5
 
+    SHAPE_EVEC = False
+    SHAPE_SKIPCORTEX = False
+    SHAPE_NUM = 50
+    SHAPE_NORM = "geometry"
+    SHAPE_REWEIGHT = True
+    SHAPE_ASYMMETRY = True
+
     # --------------------------------------------------------------------------
     # process
 
@@ -819,45 +835,16 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             print("")
 
             # compute brainprint (will also compute shapeDNA)
-            from brainprintpython import pyBrainPrint
-            from brainprintpython import pyPostProc
+            from brainprint import brainprint
 
             # check / create subject-specific brainprint_outdir
-            brainprint_outdir = os.path.join(output_dir,'brainprint',subject)
-            if not os.path.isdir(brainprint_outdir):
-                os.mkdir(brainprint_outdir)
-
-            # set options
-            class options:
-                sdir = subjects_dir
-                sid = subject
-                outdir = brainprint_outdir
-                evec = True
-                skipcortex = True
-                num = 15
-                bcond = 1
-                brainprint = os.path.join(brainprint_outdir, subject+'.brainprint.csv')
-
-            class optionsPostProc:
-                file = os.path.join(brainprint_outdir, subject+'.brainprint.csv')
-                csvfiles = [ os.path.join(brainprint_outdir, subject+'.brainprint.csv') ]
-                out =  brainprint_outdir
-                outcov = None
-                vol = 1
-                lin = True
-                asy = "euc"
+            brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
 
             # run brainPrint
-            structures, evmat = pyBrainPrint.compute_brainprint(options)
-
-            # write EVs
-            pyBrainPrint.write_ev(options, structures, evmat)
-
-            # run postProc
-            postProcDict = pyPostProc.compute_postproc(optionsPostProc)
+            evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
 
             # get a subset of the brainprint results
-            distDict = { subject : postProcDict[os.path.join(brainprint_outdir, subject+".brainprint.csv")]['dist'] }
+            distDict = { subject : dstMat }
 
             # store data
             metricsDict[subject].update(distDict[subject])
