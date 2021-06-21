@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="qatoolspython",
-    version="1.1.0",
+    version="1.2.0",
     author="Kersten Diers, Martin Reuter, and others (see README)",
     description="A set of quality assurance / quality control scripts for Freesurfer 6.0 processed structural MRI data",
     long_description=long_description,
@@ -18,7 +18,7 @@ setup(
     url="https://github.com/reuter-lab/qatools-python",
     packages=['qatoolspython'],
     # see https://pypi.org/classifiers/
-    classifiers=[ 
+    classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT",
