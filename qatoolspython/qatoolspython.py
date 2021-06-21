@@ -144,7 +144,7 @@ def get_help(print_help=True, return_help=False):
                                 list of subject IDs
           --screenshots         create screenshots of individual brains
           --fornix              check fornix segmentation
-          --SHAPE_EVEC          run shape analysis
+          --shape               run shape analysis
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
                                 --outlier)

@@ -29,3 +29,5 @@ python3 ../qatools.py --subjects_dir data --output_dir output/test013 --screensh
 python3 ../qatools.py --subjects_dir data --output_dir output/test014 --screenshots --subjects 129 --screenshots_overlay none --screenshots_surf data/129/surf/lh.white
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test015 --screenshots --subjects 129 --screenshots_overlay none --screenshots_surf data/129/surf/rh.white data/129/surf/lh.pial
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test016 --screenshots --outlier --fornix --shape
