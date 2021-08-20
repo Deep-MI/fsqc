@@ -4,7 +4,7 @@ ___
 
 ## Description
 
-This is a set of quality assurance / quality control scripts for Freesurfer 6.0
+This is a set of quality assurance / quality control scripts for Freesurfer
 processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
@@ -288,10 +288,10 @@ ___
 
 ## Requirements
 
-- A working installation of Freesurfer 6.0 must be sourced.
+- A working installation of Freesurfer (6.0 or 7.11) must be sourced.
 
-- At least one structural MR image that was processed with Freesurfer 6.0 or
-  FastSurfer (including the surface pipeline).
+- At least one structural MR image that was processed with Freesurfer 6.0, 7.11, 
+  or FastSurfer (including the surface pipeline).
 
 - A Python version >= 3.5 is required to run this script.
 
