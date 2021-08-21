@@ -142,7 +142,11 @@ def get_help(print_help=True, return_help=False):
         optional arguments:
           --subjects SubjectID [SubjectID ...]
                                 list of subject IDs
+          --subjects-file <file>
+                                filename of a file with subject IDs (one per line)
           --screenshots         create screenshots of individual brains
+          --screenshots-html    create html summary page of screenshots (requires
+                                --screenshots)
           --fornix              check fornix segmentation
           --shape               run shape analysis
           --outlier             run outlier detection
@@ -170,6 +174,8 @@ def get_help(print_help=True, return_help=False):
                                 the form of x=<numeric> y=<numeric> and/or
                                 z=<numeric>. order does not matter. default views
                                 are x=-10 x=10 y=0 z=0.
+          --screenshots_layout <rows> <columns>
+                                layout matrix for screenshot images
 
 
     ========================
@@ -304,12 +310,15 @@ def _parse_arguments():
 
     optional = parser.add_argument_group('optional arguments')
     optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
+    optional.add_argument('--subjects-file', dest="subjects_file", help="filename with list of subject IDs (one per line). \nIf omitted, all suitable sub-directories witin \nthe subjects directory will be used.", default=None, metavar="<filename>", required=False)
     optional.add_argument('--shape', dest='shape', help="run shape analysis", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
+    optional.add_argument('--screenshots-html', dest='screenshots_html', help="create html summary page for screenshots", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots_base', dest='screenshots_base', help=argparse.SUPPRESS, default="default", metavar="<base image for screenshots>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_overlay', dest='screenshots_overlay', help=argparse.SUPPRESS, default="default", metavar="<overlay image for screenshots>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_surf', dest='screenshots_surf', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
+    optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=None, nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
@@ -324,15 +333,17 @@ def _parse_arguments():
     else:
         args = parser.parse_args()
 
-    return args.subjects_dir, args.output_dir, args.subjects, args.shape, \
-        args.screenshots, args.screenshots_base, args.screenshots_overlay, \
-        args.screenshots_surf, args.screenshots_views, args.fornix, \
+    return args.subjects_dir, args.output_dir, args.subjects, \
+        args.subjects_file, args.shape, args.screenshots, \
+        args.screenshots_html, args.screenshots_base, \
+        args.screenshots_overlay, args.screenshots_surf, \
+        args.screenshots_views, args.screenshots_layout, args.fornix, \
         args.outlier, args.outlier_table, args.fastsurfer
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer):
+def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer):
     """
     an internal function to check input arguments
 
@@ -492,6 +503,14 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
         print("Found screenshot coordinates ",screenshots_views)
         screenshots_views = [ (y[0], int(y[1])) for y in [ x.split("=") for x in screenshots_views ] ]
 
+    # check screenshots_layout
+    if screenshots_layout is not None:
+        if all([ x.isdigit() for x in screenshots_layout ]):
+            screenshots_layout = [ int(x) for x in screenshots_layout ]
+        else:
+            print('ERROR: screenshots_layout argument can only contain integer numbers\n')
+            sys.exit(1)
+
     # check if fornix subdirectory exists or can be created and is writable
     if fornix is True:
         if os.path.isdir(os.path.join(output_dir,'fornix')):
@@ -567,12 +586,27 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
         if os.path.isfile(outlier_table):
             print("Found table with normative values ", outlier_table)
         else:
-            print("Could not find table with normative values ", outlier_table)
+            print("ERROR: Could not find table with normative values ", outlier_table)
+            sys.exit(1)
+
+    # check if both subjects and subjects-file were specified
+    if subjects != [] and subjects_file is not None:
+        print("ERROR: Use either --subjects or --subjects-file (but not both).")
+        sys.exit(1)
+
+    # check if subjects-file exists and get data
+    if subjects_file is not None:
+        if os.path.isfile(subjects_file):
+            # read file
+            with open(subjects_file) as subjects_file_f:
+                subjects = subjects_file_f.read().splitlines()
+        else:
+            print("ERROR: Could not find subjects file", subjects_file)
             sys.exit(1)
 
     # if subjects are not given, get contents of the subject directory and
     # check if aseg.stats (as a proxy) exists
-    if subjects == []:
+    if subjects == [] and subjects_file is None:
         for subject in os.listdir(subjects_dir):
             path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
             if os.path.isfile(path_aseg_stat):
@@ -684,7 +718,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, scr
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer
+    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer
 
 
 # ------------------------------------------------------------------------------
@@ -725,7 +759,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     an internal function to run the qatools submodules
 
@@ -773,6 +807,9 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     # create dict for this subject
     metricsDict = dict()
+
+    # create images dict
+    imagesDict = dict()
 
     # loop through the specified subjects
     for subject in subjects:
@@ -866,7 +903,10 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             outfile = os.path.join(screenshots_outdir,subject+'.png')
 
             # process
-            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views)
+            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+
+            # keep images
+            imagesDict[subject] = outfile
 
         # ----------------------------------------------------------------------
         # run optional modules: fornix
@@ -956,19 +996,37 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     # determine output file names
     path_data_file = os.path.join(output_dir,'qatools-results.csv')
+    path_html_file = os.path.join(output_dir,'qatools-results.html')
 
     # write csv
     with open(path_data_file, 'w') as datafile:
-        csvwriter = csv.DictWriter(datafile, fieldnames=metricsFieldnames, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csvwriter = csv.DictWriter(datafile, fieldnames=metricsFieldnames, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writeheader()
         for subject in sorted(list(metricsDict.keys())):
             csvwriter.writerow(metricsDict[subject])
 
+    # generate html output
+    if screenshots is True and screenshots_html is True:
+        with open(path_html_file, 'w') as htmlfile:
+            print("<html>", file=htmlfile)
+            print("<head>", file=htmlfile)
+            print("<title>FreeSurfer QAtools screenshots</title>", file=htmlfile)
+            print("</head>", file=htmlfile)
+            print("<style> body, h1, h2, h3, h4, h5, h6  { font-family: Arial, Helvetica, sans-serif ; } </style>)", file=htmlfile)
+            print("<body style=\"background-color:Black\">", file=htmlfile)
+            print("<h1 style=\"color:white\">FreeSurfer QAtools screenshots</h1>", file=htmlfile)
+            for subject in sorted(list(imagesDict.keys())):
+                print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesDict[subject]))+"\">"
+                    +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesDict[subject]))+"\" "
+                    +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+            print("</body>", file=htmlfile)
+            print("</html>", file=htmlfile)
 
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
+def run_qatools(subjects_dir, output_dir, subjects=[], subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -978,10 +1036,10 @@ def run_qatools(subjects_dir, output_dir, subjects=[], shape=False, screenshots=
     #
 
     # check arguments
-    subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer)
+    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, fornix, outlier, outlier_table, fastsurfer)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer)
