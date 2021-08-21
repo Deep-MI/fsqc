@@ -122,21 +122,24 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
 
 required arguments:
   --subjects_dir <directory>
-                        subjects directory with a set of Freesurfer 6.0 processed
-                        individual datasets.
+                         subjects directory with a set of Freesurfer 6.0 processed
+                         individual datasets.
   --output_dir <directory>
-                        output directory
+                         output directory
 
 optional arguments:
   --subjects SubjectID [SubjectID ...]
-                        list of subject IDs
-  --screenshots         create screenshots
-  --fornix              check fornix segmentation
-  --shape               run shape analysis
-  --outlier             run outlier detection
-  --outlier-table       specify normative values (only in conjunction with
-                        --outlier)
-  --fastsurfer          use FastSurfer instead of FreeSurfer output
+                         list of subject IDs
+  --subjects-file <file> filename of a file with subject IDs (one per line)
+  --screenshots          create screenshots
+  --screenshots-html     create html summary page of screenshots (requires 
+                         --screenshots)
+  --fornix               check fornix segmentation
+  --shape                run shape analysis
+  --outlier              run outlier detection
+  --outlier-table        specify normative values (only in conjunction with
+                         --outlier)
+  --fastsurfer           use FastSurfer instead of FreeSurfer output
 
 getting help:
   -h, --help            display this help message and exit
@@ -290,7 +293,7 @@ ___
 
 - A working installation of Freesurfer (6.0 or 7.11) must be sourced.
 
-- At least one structural MR image that was processed with Freesurfer 6.0, 7.11, 
+- At least one structural MR image that was processed with Freesurfer 6.0, 7.11,
   or FastSurfer (including the surface pipeline).
 
 - A Python version >= 3.5 is required to run this script.

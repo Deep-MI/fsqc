@@ -33,3 +33,9 @@ qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test114', subj
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test115', subjects=['129'], screenshots=True, screenshots_overlay='none', screenshots_surf=['data/129/surf/rh.white', 'data/129/surf/lh.pial'])
 
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test116', screenshots=True, fornix=True, outlier=True, shape=True)
+
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test117', subjects_file='subjects.lst')
+
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test111', subjects=['129', '130'], screenshots=True, screenshots_views=['z=10', 'y=-5'], screenshots_layout=[2, 1])
+
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test111', subjects=['129', '130'], screenshots=True, screenshots_views=['z=10', 'y=-5', 'z=-10', 'y=5', 'x=0'], screenshots_layout=[5, 1], screenshots_html=True)
