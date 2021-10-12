@@ -1131,21 +1131,21 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         shapeKeys = list()
         for subject in distDict.keys():
             if len(distDict[subject])>0:
-                shapeKeys = np.unique(shapeKeys + list(distDict[subject].keys()))
+                shapeKeys = list(np.unique(shapeKeys + list(distDict[subject].keys())))
         metricsFieldnames.extend(shapeKeys)
 
     if fornix is True and FORNIX_SHAPE is True:
         fornixKeys = list()
         for subject in fornixShapeDict.keys():
             if len(fornixShapeDict[subject])>0:
-                fornixKeys = np.unique(fornixKeys + list(fornixShapeDict[subject].keys()))
+                fornixKeys = list(np.unique(fornixKeys + list(fornixShapeDict[subject].keys())))
         metricsFieldnames.extend(sorted(fornixKeys))
 
     if outlier is True:
         outlierKeys = list()
         for subject in outlierDict.keys():
             if len(outlierDict[subject])>0:
-                outlierKeys = np.unique(outlierKeys + list(outlierDict[subject].keys()))
+                outlierKeys = list(np.unique(outlierKeys + list(outlierDict[subject].keys())))
         metricsFieldnames.extend(sorted(outlierKeys))
 
     # determine output file names
