@@ -859,7 +859,6 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # get WM and GM SNR for norm.mgz
         try:
-            raise ValueError("Something went wrong ...")
             wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
 
         except:
@@ -1121,9 +1120,6 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     # --------------------------------------------------------------------------
     # generate output
 
-    import pdb
-    pdb.set_trace()
-
     metricsFieldnames = ['subject']
 
     # we pre-specify the fieldnames because we want to have this particular order
@@ -1134,23 +1130,23 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     if shape is True:
         shapeKeys = list()
         for subject in distDict.keys():
-            shapeKeys = np.unique(shapeKeys + list(distDict[subject].keys()))
+            if len(distDict[subject])>0:
+                shapeKeys = np.unique(shapeKeys + list(distDict[subject].keys()))
         metricsFieldnames.extend(shapeKeys)
 
     if fornix is True and FORNIX_SHAPE is True:
         fornixKeys = list()
         for subject in fornixShapeDict.keys():
-            fornixKeys = np.unique(fornixKeys + list(fornixShapeDict[subject].keys()))
+            if len(fornixShapeDict[subject])>0:
+                fornixKeys = np.unique(fornixKeys + list(fornixShapeDict[subject].keys()))
         metricsFieldnames.extend(sorted(fornixKeys))
 
     if outlier is True:
         outlierKeys = list()
         for subject in outlierDict.keys():
-            outlierKeys = np.unique(outlierKeys + list(outlierDict[subject].keys()))
+            if len(outlierDict[subject])>0:
+                outlierKeys = np.unique(outlierKeys + list(outlierDict[subject].keys()))
         metricsFieldnames.extend(sorted(outlierKeys))
-
-    import pdb
-    pdb.set_trace()
 
     # determine output file names
     path_data_file = os.path.join(output_dir, 'qatools-results.csv')
