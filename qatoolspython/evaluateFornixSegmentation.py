@@ -5,7 +5,7 @@ This module provides a function to evaluate potential missegmentation of the for
 
 # -----------------------------------------------------------------------------
 
-def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, RUN_SHAPEDNA = True, N_EIGEN = 15):
+def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], RUN_SHAPEDNA = True, N_EIGEN = 15):
     """
     A function to evaluate potential missegmentation of the fornix.
 
@@ -28,6 +28,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     Optional arguments:
         - CREATE_SCREENSHOT <bool> (default: True)
+        - SCREENSHOTS_OUTFILE <string> or empty list (default: [])
         - RUN_SHAPEDNA <bool> (default: True)
         - N_EIGEN <int> number of Eigenvalues for shape analyis (default: 30)
 
@@ -138,6 +139,9 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         out[:] = np.nan
 
         return out
+        
+    if not SCREENSHOTS_OUTFILE:
+        SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"cc.png")
 
     ## run make_upright; note: rather than 'make_upright', better use 'mri_cc' 
     ## to compute the transformation matrix, should this ever be necessary.
@@ -171,7 +175,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     if CREATE_SCREENSHOT is True:
         createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, 
             INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = os.path.join(OUTPUT_DIR,"cc.png"))
+            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = SCREENSHOTS_OUTFILE)
 
     # --------------------------------------------------------------------------
     # run shapeDNA

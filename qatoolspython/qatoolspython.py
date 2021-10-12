@@ -81,7 +81,7 @@ def get_help(print_help=True, return_help=False):
 
     - shape module
 
-    The shape module will run a shapeDNA / braiprint analysis to compute distances
+    The shape module will run a shapeDNA / brainprint analysis to compute distances
     of shape descriptors between lateralized brain structures. This can be used
     to identify discrepancies and irregularities between pairs of corresponding
     structures. The results will be included in the main csv table, and the output
@@ -129,7 +129,8 @@ def get_help(print_help=True, return_help=False):
 
         python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
-                                  [--screenshots] [--fornix] [--shape]
+                                  [--screenshots] [--screenshots-html] 
+                                  [--fornix] [--fornix-html] [--shape] 
                                   [--outlier] [--fastsurfer] [-h]
 
         required arguments:
@@ -148,6 +149,8 @@ def get_help(print_help=True, return_help=False):
           --screenshots-html    create html summary page of screenshots (requires
                                 --screenshots)
           --fornix              check fornix segmentation
+          --fornix-html          create html summary page of fornix evaluation (requires 
+                                 --fornix)          
           --shape               run shape analysis
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
@@ -193,7 +196,7 @@ def get_help(print_help=True, return_help=False):
 
     `from qatoolspython import qatoolspython`
 
-    `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir',output_dir='/my/output/dir')`
+    `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
 
     See `help(qatoolspython)` for further usage info and options.
 
@@ -320,6 +323,7 @@ def _parse_arguments():
     optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=None, nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
+    optional.add_argument('--fornix-html', dest='fornix_html', help="create html summary page for fornix evaluation", default=False, action="store_true", required=False)    
     optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
     optional.add_argument('--fastsurfer', dest='fastsurfer', help="use FastSurfer output", default=False, action="store_true", required=False)
@@ -338,12 +342,12 @@ def _parse_arguments():
         args.screenshots_html, args.screenshots_base, \
         args.screenshots_overlay, args.screenshots_surf, \
         args.screenshots_views, args.screenshots_layout, args.fornix, \
-        args.outlier, args.outlier_table, args.fastsurfer
+        args.fornix_html, args.outlier, args.outlier_table, args.fastsurfer
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer):
+def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer):
     """
     an internal function to check input arguments
 
@@ -391,23 +395,23 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
 
     # check if screenshots subdirectory exists or can be created and is writable
     if screenshots is True:
-        if os.path.isdir(os.path.join(output_dir,'screenshots')):
-            print("Found screenshots directory", os.path.join(output_dir,'screenshots'))
+        if os.path.isdir(os.path.join(output_dir, 'screenshots')):
+            print("Found screenshots directory", os.path.join(output_dir, 'screenshots'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir,'screenshots'))
+                os.mkdir(os.path.join(output_dir, 'screenshots'))
             except:
-                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir,'screenshots')+'\n')
+                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir, 'screenshots')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'screenshots'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'screenshots'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'screenshots')
+                    e.filename = os.path.join(output_dir, 'screenshots')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'screenshots')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir, 'screenshots')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check further screenshots dependencies
@@ -500,7 +504,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 print()
                 sys.exit(1)
 
-        print("Found screenshot coordinates ",screenshots_views)
+        print("Found screenshot coordinates ", screenshots_views)
         screenshots_views = [ (y[0], int(y[1])) for y in [ x.split("=") for x in screenshots_views ] ]
 
     # check screenshots_layout
@@ -513,44 +517,44 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
 
     # check if fornix subdirectory exists or can be created and is writable
     if fornix is True:
-        if os.path.isdir(os.path.join(output_dir,'fornix')):
-            print("Found fornix directory", os.path.join(output_dir,'fornix'))
+        if os.path.isdir(os.path.join(output_dir, 'fornix')):
+            print("Found fornix directory", os.path.join(output_dir, 'fornix'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir,'fornix'))
+                os.mkdir(os.path.join(output_dir, 'fornix'))
             except:
-                print('ERROR: cannot create fornix directory '+os.path.join(output_dir,'fornix')+'\n')
+                print('ERROR: cannot create fornix directory '+os.path.join(output_dir, 'fornix')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'fornix'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'fornix'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'fornix')
+                    e.filename = os.path.join(output_dir, 'fornix')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'fornix')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir, 'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shape subdirectory exists or can be created and is writable
     if shape is True:
         if os.path.isdir(os.path.join(output_dir, 'brainprint')):
-            print("Found brainprint directory", os.path.join(output_dir,'brainprint'))
+            print("Found brainprint directory", os.path.join(output_dir, 'brainprint'))
         else:
             try:
-                os.makedirs(os.path.join(output_dir,'brainprint'))
+                os.makedirs(os.path.join(output_dir, 'brainprint'))
             except:
                 print('\nERROR: cannot create brainprint directory '+os.path.join(output_dir, 'brainprint')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'brainprint'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'brainprint'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'brainprint')
+                    e.filename = os.path.join(output_dir, 'brainprint')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'brainprint')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir, 'brainprint')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shapeDNA / brainPrint dependencies
@@ -563,22 +567,22 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     # check if outlier subdirectory exists or can be created and is writable
     if outlier is True:
         if os.path.isdir(os.path.join(output_dir, 'outliers')):
-            print("Found outliers directory", os.path.join(output_dir,'outliers'))
+            print("Found outliers directory", os.path.join(output_dir, 'outliers'))
         else:
             try:
-                os.makedirs(os.path.join(output_dir,'outliers'))
+                os.makedirs(os.path.join(output_dir, 'outliers'))
             except:
                 print('\nERROR: cannot create outliers directory '+os.path.join(output_dir, 'outliers')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir,'outliers'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'outliers'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir,'outliers')
+                    e.filename = os.path.join(output_dir, 'outliers')
                     raise
-                print('\nERROR: '+os.path.join(output_dir,'outliers')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(output_dir, 'outliers')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if outlier-table exists if it was given, otherwise exit
@@ -608,9 +612,9 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     # check if aseg.stats (as a proxy) exists
     if subjects == [] and subjects_file is None:
         for subject in os.listdir(subjects_dir):
-            path_aseg_stat = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+            path_aseg_stat = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
             if os.path.isfile(path_aseg_stat):
-                print("Found subject",subject)
+                print("Found subject", subject)
                 subjects.extend([subject])
 
     # check for required files
@@ -618,7 +622,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     for subject in subjects:
 
         # -files: stats/aseg.stats
-        path_check = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+        path_check = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
@@ -718,7 +722,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer
+    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer
 
 
 # ------------------------------------------------------------------------------
@@ -759,7 +763,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     an internal function to run the qatools submodules
 
@@ -771,6 +775,8 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     import os
     import csv
     import time
+
+    import numpy as np
 
     from qatoolspython.checkSNR import checkSNR
     from qatoolspython.checkCCSize import checkCCSize
@@ -805,11 +811,15 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     print("")
     print("-----------------------------")
 
-    # create dict for this subject
+    # create metrics dict
     metricsDict = dict()
 
     # create images dict
-    imagesDict = dict()
+    imagesScreenshotsDict = dict()
+    imagesFornixDict = dict()    
+
+    # create status dict
+    statusDict = dict()
 
     # loop through the specified subjects
     for subject in subjects:
@@ -827,36 +837,87 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             aparc_image = "aparc+aseg.mgz"
 
         # ----------------------------------------------------------------------
+        # add subject to dictionary
+        
+        metricsDict.update( { subject : { 'subject' : subject } } )
+        statusDict.update( { subject : { 'subject' : subject } } )
+        
+        # ----------------------------------------------------------------------
         # compute core metrics
 
+        # set status
+        metrics_ok = True
+
         # get WM and GM SNR for orig.mgz
-        wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="orig.mgz", aparc_image=aparc_image)
+        try:
+            wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="orig.mgz", aparc_image=aparc_image)
+
+        except:
+            wm_snr_orig = np.nan
+            gm_snr_orig = np.nan
+            metrics_ok = False
 
         # get WM and GM SNR for norm.mgz
-        wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
+        try:
+            wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
+
+        except:
+            wm_snr_norm = np.nan
+            gm_snr_norm = np.nan
+            metrics_ok = False
 
         # check CC size
-        cc_size = checkCCSize(subjects_dir, subject)
+        try:
+            cc_size = checkCCSize(subjects_dir, subject)
+
+        except:
+            cc_size = np.nan
+            metrics_ok = False
 
         # check topology
-        holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(subjects_dir, subject)
+        try:
+            holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(subjects_dir, subject)
+
+        except:
+            holes_lh = np.nan
+            holes_rh = np.nan
+            defects_lh = np.nan
+            defects_rh = np.nan
+            topo_lh = np.nan
+            topo_rh = np.nan
+            metrics_ok = False
 
         # check contrast
-        con_snr_lh, con_snr_rh = checkContrast(subjects_dir, subject)
+        try:
+            con_snr_lh, con_snr_rh = checkContrast(subjects_dir, subject)
+
+        except:
+            con_snr_lh = np.nan
+            con_snr_rh = np.nan
+            metrics_ok = False
 
         # check rotation
-        rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(subjects_dir, subject)
+        try:
+            rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(subjects_dir, subject)
+
+        except:
+            rot_tal_x = np.nan
+            rot_tal_y = np.nan
+            rot_tal_z = np.nan
+            metrics_ok = False
 
         # store data
-        metricsDict.update( { subject : {
-            'subject' : subject,
+        metricsDict[subject].update({
             'wm_snr_orig': wm_snr_orig, 'gm_snr_orig' : gm_snr_orig,
             'wm_snr_norm' : wm_snr_norm, 'gm_snr_norm' : gm_snr_norm,
             'cc_size' : cc_size,
             'holes_lh' : holes_lh, 'holes_rh' : holes_rh, 'defects_lh' : defects_lh, 'defects_rh' : defects_rh, 'topo_lh' : topo_lh, 'topo_rh' : topo_rh,
             'con_snr_lh' : con_snr_lh, 'con_snr_rh' : con_snr_rh,
             'rot_tal_x' : rot_tal_x, 'rot_tal_y' : rot_tal_y , 'rot_tal_z' : rot_tal_z
-            }})
+            })
+
+        # store data
+        statusDict[subject].update( { 'metrics' : metrics_ok } )
 
         #
         print("")
@@ -866,73 +927,128 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         if shape is True:
 
-            # message
-            print("-----------------------------")
-            print("Running brainPrint analysis ...")
-            print("")
+            #
+            try:
 
-            # compute brainprint (will also compute shapeDNA)
-            from brainprint import brainprint
+                # message
+                print("-----------------------------")
+                print("Running brainPrint analysis ...")
+                print("")
 
-            # check / create subject-specific brainprint_outdir
-            brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
+                # compute brainprint (will also compute shapeDNA)
+                from brainprint import brainprint
 
-            # run brainPrint
-            evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+                # check / create subject-specific brainprint_outdir
+                brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
 
-            # get a subset of the brainprint results
-            distDict = { subject : dstMat }
+                # run brainPrint
+                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+
+                # get a subset of the brainprint results
+                distDict = { subject : dstMat }
+
+                # return
+                shape_ok = True
+
+            #
+            except:
+
+                distDict = { subject : [] }
+                print("ERROR: the shape module failed for subject "+subject)
+                shape_ok = False
 
             # store data
             metricsDict[subject].update(distDict[subject])
 
+            # store data
+            statusDict[subject].update( { 'shape' : shape_ok } )
+        
         # ----------------------------------------------------------------------
         # run optional modules: screenshots
 
         if screenshots is True:
 
-            # message
-            print("-----------------------------")
-            print("Creating screenshots ...")
-            print("")
+            #
+            try:
 
-            # check / create subject-specific screenshots_outdir
-            screenshots_outdir = os.path.join(output_dir,'screenshots',subject)
-            if not os.path.isdir(screenshots_outdir):
-                os.mkdir(screenshots_outdir)
-            outfile = os.path.join(screenshots_outdir,subject+'.png')
+                # message
+                print("-----------------------------")
+                print("Creating screenshots ...")
+                print("")
 
-            # process
-            createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+                # check / create subject-specific screenshots_outdir
+                screenshots_outdir = os.path.join(output_dir, 'screenshots', subject)
+                if not os.path.isdir(screenshots_outdir):
+                    os.mkdir(screenshots_outdir)
+                outfile = os.path.join(screenshots_outdir, subject+'.png')
 
-            # keep images
-            imagesDict[subject] = outfile
+                # process
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+
+                # return
+                screenshots_ok = True
+
+            #
+            except:
+
+                print("ERROR: screenshots module failed for subject "+subject)
+                screenshots_ok = False
+
+            # store data
+            imagesScreenshotsDict[subject] = outfile
+
+            # store data
+            statusDict[subject].update( { 'screenshots' : screenshots_ok } )
 
         # ----------------------------------------------------------------------
         # run optional modules: fornix
 
         if fornix is True:
 
-            # message
-            print("-----------------------------")
-            print("Checking fornix segmentation ...")
-            print("")
+            #
+            try:
 
-            # check / create subject-specific fornix_outdir
-            fornix_outdir = os.path.join(output_dir,'fornix',subject)
-            if not os.path.isdir(fornix_outdir):
-                os.mkdir(fornix_outdir)
+                # message
+                print("-----------------------------")
+                print("Checking fornix segmentation ...")
+                print("")
 
-            # process
-            fornixShapeOutput = evaluateFornixSegmentation(SUBJECT=subject,SUBJECTS_DIR=subjects_dir,OUTPUT_DIR=fornix_outdir,CREATE_SCREENSHOT=FORNIX_SCREENSHOT,RUN_SHAPEDNA=FORNIX_SHAPE,N_EIGEN=FORNIX_N_EIGEN)
+                # check / create subject-specific fornix_outdir
+                fornix_outdir = os.path.join(output_dir, 'fornix', subject)
+                if not os.path.isdir(fornix_outdir):
+                    os.mkdir(fornix_outdir)
+                fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
 
-            # create a dictionary from fornix shape ouput
-            fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format,range(FORNIX_N_EIGEN)), fornixShapeOutput)) }
+                # process
+                fornixShapeOutput = evaluateFornixSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=fornix_outdir, CREATE_SCREENSHOT=FORNIX_SCREENSHOT, SCREENSHOTS_OUTFILE=fornix_screenshot_outfile, RUN_SHAPEDNA=FORNIX_SHAPE, N_EIGEN=FORNIX_N_EIGEN)
+
+                # create a dictionary from fornix shape ouput
+                fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)), fornixShapeOutput)) }
+
+                # return
+                fornix_ok = True
+
+            #
+            except:
+
+                fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)), np.full(FORNIX_N_EIGEN, np.nan))) }
+                print("ERROR: fornix module failed for subject "+subject)
+                fornix_ok = False
 
             # store data
             if FORNIX_SHAPE:
                 metricsDict[subject].update(fornixShapeDict[subject])
+                
+            # store data
+            if FORNIX_SCREENSHOT:
+                imagesFornixDict[subject] = fornix_screenshot_outfile
+            else:
+                imagesFornixDict[subject] = []
 
+            # store data
+            statusDict[subject].update( { 'fornix' : fornix_ok } )
+
+        # --------------------------------------------------------------------------
         # message
         print("Finished subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
         print("")
@@ -942,34 +1058,56 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     if outlier is True:
 
-        # message
-        print("---------------------------------------")
-        print("Running outlier detection module ...")
-        print("")
+        #
+        try:
 
-        # determine outlier-table and get data
-        if outlier_table is None:
-            outlierDict = outlierTable()
-        else:
+            # message
+            print("---------------------------------------")
+            print("Running outlier detection module ...")
+            print("")
+
+            # determine outlier-table and get data
+            if outlier_table is None:
+                outlierDict = outlierTable()
+            else:
+                outlierDict = dict()
+                with open(outlier_table, newline='') as csvfile:
+                    outlierCsv = csv.DictReader(csvfile, delimiter=',')
+                    for row in outlierCsv:
+                        outlierDict.update({row['label']: {'lower': float(row['lower']), 'upper': float(row['upper'])}})
+
+            # process
+            outlier_outdir = os.path.join(output_dir, 'outliers')
+            n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
+
+            # create a dictionary from outlier module ouput
             outlierDict = dict()
-            with open(outlier_table, newline='') as csvfile:
-                outlierCsv = csv.DictReader(csvfile, delimiter=',')
-                for row in outlierCsv:
-                    outlierDict.update({row['label']: {'lower': float(row['lower']), 'upper': float(row['upper'])}})
+            for subject in subjects:
+                outlierDict.update({subject : {
+                    'n_outlier_sample_nonpar' : n_outlier_sample_nonpar[subject],
+                    'n_outlier_sample_param': n_outlier_sample_param[subject],
+                    'n_outlier_norms': n_outlier_norms[subject]
+                    }
+                })
 
-        # process
-        outlier_outdir = os.path.join(output_dir, 'outliers')
-        n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
+            # return
+            outlier_ok = True
 
-        # create a dictionary from outlier module ouput
-        outlierDict = dict()
-        for subject in subjects:
-            outlierDict.update({subject : {
-                'n_outlier_sample_nonpar' : n_outlier_sample_nonpar[subject],
-                'n_outlier_sample_param': n_outlier_sample_param[subject],
-                'n_outlier_norms': n_outlier_norms[subject]
-                }
-            })
+        #
+        except:
+
+            # create a dictionary from outlier module ouput
+            outlierDict = dict()
+            for subject in subjects:
+                outlierDict.update({subject : {
+                    'n_outlier_sample_nonpar' : np.nan,
+                    'n_outlier_sample_param': np.nan,
+                    'n_outlier_norms': np.nan
+                    }
+                })
+
+            print("ERROR: outlier module failed")
+            outlier_ok = False
 
         # store data
         for subject in subjects:
@@ -982,21 +1120,37 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     # --------------------------------------------------------------------------
     # generate output
 
-    # we pre-specify the fieldnames because we want to have this particular order
-    metricsFieldnames = ['subject','wm_snr_orig','gm_snr_orig','wm_snr_norm','gm_snr_norm','cc_size','holes_lh','holes_rh','defects_lh','defects_rh','topo_lh','topo_rh','con_snr_lh','con_snr_rh','rot_tal_x', 'rot_tal_y', 'rot_tal_z']
+    metricsFieldnames = ['subject']
 
+    # we pre-specify the fieldnames because we want to have this particular order
+    metricsFieldnames.extend(['wm_snr_orig', 'gm_snr_orig', 'wm_snr_norm', 'gm_snr_norm', 'cc_size', 'holes_lh', 'holes_rh', 'defects_lh', 'defects_rh', 'topo_lh', 'topo_rh', 'con_snr_lh', 'con_snr_rh', 'rot_tal_x', 'rot_tal_y', 'rot_tal_z'])
+
+    # collect other keys; need to iterate over subjects, because not all of them
+    # necessarily have the same set of keys
     if shape is True:
-        metricsFieldnames.extend(distDict[subject].keys())
+        shapeKeys = list()
+        for subject in distDict.keys():
+            if len(distDict[subject])>0:
+                shapeKeys = list(np.unique(shapeKeys + list(distDict[subject].keys())))
+        metricsFieldnames.extend(shapeKeys)
 
     if fornix is True and FORNIX_SHAPE is True:
-        metricsFieldnames.extend(sorted(fornixShapeDict[subject].keys()))
+        fornixKeys = list()
+        for subject in fornixShapeDict.keys():
+            if len(fornixShapeDict[subject])>0:
+                fornixKeys = list(np.unique(fornixKeys + list(fornixShapeDict[subject].keys())))
+        metricsFieldnames.extend(sorted(fornixKeys))
 
     if outlier is True:
-        metricsFieldnames.extend(sorted(outlierDict[subject].keys()))
+        outlierKeys = list()
+        for subject in outlierDict.keys():
+            if len(outlierDict[subject])>0:
+                outlierKeys = list(np.unique(outlierKeys + list(outlierDict[subject].keys())))
+        metricsFieldnames.extend(sorted(outlierKeys))
 
     # determine output file names
-    path_data_file = os.path.join(output_dir,'qatools-results.csv')
-    path_html_file = os.path.join(output_dir,'qatools-results.html')
+    path_data_file = os.path.join(output_dir, 'qatools-results.csv')
+    path_html_file = os.path.join(output_dir, 'qatools-results.html')
 
     # write csv
     with open(path_data_file, 'w') as datafile:
@@ -1006,7 +1160,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             csvwriter.writerow(metricsDict[subject])
 
     # generate html output
-    if screenshots is True and screenshots_html is True:
+    if (screenshots is True and screenshots_html is True) or (fornix is True and fornix_html is True):
         with open(path_html_file, 'w') as htmlfile:
             print("<html>", file=htmlfile)
             print("<head>", file=htmlfile)
@@ -1014,19 +1168,34 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             print("</head>", file=htmlfile)
             print("<style> body, h1, h2, h3, h4, h5, h6  { font-family: Arial, Helvetica, sans-serif ; } </style>)", file=htmlfile)
             print("<body style=\"background-color:Black\">", file=htmlfile)
-            print("<h1 style=\"color:white\">FreeSurfer QAtools screenshots</h1>", file=htmlfile)
-            for subject in sorted(list(imagesDict.keys())):
-                print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
-                print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesDict[subject]))+"\">"
-                    +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesDict[subject]))+"\" "
-                    +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+            
+            # screenshots
+            if screenshots is True and screenshots_html is True:
+                print("<h1 style=\"color:white\">Screenshots</h1>", file=htmlfile)
+                for subject in sorted(list(imagesScreenshotsDict.keys())):
+                    print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                    print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\">"
+                        +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
+                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+            # fornix           
+            if fornix is True and fornix_html is True:
+                print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
+                for subject in sorted(list(imagesFornixDict.keys())):
+                    print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                    print("<p><a href=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\">"
+                        +"<img src=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\" "
+                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+            #
             print("</body>", file=htmlfile)
             print("</html>", file=htmlfile)
+            
+
+
 
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=[], subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, outlier=False, outlier_table=None, fastsurfer=False):
+def run_qatools(subjects_dir, output_dir, subjects=[], subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -1036,10 +1205,10 @@ def run_qatools(subjects_dir, output_dir, subjects=[], subjects_file=None, shape
     #
 
     # check arguments
-    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer)
+    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, outlier, outlier_table, fastsurfer)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer)
