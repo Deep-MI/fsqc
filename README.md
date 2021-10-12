@@ -117,8 +117,8 @@ ___
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]]
                           [--subjects-file <file>] [--screenshots]
-                          [--screenshots-html] [--fornix] [--shape] [--outlier]
-                          [--fastsurfer] [-h]
+                          [--screenshots-html] [--fornix] [--fornix-html]
+                          [--shape] [--outlier] [--fastsurfer] [-h]
 
 
 required arguments:
@@ -133,13 +133,11 @@ optional arguments:
                          list of subject IDs
   --subjects-file <file> filename of a file with subject IDs (one per line)
   --screenshots          create screenshots
-<<<<<<< HEAD
   --screenshots-html     create html summary page of screenshots (requires 
-=======
-  --screenshots-html     create html summary page of screenshots (requires
->>>>>>> 2aed409ebd9955ecd204
                          --screenshots)
   --fornix               check fornix segmentation
+  --fornix-html          create html summary page of fornix evaluation (requires 
+                         --fornix)
   --shape                run shape analysis
   --outlier              run outlier detection
   --outlier-table        specify normative values (only in conjunction with
