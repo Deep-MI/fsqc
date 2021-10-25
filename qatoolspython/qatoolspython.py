@@ -564,6 +564,10 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             print("\nERROR: could not import the brainprint package, is it installed?")
             sys.exit(1)
 
+        if  importlib.util.find_spec("lapy") is None:
+            print("\nERROR: could not import the lapy package, is it installed?")
+            sys.exit(1)
+
     # check if outlier subdirectory exists or can be created and is writable
     if outlier is True:
         if os.path.isdir(os.path.join(output_dir, 'outliers')):
@@ -937,6 +941,18 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
                 # compute brainprint (will also compute shapeDNA)
                 from brainprint import brainprint
+
+                # check / create subject-specific brainprint_outdir
+                brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
+
+                # run brainPrint
+                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+
+                # get a subset of the brainprint results
+                distDict = { subject : dstMat }
+
+                # return
+                shape_ok = True
 
                 # check / create subject-specific brainprint_outdir
                 brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)

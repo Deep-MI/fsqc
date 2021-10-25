@@ -37,3 +37,5 @@ python3 ../qatools.py --subjects_dir data --output_dir output/test017 --subjects
 python3 ../qatools.py --subjects_dir data --output_dir output/test018 --subjects 129 130 --screenshots --screenshots_views z=10 y=-5 --screenshots_layout 2 1
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test019 --subjects 129 130 --screenshots --screenshots_views z=10 y=-5 z=-10 y=5 x=0 --screenshots_layout 1 5 --screenshots-html 
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test020 --fornix --fornix-html

@@ -393,6 +393,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                     elif findIdx.shape[0] > 1:
                         # error
                         print("A problem occurred with the surface overlays")
+                        break
 
                 # now final plot
                 axs[axsx,axsy].plot(tmpxSort, tmpySort, color=surfcolor[s], linewidth=np.round(FIGSIZE/8))
