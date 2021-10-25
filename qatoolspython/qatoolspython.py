@@ -564,6 +564,10 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             print("\nERROR: could not import the brainprint package, is it installed?")
             sys.exit(1)
 
+        if  importlib.util.find_spec("lapy") is None:
+            print("\nERROR: could not import the lapy package, is it installed?")
+            sys.exit(1)
+
     # check if outlier subdirectory exists or can be created and is writable
     if outlier is True:
         if os.path.isdir(os.path.join(output_dir, 'outliers')):
