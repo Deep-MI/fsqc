@@ -1,4 +1,4 @@
-# should be run from within the 'testing' directory, otherwise adjust pathnames
+# should be run from within the 'testing' directory, otherwise adjust pathnames; check which version is executed, i.e. an installed old one, or the modified local one?
 
 from qatoolspython import qatoolspython
 
