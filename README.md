@@ -235,6 +235,12 @@ See `help(qatoolspython)` for further usage info and additional options.
 
 ___
 
+## Running from a Docker image
+
+We provide a `Dockerfile` that can be used to create a Docker image for the qatools-python scripts. Documentation is provided on the [Docker page](Docker/Docker.md).
+
+___
+
 ## Testing
 
 Included with this toolbox is a `testing` subdirectory which contains two
