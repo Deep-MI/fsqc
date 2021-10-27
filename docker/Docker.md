@@ -8,17 +8,17 @@ The only thing that is required to run the qatools pipeline with all options, is
 
 ## Build qatools Docker image
 
-To build the docker image, execute the following command after traversing into the *Docker* directory: 
+To build the docker image, execute the following command after traversing into the *docker* directory of this repository: 
 
 ```bash
 docker build --rm -t qatoolsdocker -f Dockerfile .
 ```
 
-The name of the image will be `qatoolsdocker`, and it wil be built from the `Dockerfile` configuration file in the *Docker* directory. 
+The name of the image will be `qatoolsdocker`, and it wil be built from the `Dockerfile` configuration file from the *docker* directory. 
 
 The `--rm` flag will remove intermediate containers after a successful build; `-t` specifies the name of the image, and `-f` indicates the configuration file from which to build. 
 
-Take a look at the contents of the `Dockerfile` to see what is done during the build process: essentially, it is getting the Ubuntu 18.04 image, installing additional packages from the distribution, downloading and installing a copy of FreeSurfer 6.0 (without some of the very large image files and directories, which are not needed), downloading the qatools-python, brainprint-python, and lapy toolboxes, and setting the necessary environment variables. The result image will have a size of approximately 7 GB.
+Take a look at the contents of the [`Dockerfile`](Dockerfile) to see what is done during the build process: essentially, it is getting the Ubuntu 18.04 image, installing additional packages from the distribution, downloading and installing a copy of FreeSurfer 6.0 (without some of the very large image files and directories, which are not needed), downloading the qatools-python, brainprint-python, and lapy toolboxes, and setting the necessary environment variables. The result image will have a size of approximately 7 GB.
 
 ## Run qatools from a Docker image
 
