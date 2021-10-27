@@ -63,9 +63,6 @@ ENV PYTHONPATH=/app/lapy:/app/brainprint:${PYTHONPATH}
 # Set the working directory to /app
 WORKDIR /app
 
-# Run app when the container launches (interactive mode)
-#CMD ["/bin/bash"] 
-
 # Set entrypoint (non-interactive mode)
 ENTRYPOINT ["python3", "/app/qatools-python/qatools.py"]
 
