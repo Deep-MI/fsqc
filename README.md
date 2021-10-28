@@ -191,17 +191,17 @@ ___
 
 ## Installation
 
-This software can be downloaded from its github repository at `https://github.com/deep-mi/qatools-python`.
+This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
 
-Alternatively, it can be cloned directly from its repository via `git clone https://github.com/deep-mi/qatools-python`.
+Alternatively, it can be cloned directly from its repository via `git clone https://github.com/Deep-MI/qatools-python`.
 
 The `qatools.py` script will then be executable from the command line, as
 detailed above.
 
 Optional packages (if running the shape analysis module) include the `brainprint-python`
 and `lapy` packages from . They can be installed using
-`pip3 install --user git+https://github.com/deep-mi/BrainPrint-python.git`
-and `pip3 install --user git+https://github.com/deep-mi/LaPy.git`. They should
+`pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
+and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They should
 both be version 0.2 or newer.
 ___
 
@@ -214,12 +214,12 @@ package.
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/deep-mi/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
+`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use the following code to install the package in editable mode to a location of
 your choice:
 
-`pip3 install --user --src /my/preferred/location --editable git+https://github.com/deep-mi/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
+`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
@@ -232,6 +232,12 @@ analysis:
 `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
 
 See `help(qatoolspython)` for further usage info and additional options.
+
+___
+
+## Running from a Docker image
+
+We provide a `Dockerfile` that can be used to create a Docker image for the qatools-python scripts. Documentation is provided on the [Docker page](docker/Docker.md).
 
 ___
 

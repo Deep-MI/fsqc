@@ -312,7 +312,7 @@ def _parse_arguments():
     required.add_argument('--output_dir', dest="output_dir", help="output directory", metavar="<directory>", required=True)
 
     optional = parser.add_argument_group('optional arguments')
-    optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=[], nargs='+', metavar="SubjectID", required=False)
+    optional.add_argument('--subjects', dest="subjects", help="list of subject IDs. If omitted, all suitable sub-\ndirectories witin the subjects directory will be \nused.", default=None, nargs='+', metavar="SubjectID", required=False)
     optional.add_argument('--subjects-file', dest="subjects_file", help="filename with list of subject IDs (one per line). \nIf omitted, all suitable sub-directories witin \nthe subjects directory will be used.", default=None, metavar="<filename>", required=False)
     optional.add_argument('--shape', dest='shape', help="run shape analysis", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
@@ -392,6 +392,31 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 raise
             print('\nERROR: '+output_dir+' not writeable (check access)!\n')
             sys.exit(1)
+
+    # check if both subjects and subjects-file were specified
+    if subjects is not None and subjects_file is not None:
+        print("ERROR: Use either --subjects or --subjects-file (but not both).")
+        sys.exit(1)
+
+    # check if subjects-file exists and get data
+    if subjects_file is not None:
+        if os.path.isfile(subjects_file):
+            # read file
+            with open(subjects_file) as subjects_file_f:
+                subjects = subjects_file_f.read().splitlines()
+        else:
+            print("ERROR: Could not find subjects file", subjects_file)
+            sys.exit(1)
+
+    # if neither subjects nor subjects_file are given, get contents of the subject 
+    # directory and check if aseg.stats (as a proxy) exists
+    if subjects is None and subjects_file is None:
+        subjects = []
+        for subject in os.listdir(subjects_dir):
+            path_aseg_stat = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
+            if os.path.isfile(path_aseg_stat):
+                print("Found subject", subject)
+                subjects.extend([subject])
 
     # check if screenshots subdirectory exists or can be created and is writable
     if screenshots is True:
@@ -597,30 +622,6 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             print("ERROR: Could not find table with normative values ", outlier_table)
             sys.exit(1)
 
-    # check if both subjects and subjects-file were specified
-    if subjects != [] and subjects_file is not None:
-        print("ERROR: Use either --subjects or --subjects-file (but not both).")
-        sys.exit(1)
-
-    # check if subjects-file exists and get data
-    if subjects_file is not None:
-        if os.path.isfile(subjects_file):
-            # read file
-            with open(subjects_file) as subjects_file_f:
-                subjects = subjects_file_f.read().splitlines()
-        else:
-            print("ERROR: Could not find subjects file", subjects_file)
-            sys.exit(1)
-
-    # if subjects are not given, get contents of the subject directory and
-    # check if aseg.stats (as a proxy) exists
-    if subjects == [] and subjects_file is None:
-        for subject in os.listdir(subjects_dir):
-            path_aseg_stat = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
-            if os.path.isfile(path_aseg_stat):
-                print("Found subject", subject)
-                subjects.extend([subject])
-
     # check for required files
     subjects_to_remove = list()
     for subject in subjects:
@@ -721,7 +722,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     [ subjects.remove(x) for x in list(set(subjects_to_remove)) ]
 
     # check if we have any subjects after all
-    if subjects == []:
+    if not subjects:
         print("\nERROR: no subjects to process")
         sys.exit(1)
 
@@ -941,6 +942,18 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
                 # compute brainprint (will also compute shapeDNA)
                 from brainprint import brainprint
+
+                # check / create subject-specific brainprint_outdir
+                brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
+
+                # run brainPrint
+                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+
+                # get a subset of the brainprint results
+                distDict = { subject : dstMat }
+
+                # return
+                shape_ok = True
 
                 # check / create subject-specific brainprint_outdir
                 brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
@@ -1199,7 +1212,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=[], subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
+def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
