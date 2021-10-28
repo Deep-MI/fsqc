@@ -50,5 +50,6 @@ docker run \
 * The third `-v` argument mounts your local FreeSurfer license file into the FreeSurfer directory within the docker image (`/opt/freesurfer`). The `:ro` suffix indicates that from within Docker, this will be read-only.
 * The next part of the docker command is the name of the Docker image, which is `qatoolsdocker`. 
 * After that, all other flags are identical to the ones that are used for the `qatools.py` program (which are explained on the main page and the help message of the program). In addition to the `--subjects_dir` and `--output_dir` arguments, which are mandatory, the `--subjects`, `-screenshots`, `--fornix` arguments, for example, could be specified - in the same way as for non-dockerized version of the program. Note that file- and pathnames need to correspond to the targets of the file / directory mappings within the Docker image, not to the local system. 
+* Also note that if you supply additional filenames to the qatools script (using e.g. the `--subjects-file` argument), their locations must be mounted using another `-v` option (unless they are present in one of the already mounted directories), and the filenames given to the script need to refer to the mounted location inside the Docker.
 
 
