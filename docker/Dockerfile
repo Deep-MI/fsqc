@@ -60,6 +60,9 @@ ENV PATH=/opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:/opt/freesurfer/tktools:
 # Add toolbox directories to PYTHONPATH
 ENV PYTHONPATH=/app/lapy:/app/brainprint:${PYTHONPATH}
 
+# Set config dir for matplotlib
+ENV MPLCONFIGDIR=/tmp/matplotlib-cfg
+
 # Set the working directory to /app
 WORKDIR /app
 
