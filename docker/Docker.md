@@ -29,8 +29,8 @@ docker run --rm --user XXXX:YYYY qatoolsdocker
 ```
 
 * This corresponds to calling `python3 qatools.py` from the command line for a non-dockerized version of the program.
-* The --rm flag takes care of removing the container once the analysis finished. 
-* The --user XXXX:YYYY part should be changed to the appropriate user id (XXXX, a number) and group id (YYYY, also a number); both can be checked with the commands `id -u` and `id -g` on linux systems). All generated files will then belong to the specified user and group. Without the flag, the docker container will be run as root with all corresponding privileges, which is strongly discouraged.
+* The `--rm flag` takes care of removing the container once the analysis finished. 
+* The `--user XXXX:YYYY` part should be changed to the appropriate user id (XXXX, a number) and group id (YYYY, also a number); both can be checked with the commands `id -u` and `id -g` on linux-like systems). All generated files will then belong to the specified user and group. Without the flag, the docker container will be run as root with all corresponding privileges, which is strongly discouraged.
 
 An actual analysis can be performed by adding several options (and after adjusting the user-specific settings and file- and pathnames):
 
