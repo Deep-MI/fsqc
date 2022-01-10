@@ -134,6 +134,32 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         CutsRRAS = VIEWS
 
     # -----------------------------------------------------------------------------
+    # check if the chosen VIEWS are feasible. If not feasible changing to the nearest feasible values
+
+    m = norm.header.get_vox2ras_tkr()
+    n = norm.header.get_data_shape()
+
+    xyzIdx = np.array(
+        np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
+    xyzIdxFlat3 = np.reshape(xyzIdx, (3, np.prod(n))).transpose()
+    xyzIdxFlat4 = np.hstack((xyzIdxFlat3, np.ones((np.prod(n), 1))))
+    rasIdxFlat3 = np.matmul(m, xyzIdxFlat4.transpose()).transpose()[:, 0:3]
+
+    for i, icr in enumerate(CutsRRAS):
+        if icr[0] == 'x':
+            iDim = 0
+        elif icr[0] == 'y':
+            iDim = 1
+        elif icr[0] == 'z':
+            iDim = 2
+
+        if not np.any(rasIdxFlat3[:, iDim] == icr[1]):
+            closestCutValue = rasIdxFlat3[np.abs(rasIdxFlat3[:, iDim] - icr[1]).argmin(), iDim]
+            print(f'INFO: the VIEW {icr} will be changed to (\'{icr[0]}\', {closestCutValue:.2f}) so it is not' 
+                  ' necessary to interpolate volumetric data')
+            CutsRRAS[i] = (icr[0], closestCutValue)
+
+    # -----------------------------------------------------------------------------
     # compute levelsets
 
     LVL = list()
@@ -153,7 +179,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
             elif CutsRRAS[i][0] == 'z':
                 iDim = 2
 
-            # compute levelsets: e.g., LVL[SURF][VIEWS][vLVL|tLVL|iLVL][0][elementDimnnnnn1][elementDim2]
+            # compute levelsets: e.g., LVL[SURF][VIEWS][vLVL|tLVL|iLVL][0][elementDim1][elementDim2]
             sLVL.append(levelsetsTria(surf[s][0], surf[s][1], surf[s][0][:, iDim], CutsRRAS[i][1]))
 
         LVL.append(sLVL)
@@ -194,13 +220,13 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # x_S y_S z_S c_S
     #   0   0   0   1
 
-    m = norm.header.get_vox2ras_tkr()
-    n = norm.header.get_data_shape()
+    # m = norm.header.get_vox2ras_tkr()
+    # n = norm.header.get_data_shape()
 
-    xyzIdx = np.array(np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
-    xyzIdxFlat3 = np.reshape(xyzIdx, (3, np.prod(n))).transpose()
-    xyzIdxFlat4 = np.hstack((xyzIdxFlat3, np.ones((np.prod(n), 1))))
-    rasIdxFlat3 = np.matmul(m, xyzIdxFlat4.transpose()).transpose()[:, 0:3]
+    # xyzIdx = np.array(np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
+    # xyzIdxFlat3 = np.reshape(xyzIdx, (3, np.prod(n))).transpose()
+    # xyzIdxFlat4 = np.hstack((xyzIdxFlat3, np.ones((np.prod(n), 1))))
+    # rasIdxFlat3 = np.matmul(m, xyzIdxFlat4.transpose()).transpose()[:, 0:3]
 
     normValsRAS = list()
     if aseg is not None:
@@ -216,7 +242,6 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
         elif CutsRRAS[i][0] == 'z':
             iDim = 2
 
-        #
         sel = np.array(xyzIdxFlat3[rasIdxFlat3[:, iDim] == CutsRRAS[i][1], :], dtype="int")
         normValsRAS.append(np.squeeze(normVals[np.min(sel[:, 0]):np.max(sel[:, 0]) + 1, np.min(sel[:, 1]):np.max(sel[:, 1]) + 1, np.min(sel[:, 2]):np.max(sel[:, 2]) + 1]))
         if aseg is not None:
