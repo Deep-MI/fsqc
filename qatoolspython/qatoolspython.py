@@ -24,7 +24,7 @@ def get_help(print_help=True, return_help=False):
     Description:
     ============
 
-    This is a set of quality assurance / quality control scripts for Freesurfer 6.0
+    This is a set of quality assurance / quality control scripts for Freesurfer 
     processed structural MRI data.
 
     It is a revision, extension, and translation to the Python language of the
@@ -135,7 +135,7 @@ def get_help(print_help=True, return_help=False):
 
         required arguments:
           --subjects_dir <directory>
-                                subjects directory with a set of Freesurfer 6.0
+                                subjects directory with a set of Freesurfer
                                 processed individual datasets.
           --output_dir <directory>
                                 output directory
@@ -298,7 +298,7 @@ def _parse_arguments():
 
     # parse
     parser = argparse.ArgumentParser(description='''
-        This program takes existing Freesurfer 6.0 analysis results of one
+        This program takes existing Freesurfer analysis results of one
         or more subjects and computes a set of quality metrics. These will be
         reported in a summary csv table.
 
@@ -308,7 +308,7 @@ def _parse_arguments():
         add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
     required = parser.add_argument_group('required arguments')
-    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer 6.0 \nprocessed individual datasets.", metavar="<directory>", required=True)
+    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer \nprocessed individual datasets.", metavar="<directory>", required=True)
     required.add_argument('--output_dir', dest="output_dir", help="output directory", metavar="<directory>", required=True)
 
     optional = parser.add_argument_group('optional arguments')
