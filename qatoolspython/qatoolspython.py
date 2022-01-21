@@ -162,16 +162,32 @@ def get_help(print_help=True, return_help=False):
 
         expert options:
           --screenshots_base <image>
-                                path to an image that should be used instead of
-                                norm.mgz as the base image for the screenshots
+                                filename of an image that should be used instead of
+                                norm.mgz as the base image for the screenshots. Can be
+                                an individual file (which would not be appropriate for
+                                multi-subject analysis) or can be a file without 
+                                pathname and with the same filename across subjects 
+                                within the 'mri' subdirectory of an individual FreeSurfer 
+                                results directory (which would be approprite for multi-
+                                subject analysis).
           --screenshots_overlay <image>
                                 path to an image that should be used instead of
                                 aseg.mgz as the overlay image for the screenshots;
-                                can also be none
+                                can also be none. Can be an individual file (which would 
+                                not be appropriate for multi-subject analysis) or can be 
+                                a file without pathname and with the same filename across 
+                                subjects within the 'mri' subdirectory of an individual 
+                                FreeSurfer results directory (which would be approprite 
+                                for multi-subject analysis).
           --screenshots_surf <surf> [<surf> ...]
-                                one or more path to surface files that should be
-                                used instead of [lr].white and [lr].pial; can
-                                also be none
+                                one or more surface files that should be used instead 
+                                of [lr]h.white and [lr]h.pial; can also be none.
+                                Can be one or more individual file(s) (which would not be 
+                                appropriate for multi-subject analysis) or can be a (list
+                                of) file(s) without pathname and with the same filename 
+                                across subjects within the 'surf' subdirectory of an 
+                                individual FreeSurfer results directory (which would be 
+                                approprite for multi-subject analysis).
           --screenshots_views <view> [<view> ...]
                                 one or more views to use for the screenshots in
                                 the form of x=<numeric> y=<numeric> and/or
@@ -459,52 +475,21 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 sys.exit(1)
 
     # check screenshots_base
-    if screenshots_base == 'default':
-        screenshots_base = [screenshots_base]
-    else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_base argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        if not os.path.isfile(screenshots_base):
-            print('\nERROR: cannot find the screenshots base file '+screenshots_base+'\n')
-            sys.exit(1)
-        else:
-            print("Using "+screenshots_base+" as screenshot base image")
-            screenshots_base = [screenshots_base]
+    screenshots_base = [screenshots_base]
 
-    # check screenshots_overlay
-    if screenshots_overlay == 'default':
-        screenshots_overlay = [screenshots_overlay]
-    elif screenshots_overlay.lower() == 'none':
+    # check screenshots_overlay (further checks prior to execution of the screenshots module)
+    if screenshots_overlay.lower() == 'none':
         screenshots_overlay = None
-        print("Found screenshot overlays set to None")
+        print("Found screenshot overlays set to None")            
     else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_overlay argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        if not os.path.isfile(screenshots_overlay):
-            print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay+'\n')
-            sys.exit(1)
-        else:
-            print("Using "+screenshots_overlay+" as screenshot overlay image")
-            screenshots_overlay = [screenshots_overlay]
+        screenshots_overlay = [screenshots_overlay]
 
-    # check screenshots_surf (this is either 'default' or a list)
-    if screenshots_surf == 'default':
+    # check screenshots_surf (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
+    if not isinstance(screenshots_surf, list):
         screenshots_surf = [screenshots_surf]
-    elif screenshots_surf[0].lower() == 'none':
+    if screenshots_surf[0].lower() == 'none':
         screenshots_surf = None
         print("Found screenshot surfaces set to None")
-    else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_surf argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        for screenshots_surf_i in screenshots_surf:
-            if not os.path.isfile(screenshots_surf_i):
-                print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
-                sys.exit(1)
-            else:
-                print("Using "+screenshots_surf_i+" as screenshot surface")
 
     # check if screenshots_views argument can be evaluated
     if screenshots_views == 'default':
@@ -686,7 +671,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             subjects_to_remove.extend([subject])
 
         # check screenshots
-        if screenshots is True and screenshots_surf=="default":
+        if screenshots is True and screenshots_surf==["default"]:
 
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(subjects_dir, subject, "surf", "lh.white")
@@ -768,7 +753,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     an internal function to run the qatools submodules
 
@@ -998,9 +983,56 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 if not os.path.isdir(screenshots_outdir):
                     os.mkdir(screenshots_outdir)
                 outfile = os.path.join(screenshots_outdir, subject+'.png')
+                
+                # re-initialize
+                screenshots_base_subj = list()
+                screenshots_overlay_subj = list()
+                screenshots_surf_subj = list()
+                
+                # check screenshots_base
+                if screenshots_base[0] == "default":
+                    screenshots_base_subj = screenshots_base
+                    print("Using default for screenshot base image")
+                elif os.path.isfile(screenshots_base[0]):
+                    screenshots_base_subj = screenshots_base
+                    print("Using "+screenshots_base_subj[0]+" as screenshot base image")
+                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])):
+                    screenshots_base_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])]
+                    print("Using "+screenshots_base_subj[0]+" as screenshot base image")
+                else:
+                    print('\nERROR: cannot find the screenshots base file '+screenshots_base[0]+'\n')
+                    sys.exit(1)                
+
+                # check screenshots_overlay
+                if screenshots_overlay[0] == "default":
+                    screenshots_overlay_subj = screenshots_overlay
+                    print("Using default for screenshot overlay image")                
+                elif os.path.isfile(screenshots_overlay[0]):
+                    screenshots_overlay_subj = screenshots_overlay
+                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])):
+                    screenshots_overlay_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])]
+                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                else:
+                    print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay[0]+'\n')
+                    sys.exit(1)                
+                    
+                # check screenshots_surf
+                for screenshots_surf_i in screenshots_surf:
+                    if screenshots_surf_i == "default":
+                        print("Using default for screenshot surface")
+                    elif os.path.isfile(screenshots_surf_i):
+                        print("Using "+screenshots_surf_i+" as screenshot surface")
+                    elif os.path.isfile(os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)):
+                        screenshots_surf_i = os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)
+                        print("Using "+screenshots_surf_i+" as screenshot surface")
+                    else:
+                        print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
+                        sys.exit(1)         
+                    screenshots_surf_subj.append(screenshots_surf_i)
 
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
 
                 # return
                 screenshots_ok = True
