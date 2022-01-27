@@ -24,7 +24,7 @@ def get_help(print_help=True, return_help=False):
     Description:
     ============
 
-    This is a set of quality assurance / quality control scripts for Freesurfer 6.0
+    This is a set of quality assurance / quality control scripts for Freesurfer
     processed structural MRI data.
 
     It is a revision, extension, and translation to the Python language of the
@@ -75,8 +75,15 @@ def get_help(print_help=True, return_help=False):
 
     This is a module to assess potential issues with the segmentation of the
     corpus callosum, which may incorrectly include parts of the fornix. To assess
-    segmentation quality, a screesnhot of the contours of the corpus callosum
+    segmentation quality, a screenshot of the contours of the corpus callosum
     segmentation overlaid on the norm.mgz will be saved in the 'fornix'
+    subdirectory of the output directory.
+
+    - hypothalamus module
+
+    This is a module to assess potential issues with the segmentation of the
+    hypothalamus. To assess segmentation quality, a screenshot of the hypothalamus
+    segmentation overlaid on the norm.mgz will be saved in the 'hypothalamus'
     subdirectory of the output directory.
 
     - shape module
@@ -129,13 +136,14 @@ def get_help(print_help=True, return_help=False):
 
         python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
-                                  [--screenshots] [--screenshots-html] 
-                                  [--fornix] [--fornix-html] [--shape] 
+                                  [--screenshots] [--screenshots-html]
+                                  [--fornix] [--fornix-html] [--hypothalamus]
+                                  [--hypothalamus-html] [--shape]
                                   [--outlier] [--fastsurfer] [-h]
 
         required arguments:
           --subjects_dir <directory>
-                                subjects directory with a set of Freesurfer 6.0
+                                subjects directory with a set of Freesurfer
                                 processed individual datasets.
           --output_dir <directory>
                                 output directory
@@ -149,8 +157,11 @@ def get_help(print_help=True, return_help=False):
           --screenshots-html    create html summary page of screenshots (requires
                                 --screenshots)
           --fornix              check fornix segmentation
-          --fornix-html          create html summary page of fornix evaluation (requires 
-                                 --fornix)          
+          --fornix-html          create html summary page of fornix evaluation (requires
+                                 --fornix)
+          --hypothalamus        check hypothalamic segmentation
+          --hypothalamus-html   create html summary page of hypothalamic evaluation
+                                (requires --hypothalamus)
           --shape               run shape analysis
           --outlier             run outlier detection
           --outlier-table       specify normative values (only in conjunction with
@@ -162,16 +173,32 @@ def get_help(print_help=True, return_help=False):
 
         expert options:
           --screenshots_base <image>
-                                path to an image that should be used instead of
-                                norm.mgz as the base image for the screenshots
+                                filename of an image that should be used instead of
+                                norm.mgz as the base image for the screenshots. Can be
+                                an individual file (which would not be appropriate for
+                                multi-subject analysis) or can be a file without
+                                pathname and with the same filename across subjects
+                                within the 'mri' subdirectory of an individual FreeSurfer
+                                results directory (which would be approprite for multi-
+                                subject analysis).
           --screenshots_overlay <image>
                                 path to an image that should be used instead of
                                 aseg.mgz as the overlay image for the screenshots;
-                                can also be none
+                                can also be none. Can be an individual file (which would
+                                not be appropriate for multi-subject analysis) or can be
+                                a file without pathname and with the same filename across
+                                subjects within the 'mri' subdirectory of an individual
+                                FreeSurfer results directory (which would be approprite
+                                for multi-subject analysis).
           --screenshots_surf <surf> [<surf> ...]
-                                one or more path to surface files that should be
-                                used instead of [lr].white and [lr].pial; can
-                                also be none
+                                one or more surface files that should be used instead
+                                of [lr]h.white and [lr]h.pial; can also be none.
+                                Can be one or more individual file(s) (which would not be
+                                appropriate for multi-subject analysis) or can be a (list
+                                of) file(s) without pathname and with the same filename
+                                across subjects within the 'surf' subdirectory of an
+                                individual FreeSurfer results directory (which would be
+                                approprite for multi-subject analysis).
           --screenshots_views <view> [<view> ...]
                                 one or more views to use for the screenshots in
                                 the form of x=<numeric> y=<numeric> and/or
@@ -298,7 +325,7 @@ def _parse_arguments():
 
     # parse
     parser = argparse.ArgumentParser(description='''
-        This program takes existing Freesurfer 6.0 analysis results of one
+        This program takes existing Freesurfer analysis results of one
         or more subjects and computes a set of quality metrics. These will be
         reported in a summary csv table.
 
@@ -308,7 +335,7 @@ def _parse_arguments():
         add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
     required = parser.add_argument_group('required arguments')
-    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer 6.0 \nprocessed individual datasets.", metavar="<directory>", required=True)
+    required.add_argument('--subjects_dir', dest="subjects_dir", help="subjects directory with a set of Freesurfer \nprocessed individual datasets.", metavar="<directory>", required=True)
     required.add_argument('--output_dir', dest="output_dir", help="output directory", metavar="<directory>", required=True)
 
     optional = parser.add_argument_group('optional arguments')
@@ -323,7 +350,9 @@ def _parse_arguments():
     optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=None, nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
-    optional.add_argument('--fornix-html', dest='fornix_html', help="create html summary page for fornix evaluation", default=False, action="store_true", required=False)    
+    optional.add_argument('--fornix-html', dest='fornix_html', help="create html summary page for fornix evaluation", default=False, action="store_true", required=False)
+    optional.add_argument('--hypothalamus', dest='hypothalamus', help="check hypothalamus segmentation", default=False, action="store_true", required=False)
+    optional.add_argument('--hypothalamus-html', dest='hypothalamus_html', help="create html summary page for hypothalamus evaluation", default=False, action="store_true", required=False)
     optional.add_argument('--outlier', dest='outlier', help="run outlier detection", default=False, action="store_true", required=False)
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
     optional.add_argument('--fastsurfer', dest='fastsurfer', help="use FastSurfer output", default=False, action="store_true", required=False)
@@ -342,12 +371,13 @@ def _parse_arguments():
         args.screenshots_html, args.screenshots_base, \
         args.screenshots_overlay, args.screenshots_surf, \
         args.screenshots_views, args.screenshots_layout, args.fornix, \
-        args.fornix_html, args.outlier, args.outlier_table, args.fastsurfer
+        args.fornix_html, args.hypothalamus, \
+        args.hypothalamus_html, args.outlier, args.outlier_table, args.fastsurfer
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer):
+def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, outlier, outlier_table, fastsurfer):
     """
     an internal function to check input arguments
 
@@ -408,7 +438,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             print("ERROR: Could not find subjects file", subjects_file)
             sys.exit(1)
 
-    # if neither subjects nor subjects_file are given, get contents of the subject 
+    # if neither subjects nor subjects_file are given, get contents of the subject
     # directory and check if aseg.stats (as a proxy) exists
     if subjects is None and subjects_file is None:
         subjects = []
@@ -459,52 +489,21 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 sys.exit(1)
 
     # check screenshots_base
-    if screenshots_base == 'default':
-        screenshots_base = [screenshots_base]
-    else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_base argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        if not os.path.isfile(screenshots_base):
-            print('\nERROR: cannot find the screenshots base file '+screenshots_base+'\n')
-            sys.exit(1)
-        else:
-            print("Using "+screenshots_base+" as screenshot base image")
-            screenshots_base = [screenshots_base]
+    screenshots_base = [screenshots_base]
 
-    # check screenshots_overlay
-    if screenshots_overlay == 'default':
-        screenshots_overlay = [screenshots_overlay]
-    elif screenshots_overlay.lower() == 'none':
+    # check screenshots_overlay (further checks prior to execution of the screenshots module)
+    if screenshots_overlay.lower() == 'none':
         screenshots_overlay = None
         print("Found screenshot overlays set to None")
     else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_overlay argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        if not os.path.isfile(screenshots_overlay):
-            print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay+'\n')
-            sys.exit(1)
-        else:
-            print("Using "+screenshots_overlay+" as screenshot overlay image")
-            screenshots_overlay = [screenshots_overlay]
+        screenshots_overlay = [screenshots_overlay]
 
-    # check screenshots_surf (this is either 'default' or a list)
-    if screenshots_surf == 'default':
+    # check screenshots_surf (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
+    if not isinstance(screenshots_surf, list):
         screenshots_surf = [screenshots_surf]
-    elif screenshots_surf[0].lower() == 'none':
+    if screenshots_surf[0].lower() == 'none':
         screenshots_surf = None
         print("Found screenshot surfaces set to None")
-    else:
-        if len(subjects)!=1:
-            print('\nERROR: can only use the --screenshots_surf argument for a single subject, which must be specified using --subject\n')
-            sys.exit(1)
-        for screenshots_surf_i in screenshots_surf:
-            if not os.path.isfile(screenshots_surf_i):
-                print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
-                sys.exit(1)
-            else:
-                print("Using "+screenshots_surf_i+" as screenshot surface")
 
     # check if screenshots_views argument can be evaluated
     if screenshots_views == 'default':
@@ -559,6 +558,27 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                     e.filename = os.path.join(output_dir, 'fornix')
                     raise
                 print('\nERROR: '+os.path.join(output_dir, 'fornix')+' not writeable (check access)!\n')
+                sys.exit(1)
+
+    # check if hypothalamus subdirectory exists or can be created and is writable
+    if hypothalamus is True:
+        if os.path.isdir(os.path.join(output_dir, 'hypothalamus')):
+            print("Found hypothalamus directory", os.path.join(output_dir, 'hypothalamus'))
+        else:
+            try:
+                os.mkdir(os.path.join(output_dir, 'hypothalamus'))
+            except:
+                print('ERROR: cannot create hypothalamus directory '+os.path.join(output_dir, 'hypothalamus')+'\n')
+                sys.exit(1)
+
+            try:
+                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'hypothalamus'))
+                testfile.close()
+            except OSError as e:
+                if e.errno != errno.EACCES:  # 13
+                    e.filename = os.path.join(output_dir, 'hypothalamus')
+                    raise
+                print('\nERROR: '+os.path.join(output_dir, 'hypothalamus')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shape subdirectory exists or can be created and is writable
@@ -686,7 +706,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             subjects_to_remove.extend([subject])
 
         # check screenshots
-        if screenshots is True and screenshots_surf=="default":
+        if screenshots is True and screenshots_surf==["default"]:
 
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(subjects_dir, subject, "surf", "lh.white")
@@ -727,7 +747,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer
+    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, outlier, outlier_table, fastsurfer
 
 
 # ------------------------------------------------------------------------------
@@ -768,7 +788,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base=["default"], screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
+def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, hypothalamus=False, hypothalamus_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     an internal function to run the qatools submodules
 
@@ -789,6 +809,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     from qatoolspython.checkContrast import checkContrast
     from qatoolspython.checkRotation import checkRotation
     from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
+    from qatoolspython.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
     from qatoolspython.createScreenshots import createScreenshots
     from qatoolspython.outlierDetection import outlierTable
     from qatoolspython.outlierDetection import outlierDetection
@@ -800,6 +821,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     FORNIX_SCREENSHOT = True
     FORNIX_SHAPE = False
     FORNIX_N_EIGEN = 15
+    HYPOTHALAMUS_SCREENSHOT = True
     OUTLIER_N_MIN = 5
 
     SHAPE_EVEC = False
@@ -821,7 +843,8 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     # create images dict
     imagesScreenshotsDict = dict()
-    imagesFornixDict = dict()    
+    imagesFornixDict = dict()
+    imagesHypothalamusDict = dict()
 
     # create status dict
     statusDict = dict()
@@ -843,10 +866,10 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # ----------------------------------------------------------------------
         # add subject to dictionary
-        
+
         metricsDict.update( { subject : { 'subject' : subject } } )
         statusDict.update( { subject : { 'subject' : subject } } )
-        
+
         # ----------------------------------------------------------------------
         # compute core metrics
 
@@ -979,7 +1002,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
             # store data
             statusDict[subject].update( { 'shape' : shape_ok } )
-        
+
         # ----------------------------------------------------------------------
         # run optional modules: screenshots
 
@@ -999,8 +1022,55 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                     os.mkdir(screenshots_outdir)
                 outfile = os.path.join(screenshots_outdir, subject+'.png')
 
+                # re-initialize
+                screenshots_base_subj = list()
+                screenshots_overlay_subj = list()
+                screenshots_surf_subj = list()
+
+                # check screenshots_base
+                if screenshots_base[0] == "default":
+                    screenshots_base_subj = screenshots_base
+                    print("Using default for screenshot base image")
+                elif os.path.isfile(screenshots_base[0]):
+                    screenshots_base_subj = screenshots_base
+                    print("Using "+screenshots_base_subj[0]+" as screenshot base image")
+                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])):
+                    screenshots_base_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])]
+                    print("Using "+screenshots_base_subj[0]+" as screenshot base image")
+                else:
+                    print('\nERROR: cannot find the screenshots base file '+screenshots_base[0]+'\n')
+                    sys.exit(1)
+
+                # check screenshots_overlay
+                if screenshots_overlay[0] == "default":
+                    screenshots_overlay_subj = screenshots_overlay
+                    print("Using default for screenshot overlay image")
+                elif os.path.isfile(screenshots_overlay[0]):
+                    screenshots_overlay_subj = screenshots_overlay
+                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])):
+                    screenshots_overlay_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])]
+                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                else:
+                    print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay[0]+'\n')
+                    sys.exit(1)
+
+                # check screenshots_surf
+                for screenshots_surf_i in screenshots_surf:
+                    if screenshots_surf_i == "default":
+                        print("Using default for screenshot surface")
+                    elif os.path.isfile(screenshots_surf_i):
+                        print("Using "+screenshots_surf_i+" as screenshot surface")
+                    elif os.path.isfile(os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)):
+                        screenshots_surf_i = os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)
+                        print("Using "+screenshots_surf_i+" as screenshot surface")
+                    else:
+                        print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
+                        sys.exit(1)
+                    screenshots_surf_subj.append(screenshots_surf_i)
+
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base, OVERLAY=screenshots_overlay, SURF=screenshots_surf, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
 
                 # return
                 screenshots_ok = True
@@ -1055,7 +1125,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             # store data
             if FORNIX_SHAPE:
                 metricsDict[subject].update(fornixShapeDict[subject])
-                
+
             # store data
             if FORNIX_SCREENSHOT:
                 imagesFornixDict[subject] = fornix_screenshot_outfile
@@ -1064,6 +1134,46 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
             # store data
             statusDict[subject].update( { 'fornix' : fornix_ok } )
+
+        # ----------------------------------------------------------------------
+        # run optional modules: hypothalamus
+
+        if hypothalamus is True:
+
+            #
+            try:
+
+                # message
+                print("-----------------------------")
+                print("Checking hypothalamus segmentation ...")
+                print("")
+
+                # check / create subject-specific hypothalamus_outdir
+                hypothalamus_outdir = os.path.join(output_dir, 'hypothalamus', subject)
+                if not os.path.isdir(hypothalamus_outdir):
+                    os.mkdir(hypothalamus_outdir)
+                hypothalamus_screenshot_outfile = os.path.join(hypothalamus_outdir, "hypothalamus.png")
+
+                # process
+                evaluateHypothalamicSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=hypothalamus_outdir, CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile)
+
+                # return
+                hypothalamus_ok = True
+
+            #
+            except:
+
+                print("ERROR: hypothalamus module failed for subject "+subject)
+                hypothalamus_ok = False
+
+            # store data
+            if HYPOTHALAMUS_SCREENSHOT:
+                imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
+            else:
+                imagesHypothalamusDict[subject] = []
+
+            # store data
+            statusDict[subject].update( { 'hypothalamus' : hypothalamus_ok } )
 
         # --------------------------------------------------------------------------
         # message
@@ -1177,7 +1287,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             csvwriter.writerow(metricsDict[subject])
 
     # generate html output
-    if (screenshots is True and screenshots_html is True) or (fornix is True and fornix_html is True):
+    if (screenshots is True and screenshots_html is True) or (fornix is True and fornix_html is True) or (hypothalamus is True and hypothalamus_html is True):
         with open(path_html_file, 'w') as htmlfile:
             print("<html>", file=htmlfile)
             print("<head>", file=htmlfile)
@@ -1185,7 +1295,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             print("</head>", file=htmlfile)
             print("<style> body, h1, h2, h3, h4, h5, h6  { font-family: Arial, Helvetica, sans-serif ; } </style>)", file=htmlfile)
             print("<body style=\"background-color:Black\">", file=htmlfile)
-            
+
             # screenshots
             if screenshots is True and screenshots_html is True:
                 print("<h1 style=\"color:white\">Screenshots</h1>", file=htmlfile)
@@ -1194,7 +1304,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                     print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\">"
                         +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
                         +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
-            # fornix           
+            # fornix
             if fornix is True and fornix_html is True:
                 print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
                 for subject in sorted(list(imagesFornixDict.keys())):
@@ -1202,17 +1312,27 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                     print("<p><a href=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\">"
                         +"<img src=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\" "
                         +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+
+            # hypothalamus
+            if hypothalamus is True and hypothalamus_html is True:
+                print("<h1 style=\"color:white\">Hypothalamus</h1>", file=htmlfile)
+                for subject in sorted(list(imagesHypothalamusDict.keys())):
+                    print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                    print("<p><a href=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\">"
+                        +"<img src=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\" "
+                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+
             #
             print("</body>", file=htmlfile)
             print("</html>", file=htmlfile)
-            
+
 
 
 
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, outlier=False, outlier_table=None, fastsurfer=False):
+def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, hypothalamus=False, hypothalamus_html=False, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -1222,10 +1342,10 @@ def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, sha
     #
 
     # check arguments
-    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer)
+    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, outlier, outlier_table, fastsurfer)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, outlier, outlier_table, fastsurfer)
+    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, outlier, outlier_table, fastsurfer)

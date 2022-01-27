@@ -262,10 +262,15 @@ ___
 
 ## Known Issues
 
-The program will analyze recon-all logfiles, and may fail or return erroneous
-results if the logfile is append by multiple restarts of recon-all runs.
-Ideally, the logfile should therefore consist of just a single, successful
-recon-all run.
+- Aborted / restarted recon-all runs: the program will analyze recon-all 
+  logfiles, and may fail or return erroneous results if the logfile is 
+  append by multiple restarts of recon-all runs. Ideally, the logfile should
+  therefore consist of just a single, successful recon-all run.
+- High-resolution data: Prior to update v1.4, the screenshots and fornix module 
+  did not work well with high-resolution data that was processed using the 
+  -cm flag in recon-all. With update v1.4 this has been fixed for the 
+  screenhots module, but the fornix module is still experimental for 
+  high-resolution data.
 
 ___
 

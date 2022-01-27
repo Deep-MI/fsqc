@@ -2,7 +2,7 @@
 FROM ubuntu:18.04
 
 # update OS
-RUN apt-get update 
+RUN apt-get update
 
 # get additional packages
 RUN apt-get install -y --no-install-recommends \
@@ -11,19 +11,19 @@ RUN apt-get install -y --no-install-recommends \
      tar \
      zip \
      man \
-     git \     
+     git \
      gcc \
      tcsh \
      zlib1g-dev \
      libjpeg-dev \
      time \
      python3 \
-     python3-dev \     
+     python3-dev \
      python3-pip \
      python3-setuptools \
      python3-wheel
-         
-# download FreeSurfer  
+
+# download FreeSurfer
 RUN wget -qO- https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.1/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1.tar.gz | tar zxv --no-same-owner -C /opt \
     --exclude='freesurfer/trctrain' \
     --exclude='freesurfer/subjects/fsaverage_sym' \
@@ -60,13 +60,8 @@ ENV PATH=/opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:/opt/freesurfer/tktools:
 # Add toolbox directories to PYTHONPATH
 ENV PYTHONPATH=/app/lapy:/app/brainprint:${PYTHONPATH}
 
-# Set config dir for matplotlib
-ENV MPLCONFIGDIR=/tmp/matplotlib-cfg
-
 # Set the working directory to /app
 WORKDIR /app
 
 # Set entrypoint (non-interactive mode)
 ENTRYPOINT ["python3", "/app/qatools-python/qatools.py"]
-
-
