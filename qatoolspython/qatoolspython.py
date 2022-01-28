@@ -136,6 +136,7 @@ def get_help(print_help=True, return_help=False):
 
         python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
+                                  [--subjects-file <file>]
                                   [--screenshots] [--screenshots-html]
                                   [--fornix] [--fornix-html] [--hypothalamus]
                                   [--hypothalamus-html] [--shape]
@@ -491,7 +492,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     # check screenshots_base
     screenshots_base = [screenshots_base]
 
-    # check screenshots_overlay (further checks prior to execution of the screenshots module)
+    # check screenshots_overlay (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
     if screenshots_overlay.lower() == 'none':
         screenshots_overlay = None
         print("Found screenshot overlays set to None")
@@ -1042,32 +1043,38 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                     sys.exit(1)
 
                 # check screenshots_overlay
-                if screenshots_overlay[0] == "default":
-                    screenshots_overlay_subj = screenshots_overlay
-                    print("Using default for screenshot overlay image")
-                elif os.path.isfile(screenshots_overlay[0]):
-                    screenshots_overlay_subj = screenshots_overlay
-                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
-                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])):
-                    screenshots_overlay_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])]
-                    print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                if screenshots_overlay is not None:
+                    if screenshots_overlay[0] == "default":
+                        screenshots_overlay_subj = screenshots_overlay
+                        print("Using default for screenshot overlay image")
+                    elif os.path.isfile(screenshots_overlay[0]):
+                        screenshots_overlay_subj = screenshots_overlay
+                        print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                    elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])):
+                        screenshots_overlay_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])]
+                        print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
+                    else:
+                        print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay[0]+'\n')
+                        sys.exit(1)
                 else:
-                    print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay[0]+'\n')
-                    sys.exit(1)
+                    screenshots_overlay_subj = screenshots_overlay
 
                 # check screenshots_surf
-                for screenshots_surf_i in screenshots_surf:
-                    if screenshots_surf_i == "default":
-                        print("Using default for screenshot surface")
-                    elif os.path.isfile(screenshots_surf_i):
-                        print("Using "+screenshots_surf_i+" as screenshot surface")
-                    elif os.path.isfile(os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)):
-                        screenshots_surf_i = os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)
-                        print("Using "+screenshots_surf_i+" as screenshot surface")
-                    else:
-                        print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
-                        sys.exit(1)
-                    screenshots_surf_subj.append(screenshots_surf_i)
+                if screenshots_surf is not None:
+                    for screenshots_surf_i in screenshots_surf:
+                        if screenshots_surf_i == "default":
+                            print("Using default for screenshot surface")
+                        elif os.path.isfile(screenshots_surf_i):
+                            print("Using "+screenshots_surf_i+" as screenshot surface")
+                        elif os.path.isfile(os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)):
+                            screenshots_surf_i = os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)
+                            print("Using "+screenshots_surf_i+" as screenshot surface")
+                        else:
+                            print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
+                            sys.exit(1)
+                        screenshots_surf_subj.append(screenshots_surf_i)
+                else:
+                    screenshots_surf_subj = None
 
                 # process
                 createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=screenshots_views, LAYOUT=screenshots_layout)

@@ -122,11 +122,34 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     run_cmd(cmd,"Could not create hypothalamus mask and surface")
 
     # get centroids
+    if which("mri_segcentroids") is None:
 
-    cmd = "mri_segcentroids --i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")+" --o "+os.path.join(OUTPUT_DIR,"hypothalamus_centroids.txt")
-    run_cmd(cmd,"Could not create hypothalamus centroids")
+        # fs6 version
+        centroids = list()
 
-    centroids = np.loadtxt(os.path.join(OUTPUT_DIR,"hypothalamus_centroids.txt"), skiprows=2)
+        for i in range(801, 811):
+
+            #
+            cmd = "mri_vol2label --i " + os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz") + " --id " + str(i) + " --l " + os.path.join(OUTPUT_DIR, "hypothalamus_labels_" + str(i) + ".txt")
+            run_cmd(cmd, "Could not create hypothalamus centroids")
+
+            #
+            dat = np.loadtxt(os.path.join(OUTPUT_DIR, "hypothalamus_labels_" + str(i) + ".txt.label"), skiprows=2)
+
+            #
+            centroids.append(np.mean(dat, axis=0))
+
+        centroids = np.array(centroids)
+
+    else:
+
+        # fs7 version
+        cmd = "mri_segcentroids --i " + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz") + " --o " + os.path.join(OUTPUT_DIR, "hypothalamus_centroids.txt")
+        run_cmd(cmd, "Could not create hypothalamus centroids")
+
+        #
+        centroids = np.loadtxt(os.path.join(OUTPUT_DIR,"hypothalamus_centroids.txt"), skiprows=2)
+
     centroids_x0 = centroids[3,1]
     centroids_x1 = centroids[8,1]
     centroids_y0 = (centroids[0,2]+centroids[5,2])/2
@@ -141,7 +164,4 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
-        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
-            INTERACTIVE = False, VIEWS = [('x', centroids_x0), ('x', centroids_x1), ('y', centroids_y0), ('y', centroids_y1), ('y', centroids_y2), ('y', centroids_y3), ('y', centroids_y4), ('z', centroids_z0), ('z', centroids_z1)], LAYOUT = (1, 9),
-            BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)
-
+        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, INTERACTIVE = False, VIEWS = [('x', centroids_x0), ('x', centroids_x1), ('y', centroids_y0), ('y', centroids_y1), ('y', centroids_y2), ('y', centroids_y3), ('y', centroids_y4), ('z', centroids_z0), ('z', centroids_z1)], LAYOUT = (1, 9), BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)

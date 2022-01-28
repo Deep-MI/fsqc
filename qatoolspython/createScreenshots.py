@@ -118,6 +118,23 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
     lut = np.array(lut)
 
+    # some fs7 labels are not present in fs6 LUT, check and add if necessary
+    if not(np.isin([801, 802, 803, 804, 805, 806, 807, 808, 809, 810], lut[:,0]).all()):
+        lutAdd = np.array((
+            [801, 'L_hypothalamus_anterior_inferior', 250, 255, 50, 0],
+            [802, 'L_hypothalamus_anterior_superior', 80, 200, 255, 0],
+            [803, 'L_hypothalamus_posterior', 255, 160, 0, 0],
+            [804, 'L_hypothalamus_tubular_inferior', 255, 160, 200, 0],
+            [805, 'L_hypothalamus_tubular_superior', 20, 180, 130, 0],
+            [806, 'R_hypothalamus_anterior_inferior', 250, 255, 50, 0],
+            [807, 'R_hypothalamus_anterior_superior', 80, 200, 255, 0],
+            [808, 'R_hypothalamus_posterior', 255, 160, 0, 0],
+            [809, 'R_hypothalamus_tubular_inferior', 255, 160, 200, 0],
+            [810, 'R_hypothalamus_tubular_superior', 20, 180, 130, 0]),
+            dtype=object)
+
+        lut = np.concatenate((lut, lutAdd), axis=0)
+
     lutEnum = dict(zip(lut[:, 0], range(len(lut[:, 0]))))
 
     lutTab = np.array(lut[:, (2, 3, 4, 5)] / 255, dtype="float32")
@@ -155,7 +172,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
         if not np.any(rasIdxFlat3[:, iDim] == icr[1]):
             closestCutValue = rasIdxFlat3[np.abs(rasIdxFlat3[:, iDim] - icr[1]).argmin(), iDim]
-            print(f'INFO: the VIEW {icr} will be changed to (\'{icr[0]}\', {closestCutValue:.2f}) so it is not' 
+            print(f'INFO: the VIEW {icr} will be changed to (\'{icr[0]}\', {closestCutValue:.2f}) so it is not'
                   ' necessary to interpolate volumetric data')
             CutsRRAS[i] = (icr[0], closestCutValue)
 
