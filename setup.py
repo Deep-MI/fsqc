@@ -17,6 +17,11 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/reuter-lab/qatools-python",
     packages=['qatoolspython'],
+    entry_points ={
+    'console_scripts': [
+        'qatools = qatoolspython.qatools_cmd:_qatools'
+    ]
+    },
     # see https://pypi.org/classifiers/
     classifiers=[
         "Programming Language :: Python :: 3",
