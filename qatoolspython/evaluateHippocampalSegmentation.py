@@ -133,7 +133,7 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
         # fs6 version
         centroids = list()
 
-        for i in [7004, 237, 238]:
+        for i in [237, 238]:
 
             #
             cmd = "mri_vol2label --i " + os.path.join(SUBJECTS_DIR,SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz") + " --id " + str(i) + " --l " + os.path.join(OUTPUT_DIR, "hippocampus_labels_" + str(i) + "-"+HEMI+".txt")
@@ -142,10 +142,16 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
             #
             dat = np.loadtxt(os.path.join(OUTPUT_DIR, "hippocampus_labels_" + str(i) + "-"+HEMI+".txt.label"), skiprows=2)
 
+            dat[:,0] = i # replace -1 with label id
+
             #
             centroids.append(np.mean(dat, axis=0))
 
         centroids = np.array(centroids)
+
+        # already in TkReg RAS format
+
+        ctr_tkr = centroids
 
     else:
 
@@ -156,16 +162,15 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
         #
         centroids = np.loadtxt(os.path.join(OUTPUT_DIR,"hippocampus_centroids-"+HEMI+".txt"), skiprows=2)
 
-    # convert from RAS to TkReg RAS
+        # convert from RAS to TkReg RAS
+        seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz"))
 
-    seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz"))
+        ras2vox = seg.header.get_ras2vox()
+        vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
-    ras2vox = seg.header.get_ras2vox()
-    vox2ras_tkr = seg.header.get_vox2ras_tkr()
-
-    ctr_tkr = np.concatenate((centroids[:,1:], np.ones((centroids.shape[0],1))), axis=1)
-    ctr_tkr = np.matmul(vox2ras_tkr, np.matmul(ras2vox, ctr_tkr.T)).T
-    ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
+        ctr_tkr = np.concatenate((centroids[:,1:4], np.ones((centroids.shape[0],1))), axis=1)
+        ctr_tkr = np.matmul(vox2ras_tkr, np.matmul(ras2vox, ctr_tkr.T)).T
+        ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
 
     # [7004, 237, 238]
 

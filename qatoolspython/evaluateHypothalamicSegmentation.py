@@ -138,10 +138,16 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
             #
             dat = np.loadtxt(os.path.join(OUTPUT_DIR, "hypothalamus_labels_" + str(i) + ".txt.label"), skiprows=2)
 
+            dat[:,0] = i # replace -1 with label id
+
             #
             centroids.append(np.mean(dat, axis=0))
 
         centroids = np.array(centroids)
+
+        # already in TkReg RAS format
+
+        ctr_tkr = centroids
 
     else:
 
@@ -152,16 +158,15 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
         #
         centroids = np.loadtxt(os.path.join(OUTPUT_DIR,"hypothalamus_centroids.txt"), skiprows=2)
 
-    # convert from RAS to TkReg RAS
+        # convert from RAS to TkReg RAS
+        seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"))
 
-    seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"))
+        ras2vox = seg.header.get_ras2vox()
+        vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
-    ras2vox = seg.header.get_ras2vox()
-    vox2ras_tkr = seg.header.get_vox2ras_tkr()
-
-    ctr_tkr = np.concatenate((centroids[:,1:], np.ones((centroids.shape[0],1))), axis=1)
-    ctr_tkr = np.matmul(vox2ras_tkr, np.matmul(ras2vox, ctr_tkr.T)).T
-    ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
+        ctr_tkr = np.concatenate((centroids[:,1:4], np.ones((centroids.shape[0],1))), axis=1)
+        ctr_tkr = np.matmul(vox2ras_tkr, np.matmul(ras2vox, ctr_tkr.T)).T
+        ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
 
     #
 
