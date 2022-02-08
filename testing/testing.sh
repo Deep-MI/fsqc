@@ -36,18 +36,20 @@ python3 ../qatools.py --subjects_dir data --output_dir output/test017 --subjects
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test018 --subjects 129 130 --screenshots --screenshots_views z=10 y=-5 --screenshots_layout 2 1
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test019 --subjects 129 130 --screenshots --screenshots_views z=10 y=-5 z=-10 y=5 x=0 --screenshots_layout 1 5 --screenshots-html 
+python3 ../qatools.py --subjects_dir data --output_dir output/test019 --subjects 129 130 --screenshots --screenshots_views z=10 y=-5 z=-10 y=5 x=0 --screenshots_layout 1 5 --screenshots-html
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test020 --fornix --fornix-html
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test021 --screenshots --subjects 129 130 --screenshots_base orig.mgz --screenshots_overlay none --screenshots-html 
+python3 ../qatools.py --subjects_dir data --output_dir output/test021 --screenshots --subjects 129 130 --screenshots_base orig.mgz --screenshots_overlay none --screenshots-html
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test022 --screenshots --subjects 129 130 --screenshots_overlay aparc+aseg.mgz --screenshots-html 
+python3 ../qatools.py --subjects_dir data --output_dir output/test022 --screenshots --subjects 129 130 --screenshots_overlay aparc+aseg.mgz --screenshots-html
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test023 --screenshots --subjects 129 130 --screenshots_overlay none --screenshots_surf lh.white --screenshots-html 
+python3 ../qatools.py --subjects_dir data --output_dir output/test023 --screenshots --subjects 129 130 --screenshots_overlay none --screenshots_surf lh.white --screenshots-html
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test024 --screenshots --subjects 129 130 --screenshots_base orig.mgz --screenshots_surf lh.pial rh.white --screenshots-html 
+python3 ../qatools.py --subjects_dir data --output_dir output/test024 --screenshots --subjects 129 130 --screenshots_base orig.mgz --screenshots_surf lh.pial rh.white --screenshots-html
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test025 --screenshots --hypothalamus 
+python3 ../qatools.py --subjects_dir data --output_dir output/test025 --hypothalamus
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test026 --screenshots --hypothalamus --hypothalamus-html --screenshots --screenshots-html --fornix --fornix-html
+python3 ../qatools.py --subjects_dir data --output_dir output/test026 --screenshots --hypothalamus-html --screenshots-html --fornix-html --hippocampus-html
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test027 --hippocampus

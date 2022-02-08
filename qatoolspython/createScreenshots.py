@@ -7,8 +7,7 @@ This module provides a function to create screenshots
 
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None,
     BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"],
-    VIEWS = ["default"]
-    ):
+    VIEWS = ["default"], XLIM = None, YLIM = None):
 
     """
     function createScreenshots()
@@ -18,6 +17,10 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     BASE, VIEWS must be lists, can be ["default"]
 
     OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"]
+
+    XLIM, YLIM can be lists of list two-element numeric lists or None; if given,
+    length must match length of VIEWS. x and y refer to final image dimensions,
+    not MR volume dimensions.
 
     """
 
@@ -119,7 +122,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     lut = np.array(lut)
 
     # some fs7 labels are not present in fs6 LUT, check and add if necessary
-    if not(np.isin([801, 802, 803, 804, 805, 806, 807, 808, 809, 810], lut[:,0]).all()):
+    if not(np.isin([range(231, 247), 801, 802, 803, 804, 805, 806, 807, 808, 809, 810], lut[:,0]).all()):
         lutAdd = np.array((
             [801, 'L_hypothalamus_anterior_inferior', 250, 255, 50, 0],
             [802, 'L_hypothalamus_anterior_superior', 80, 200, 255, 0],
@@ -130,7 +133,23 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
             [807, 'R_hypothalamus_anterior_superior', 80, 200, 255, 0],
             [808, 'R_hypothalamus_posterior', 255, 160, 0, 0],
             [809, 'R_hypothalamus_tubular_inferior', 255, 160, 200, 0],
-            [810, 'R_hypothalamus_tubular_superior', 20, 180, 130, 0]),
+            [810, 'R_hypothalamus_tubular_superior', 20, 180, 130, 0],
+            [231, 'HP_body', 0, 255, 0, 0],
+            [232, 'HP_head', 255, 0, 0, 0],
+            [233, 'presubiculum-head', 32, 0, 32, 0],
+            [234, 'presubiculum-body', 64, 0, 64, 0],
+            [235, 'subiculum-head', 0, 0, 175, 0],
+            [236, 'subiculum-body', 0, 0, 255, 0],
+            [237, 'CA1-head', 175, 75, 75, 0],
+            [238, 'CA1-body', 255, 0, 0, 0],
+            [239, 'CA3-head', 0, 80, 0, 0],
+            [240, 'CA3-body', 0, 128, 0, 0],
+            [241, 'CA4-head', 120, 90, 50, 0],
+            [242, 'CA4-body', 196, 160, 128, 0],
+            [243, 'GC-ML-DG-head', 75, 125, 175, 0],
+            [244, 'GC-ML-DG-body', 32, 200, 255, 0],
+            [245, 'molecular_layer_HP-head', 100, 25, 25, 0],
+            [246, 'molecular_layer_HP-body', 128, 0, 0, 0]),
             dtype=object)
 
         lut = np.concatenate((lut, lutAdd), axis=0)
@@ -156,8 +175,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     m = norm.header.get_vox2ras_tkr()
     n = norm.header.get_data_shape()
 
-    xyzIdx = np.array(
-        np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
+    xyzIdx = np.array(np.meshgrid(np.linspace(0, n[0] - 1, n[0]), np.linspace(0, n[1] - 1, n[1]), np.linspace(0, n[2] - 1, n[2])))
     xyzIdxFlat3 = np.reshape(xyzIdx, (3, np.prod(n))).transpose()
     xyzIdxFlat4 = np.hstack((xyzIdxFlat3, np.ones((np.prod(n), 1))))
     rasIdxFlat3 = np.matmul(m, xyzIdxFlat4.transpose()).transpose()[:, 0:3]
@@ -213,7 +231,6 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # index to lutMap
 
     if aseg is not None:
-
         asegData = aseg.get_data()
 
         asegUnique, asegIdx = np.unique(asegData, return_inverse=True)
@@ -365,6 +382,12 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
         axs[axsx,axsy].set_axis_off()
         axs[axsx,axsy].set_aspect('equal')
+
+        if XLIM is not None:
+            axs[axsx,axsy].set_xlim(XLIM[p])
+
+        if YLIM is not None:
+            axs[axsx,axsy].set_ylim(YLIM[p])
 
         # now plot
         for s in range(len(surf)):
