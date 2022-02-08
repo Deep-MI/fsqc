@@ -67,6 +67,14 @@ segmentation quality, a screenshot of the contours of the corpus callosum
 segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each
 subject within the 'fornix' subdirectory of the output directory.
 
+- modules for the amygdala, hippocampus, and hypothalamus
+
+These modules evaluate potential missegmentations of the amygdala, hippocampus,
+and hypothalamus. To assess segmentation quality, screenshots will be created
+These modules require prior processing of the MR images with FreeSurfer's
+dedicated toolboxes for the segmentation of the amygdala and hippcampus, and
+the hypothalamus, respectively.
+
 - shape module
 
 The shape module will run a shapeDNA / braiprint analysis to compute distances
@@ -111,6 +119,27 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
+## Roadmap
+
+The goal of the `qatools-python` project is to create a modular and extensible
+software package that provides quantitative metrics and visual information for
+the quality control of FreeSurfer-processed MR images. The package is currently
+under development, and new features are continuously added.
+
+New features will initially be available in the development branch (`freesurfer-module-dev`)
+of this toolbox and will be included in the main branch (`freesurfer-module-releases`)
+after a period of testing and evaluation. Unless explicitly announced, all new
+features will preserve compatibility with earlier versions.
+
+Upcoming extensions include modules for the quality control of FreeSurfer's
+brainstem and thalamic segmentations. Another planned extension is the inclusion
+of the hippocampal, amygdalar, hypothalamic, thalamic, and brainstem volume
+estimates within the outlier module.
+
+Feedback, suggestions, and contributions are always welcome.
+
+___
+
 ## Usage
 
 ```
@@ -118,7 +147,9 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]]
                           [--subjects-file <file>] [--screenshots]
                           [--screenshots-html] [--fornix] [--fornix-html]
-                          [--shape] [--outlier] [--fastsurfer] [-h]
+                          [--hippocampus] [--hippocampus-html] [--hypothalamus]
+                          [--hypothalamus-html] [--shape] [--outlier]
+                          [--fastsurfer] [-h]
 
 
 required arguments:
@@ -132,12 +163,21 @@ optional arguments:
   --subjects SubjectID [SubjectID ...]
                          list of subject IDs
   --subjects-file <file> filename of a file with subject IDs (one per line)
-  --screenshots          create screenshots
-  --screenshots-html     create html summary page of screenshots (requires 
-                         --screenshots)
+  --screenshots          create screenshots of individual brains
+  --screenshots-html     create screenshots of individual brains incl.
+                         html summary page
   --fornix               check fornix segmentation
-  --fornix-html          create html summary page of fornix evaluation (requires 
-                         --fornix)
+  --fornix-html          check fornix segmentation and create html summary
+                         page of fornix evaluation
+  --hypothalamus         check hypothalamic segmentation
+  --hypothalamus-html    check hypothalamic segmentation and create html
+                         summary page
+  --hippocampus          check segmentation of hippocampus and amygdala
+  --hippocampus-html     check segmentation of hippocampus and amygdala
+                         and create html summary page
+  --hippocampus-label    specify label for hippocampus segmentation files
+                         (default: T1.v21). The full filename is then
+                         [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz
   --shape                run shape analysis
   --outlier              run outlier detection
   --outlier-table        specify normative values (only in conjunction with
@@ -262,14 +302,14 @@ ___
 
 ## Known Issues
 
-- Aborted / restarted recon-all runs: the program will analyze recon-all 
-  logfiles, and may fail or return erroneous results if the logfile is 
+- Aborted / restarted recon-all runs: the program will analyze recon-all
+  logfiles, and may fail or return erroneous results if the logfile is
   append by multiple restarts of recon-all runs. Ideally, the logfile should
   therefore consist of just a single, successful recon-all run.
-- High-resolution data: Prior to update v1.4, the screenshots and fornix module 
-  did not work well with high-resolution data that was processed using the 
-  -cm flag in recon-all. With update v1.4 this has been fixed for the 
-  screenhots module, but the fornix module is still experimental for 
+- High-resolution data: Prior to update v1.4, the screenshots and fornix module
+  did not work well with high-resolution data that was processed using the
+  -cm flag in recon-all. With update v1.4 this has been fixed for the
+  screenhots module, but the fornix module is still experimental for
   high-resolution data.
 
 ___
