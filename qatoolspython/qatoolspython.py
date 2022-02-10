@@ -1398,38 +1398,48 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 print("<h1 style=\"color:white\">Screenshots</h1>", file=htmlfile)
                 for subject in sorted(list(imagesScreenshotsDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
-                    print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\">"
-                        +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
-                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+                    if imagesScreenshotsDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(output_dir, 'screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))):
+                            print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
             # fornix
             if fornix_html is True:
                 print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
                 for subject in sorted(list(imagesFornixDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
-                    print("<p><a href=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\">"
-                        +"<img src=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\" "
-                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+                    if imagesFornixDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(output_dir, 'fornix', subject, os.path.basename(imagesFornixDict[subject]))):
+                            print("<p><a href=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
             # hypothalamus
             if hypothalamus_html is True:
                 print("<h1 style=\"color:white\">Hypothalamus</h1>", file=htmlfile)
                 for subject in sorted(list(imagesHypothalamusDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
-                    print("<p><a href=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\">"
-                        +"<img src=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\" "
-                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+                    if imagesHypothalamusDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(output_dir, 'hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))):
+                            print("<p><a href=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
             # hippocampus
             if hippocampus_html is True:
                 print("<h1 style=\"color:white\">hippocampus</h1>", file=htmlfile)
                 for subject in sorted(list(imagesHippocampusLeftDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
-                    print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\">"
-                        +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\" "
-                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
-                    print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\">"
-                        +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\" "
-                        +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+                    if imagesHippocampusLeftDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(output_dir, 'hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))):
+                            print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+                    if imagesHippocampusRightDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(output_dir, 'hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))):
+                            print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
             #
             print("</body>", file=htmlfile)

@@ -106,13 +106,13 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
 
         print('ERROR: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+', not running hypothalamus module.')
 
-        return
+        raise ValueError("File not found")
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")):
 
         print('ERROR: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")+', not running hypothalamus module.')
 
-        return
+        raise ValueError("File not found")
 
     if not SCREENSHOTS_OUTFILE:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"hypothalamus.png")

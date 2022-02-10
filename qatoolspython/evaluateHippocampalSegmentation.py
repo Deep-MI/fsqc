@@ -110,13 +110,13 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
 
         print('ERROR: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+', not running hippocampus module.')
 
-        return
+        raise ValueError("File not found")
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri",HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz")):
 
         print('ERROR: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri",HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz")+', not running hippocampus module.')
 
-        return
+        raise ValueError("File not found")
 
     if not SCREENSHOTS_OUTFILE:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"hippocampus.png")
