@@ -98,9 +98,11 @@ def get_help(print_help=True, return_help=False):
     - outlier module
 
     This is a module to detect extreme values among the subcortical ('aseg')
-    segmentations. The outlier detection is based on comparisons with the
-    distributions of the sample as well as normative values taken from the
-    literature (see References).
+    segmentations as well as the cortical parcellations ('aparc'). If present,
+    hypothalamic and hippocampal subsegmentations will also be included.
+
+    The outlier detection is based on comparisons with the distributions of the
+    sample as well as normative values taken from the literature (see References).
 
     For comparisons with the sample distributions, extreme values are defined in
     two ways: nonparametrically, i.e. values that are 1.5 times the interquartile
@@ -116,8 +118,10 @@ def get_help(print_help=True, return_help=False):
     '--outlier-table' argument. This requires a custom csv table with headers
     `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
     names. It can be a subset and the order is arbitrary, but naming must exactly
-    match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
-    specified upper and lower bounds.
+    match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file. 
+    If cortical parcellations are included in the outlier table for a comparison
+    with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix.
+    `upper` and `lower` are user-specified upper and lower bounds.
 
     The main csv table will be appended with the following summary variables, and
     more detailed output about will be saved as csv tables in the 'outliers'
@@ -1302,7 +1306,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
             # process
             outlier_outdir = os.path.join(output_dir, 'outliers')
-            n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN)
+            n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN, hypothalamus=hypothalamus, hippocampus=hippocampus, hippocampus_label=hippocampus_label)
 
             # create a dictionary from outlier module ouput
             outlierDict = dict()

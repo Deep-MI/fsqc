@@ -61,7 +61,7 @@ is required for this module, i.e. it can be run on a remote server, for example.
 
 - fornix module
 
-This is a module to assess potential issues with the segementation of the
+This is a module to assess potential issues with the segmentation of the
 corpus callosum, which may incorrectly include parts of the fornix. To assess
 segmentation quality, a screenshot of the contours of the corpus callosum
 segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each
@@ -72,12 +72,12 @@ subject within the 'fornix' subdirectory of the output directory.
 These modules evaluate potential missegmentations of the amygdala, hippocampus,
 and hypothalamus. To assess segmentation quality, screenshots will be created
 These modules require prior processing of the MR images with FreeSurfer's
-dedicated toolboxes for the segmentation of the amygdala and hippcampus, and
+dedicated toolboxes for the segmentation of the amygdala and hippocampus, and
 the hypothalamus, respectively.
 
 - shape module
 
-The shape module will run a shapeDNA / braiprint analysis to compute distances
+The shape module will run a shapeDNA / brainprint analysis to compute distances
 of shape descriptors between lateralized brain structures. This can be used
 to identify discrepancies and irregularities between pairs of corresponding
 structures. The results will be included in the main csv table, and the output
@@ -86,7 +86,10 @@ directory will also contain a 'brainprint' subdirectory.
 - outlier module
 
 This is a module to detect extreme values among the subcortical ('aseg')
-segmentations. The outlier detection is based on comparisons with the
+segmentations as well as the cortical parcellations. If present, hypothalamic
+and hippocampal subsegmentations will also be included.
+
+The outlier detection is based on comparisons with the
 distributions of the sample as well as normative values taken from the
 literature (see References).
 
@@ -104,8 +107,10 @@ alternative, users may specify their own normative values by using the
 '--outlier-table' argument. This requires a custom csv table with headers
 `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
 names. It can be a subset and the order is arbitrary, but naming must exactly
-match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
-specified upper and lower bounds.
+match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file.
+If cortical parcellations are included in the outlier table for a comparison
+with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. file.
+`upper` and `lower` are user-specified upper and lower bounds.
 
 The main csv table will be appended with the following summary variables, and
 more detailed output about will be saved as csv tables in the 'outliers'
