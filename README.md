@@ -59,6 +59,15 @@ that will be created within the output directory. These images can be used for
 quickly glimpsing through the processing results. Note that no display manager
 is required for this module, i.e. it can be run on a remote server, for example.
 
+- surfaces module
+
+This module allows for the automated generation of surface renderings of the
+left and right pial and inflated surfaces, overlaid with the aparc annotation.
+These images will be saved to the 'surfaces' subdirectory that will be created
+within the output directory. These images can be used for quickly glimpsing
+through the processing results. Note that no display manager is required for
+this module, i.e. it can be run on a remote server, for example.
+
 - fornix module
 
 This is a module to assess potential issues with the segmentation of the
@@ -171,6 +180,9 @@ optional arguments:
   --screenshots          create screenshots of individual brains
   --screenshots-html     create screenshots of individual brains incl.
                          html summary page
+  --surfaces             create screenshots of individual brain surfaces
+  --surfaces-html        create screenshots of individual brain surfaces
+                         and html summary page                         
   --fornix               check fornix segmentation
   --fornix-html          check fornix segmentation and create html summary
                          page of fornix evaluation

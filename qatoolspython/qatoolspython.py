@@ -71,6 +71,15 @@ def get_help(print_help=True, return_help=False):
     quickly glimpsing through the processing results. Note that no display manager
     is required for this module, i.e. it can be run on a remote server, for example.
 
+    - surfaces module
+
+    This module allows for the automated generation of surface renderings of the
+    left and right pial and inflated surfaces, overlaid with the aparc annotation.
+    These images will be saved to the 'surfaces' subdirectory that will be created
+    within the output directory. These images can be used for quickly glimpsing
+    through the processing results. Note that no display manager is required for
+    this module, i.e. it can be run on a remote server, for example.
+
     - fornix module
 
     This is a module to assess potential issues with the segmentation of the
@@ -118,7 +127,7 @@ def get_help(print_help=True, return_help=False):
     '--outlier-table' argument. This requires a custom csv table with headers
     `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
     names. It can be a subset and the order is arbitrary, but naming must exactly
-    match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file. 
+    match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file.
     If cortical parcellations are included in the outlier table for a comparison
     with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix.
     `upper` and `lower` are user-specified upper and lower bounds.
@@ -143,6 +152,7 @@ def get_help(print_help=True, return_help=False):
                                   [--subjects SubjectID [SubjectID ...]]
                                   [--subjects-file <file>]
                                   [--screenshots] [--screenshots-html]
+                                  [--surfaces] [--surfaces-html]
                                   [--fornix] [--fornix-html] [--hypothalamus]
                                   [--hypothalamus-html] [--hippocampus]
                                   [--hippocampus-html] [--hippocampus-label <label>]
@@ -163,6 +173,9 @@ def get_help(print_help=True, return_help=False):
           --screenshots         create screenshots of individual brains
           --screenshots-html    create screenshots of individual brains and
                                 html summary page
+          --surfaces            create screenshots of individual brain surfaces
+          --surfaces-html       create screenshots of individual brain surfaces
+                                and html summary page
           --fornix              check fornix segmentation
           --fornix-html         check fornix segmentation and create html summary
                                 page of fornix evaluation
@@ -362,6 +375,8 @@ def _parse_arguments():
     optional.add_argument('--screenshots_surf', dest='screenshots_surf', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default=['x=-10','x=10','y=0','z=0'], nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=['1', '4'], nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
+    optional.add_argument('--surfaces', dest='surfaces', help="create surface plots of individual brains", default=False, action="store_true", required=False)
+    optional.add_argument('--surfaces-html', dest='surfaces_html', help="create surface plots of individual brains with html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--fornix-html', dest='fornix_html', help="check fornix segmentation and create html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--hypothalamus', dest='hypothalamus', help="check hypothalamus segmentation", default=False, action="store_true", required=False)
@@ -382,19 +397,41 @@ def _parse_arguments():
     else:
         args = parser.parse_args()
 
-    return args.subjects_dir, args.output_dir, args.subjects, \
-        args.subjects_file, args.shape, args.screenshots, \
-        args.screenshots_html, args.screenshots_base, \
-        args.screenshots_overlay, args.screenshots_surf, \
-        args.screenshots_views, args.screenshots_layout, args.fornix, \
-        args.fornix_html, args.hypothalamus, args.hypothalamus_html, \
-        args.hippocampus, args.hippocampus_html, args.hippocampus_label, \
-        args.outlier, args.outlier_table, args.fastsurfer
+    # prepare output
+    argsDict = dict()
+    argsDict["subjects_dir"] = args.subjects_dir
+    argsDict["output_dir"] = args.output_dir
+    argsDict["subjects"] = args.subjects
+    argsDict["subjects_file"] = args.subjects_file
+    argsDict["shape"] = args.shape
+    argsDict["screenshots"] = args.screenshots
+    argsDict["screenshots_html"] = args.screenshots_html
+    argsDict["screenshots_base"] = args.screenshots_base
+    argsDict["screenshots_overlay"] = args.screenshots_overlay
+    argsDict["screenshots_surf"] = args.screenshots_surf
+    argsDict["screenshots_views"] = args.screenshots_views
+    argsDict["screenshots_layout"] = args.screenshots_layout
+    argsDict["surfaces"] = args.surfaces
+    argsDict["surfaces_html"] = args.surfaces_html
+    argsDict["fornix"] = args.fornix
+    argsDict["fornix_html"] = args.fornix_html
+    argsDict["hypothalamus"] = args.hypothalamus
+    argsDict["hypothalamus_html"] = args.hypothalamus_html
+    argsDict["hippocampus"] = args.hippocampus
+    argsDict["hippocampus_html"] = args.hippocampus_html
+    argsDict["hippocampus_label"] = args.hippocampus_label
+    argsDict["outlier"] = args.outlier
+    argsDict["outlier_table"] = args.outlier_table
+    argsDict["fastsurfer"] = args.fastsurfer
+
+    #
+    return argsDict
+
 
 # ------------------------------------------------------------------------------
 # check arguments
 
-def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, hippocampus, hippocampus_html, hippocampus_label, outlier, outlier_table, fastsurfer):
+def _check_arguments(argsDict):
     """
     an internal function to check input arguments
 
@@ -414,88 +451,88 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
     # check arguments
 
     # check if subject directory exists
-    if os.path.isdir(subjects_dir):
-        print("Found subjects directory", subjects_dir)
+    if os.path.isdir(argsDict["subjects_dir"]):
+        print("Found subjects directory", argsDict["subjects_dir"])
     else:
-        print('ERROR: subjects directory '+subjects_dir+' is not an existing directory\n')
+        print('ERROR: subjects directory '+argsDict["subjects_dir"]+' is not an existing directory\n')
         sys.exit(1)
 
     # check if output directory exists or can be created and is writable
-    if os.path.isdir(output_dir):
-        print("Found output directory", output_dir)
+    if os.path.isdir(argsDict["output_dir"]):
+        print("Found output directory", argsDict["output_dir"])
     else:
         try:
-            os.mkdir(output_dir)
+            os.mkdir(argsDict["output_dir"])
         except:
-            print('ERROR: cannot create output directory '+output_dir+'\n')
+            print('ERROR: cannot create output directory '+argsDict["output_dir"]+'\n')
             sys.exit(1)
 
         try:
-            testfile = tempfile.TemporaryFile(dir=output_dir)
+            testfile = tempfile.TemporaryFile(dir=argsDict["output_dir"])
             testfile.close()
         except OSError as e:
             if e.errno != errno.EACCES:  # 13
-                e.filename = output_dir
+                e.filename = argsDict["output_dir"]
                 raise
-            print('\nERROR: '+output_dir+' not writeable (check access)!\n')
+            print('\nERROR: '+argsDict["output_dir"]+' not writeable (check access)!\n')
             sys.exit(1)
 
     # check if both subjects and subjects-file were specified
-    if subjects is not None and subjects_file is not None:
+    if argsDict["subjects"] is not None and argsDict["subjects_file"] is not None:
         print("ERROR: Use either --subjects or --subjects-file (but not both).")
         sys.exit(1)
 
     # check if subjects-file exists and get data
-    if subjects_file is not None:
-        if os.path.isfile(subjects_file):
+    if argsDict["subjects_file"] is not None:
+        if os.path.isfile(argsDict["subjects_file"]):
             # read file
-            with open(subjects_file) as subjects_file_f:
-                subjects = subjects_file_f.read().splitlines()
+            with open(argsDict["subjects_file"]) as subjects_file_f:
+                argsDict["subjects"] = subjects_file_f.read().splitlines()
         else:
-            print("ERROR: Could not find subjects file", subjects_file)
+            print("ERROR: Could not find subjects file", argsDict["subjects_file"])
             sys.exit(1)
 
     # if neither subjects nor subjects_file are given, get contents of the subject
     # directory and check if aseg.stats (as a proxy) exists
-    if subjects is None and subjects_file is None:
-        subjects = []
-        for subject in os.listdir(subjects_dir):
-            path_aseg_stat = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
+    if argsDict["subjects"] is None and argsDict["subjects_file"] is None:
+        argsDict["subjects"] = []
+        for subject in os.listdir(argsDict["subjects_dir"]):
+            path_aseg_stat = os.path.join(argsDict["subjects_dir"], subject, "stats", "aseg.stats")
             if os.path.isfile(path_aseg_stat):
                 print("Found subject", subject)
-                subjects.extend([subject])
+                argsDict["subjects"].extend([subject])
 
     # check if screenshots subdirectory exists or can be created and is writable
-    if screenshots is True or screenshots_html is True:
-        if os.path.isdir(os.path.join(output_dir, 'screenshots')):
-            print("Found screenshots directory", os.path.join(output_dir, 'screenshots'))
+    if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'screenshots')):
+            print("Found screenshots directory", os.path.join(argsDict["output_dir"], 'screenshots'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir, 'screenshots'))
+                os.mkdir(os.path.join(argsDict["output_dir"], 'screenshots'))
             except:
-                print('ERROR: cannot create screenshots directory '+os.path.join(output_dir, 'screenshots')+'\n')
+                print('ERROR: cannot create screenshots directory '+os.path.join(argsDict["output_dir"], 'screenshots')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'screenshots'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'screenshots'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'screenshots')
+                    e.filename = os.path.join(argsDict["output_dir"], 'screenshots')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'screenshots')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'screenshots')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check further screenshots dependencies
-    if (screenshots is True or screenshots_html is True) and importlib.util.find_spec("pandas") is None:
+    if (argsDict["screenshots"] is True or argsDict["screenshots_html"] is True) and importlib.util.find_spec("pandas") is None:
         print('\nERROR: the \'pandas\' package is required for running this script, please install.\n')
         sys.exit(1)
 
-    if (screenshots is True or screenshots_html is True) and importlib.util.find_spec("matplotlib") is None:
+    if (argsDict["screenshots"] is True or argsDict["screenshots_html"] is True) and importlib.util.find_spec("matplotlib") is None:
         print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
         sys.exit(1)
 
-    if screenshots is True or screenshots_html is True:
+    if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
         if os.environ.get('FREESURFER_HOME') is None:
             print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
             sys.exit(1)
@@ -506,27 +543,27 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 sys.exit(1)
 
     # check screenshots_base
-    screenshots_base = [screenshots_base]
+    argsDict["screenshots_base"] = [argsDict["screenshots_base"]]
 
     # check screenshots_overlay (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
-    if screenshots_overlay.lower() == 'none':
-        screenshots_overlay = None
+    if argsDict["screenshots_overlay"].lower() == 'none':
+        argsDict["screenshots_overlay"] = None
         print("Found screenshot overlays set to None")
     else:
-        screenshots_overlay = [screenshots_overlay]
+        argsDict["screenshots_overlay"] = [argsDict["screenshots_overlay"]]
 
     # check screenshots_surf (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
-    if not isinstance(screenshots_surf, list):
-        screenshots_surf = [screenshots_surf]
-    if screenshots_surf[0].lower() == 'none':
-        screenshots_surf = None
+    if not isinstance(argsDict["screenshots_surf"], list):
+        argsDict["screenshots_surf"] = [argsDict["screenshots_surf"]]
+    if argsDict["screenshots_surf"][0].lower() == 'none':
+        argsDict["screenshots_surf"] = None
         print("Found screenshot surfaces set to None")
 
     # check if screenshots_views argument can be evaluated
-    if screenshots_views == 'default':
-        screenshots_views = [screenshots_views]
+    if argsDict["screenshots_views"] == 'default':
+        argsDict["screenshots_views"] = [argsDict["screenshots_views"]]
     else:
-        for x in screenshots_views:
+        for x in argsDict["screenshots_views"]:
             isXYZ = x.split("=")[0] == "x" or x.split("=")[0] == "y" or x.split("=")[0] == "z"
             try:
                 int(x.split("=")[1])
@@ -545,109 +582,109 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
                 print()
                 sys.exit(1)
 
-        print("Found screenshot coordinates ", screenshots_views)
-        screenshots_views = [ (y[0], int(y[1])) for y in [ x.split("=") for x in screenshots_views ] ]
+        print("Found screenshot coordinates ", argsDict["screenshots_views"])
+        argsDict["screenshots_views"] = [ (y[0], int(y[1])) for y in [ x.split("=") for x in argsDict["screenshots_views"] ] ]
 
     # check screenshots_layout
-    if screenshots_layout is not None:
-        if all([ x.isdigit() for x in screenshots_layout ]):
-            screenshots_layout = [ int(x) for x in screenshots_layout ]
+    if argsDict["screenshots_layout"] is not None:
+        if all([ x.isdigit() for x in argsDict["screenshots_layout"] ]):
+            argsDict["screenshots_layout"] = [ int(x) for x in argsDict["screenshots_layout"] ]
         else:
             print('ERROR: screenshots_layout argument can only contain integer numbers\n')
             sys.exit(1)
 
     # check if fornix subdirectory exists or can be created and is writable
-    if fornix is True or fornix_html is True:
-        if os.path.isdir(os.path.join(output_dir, 'fornix')):
-            print("Found fornix directory", os.path.join(output_dir, 'fornix'))
+    if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'fornix')):
+            print("Found fornix directory", os.path.join(argsDict["output_dir"], 'fornix'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir, 'fornix'))
+                os.mkdir(os.path.join(argsDict["output_dir"], 'fornix'))
             except:
-                print('ERROR: cannot create fornix directory '+os.path.join(output_dir, 'fornix')+'\n')
+                print('ERROR: cannot create fornix directory '+os.path.join(argsDict["output_dir"], 'fornix')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'fornix'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'fornix'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'fornix')
+                    e.filename = os.path.join(argsDict["output_dir"], 'fornix')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'fornix')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'fornix')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if hypothalamus subdirectory exists or can be created and is writable
-    if hypothalamus is True or hypothalamus_html is True:
-        if os.path.isdir(os.path.join(output_dir, 'hypothalamus')):
-            print("Found hypothalamus directory", os.path.join(output_dir, 'hypothalamus'))
+    if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'hypothalamus')):
+            print("Found hypothalamus directory", os.path.join(argsDict["output_dir"], 'hypothalamus'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir, 'hypothalamus'))
+                os.mkdir(os.path.join(argsDict["output_dir"], 'hypothalamus'))
             except:
-                print('ERROR: cannot create hypothalamus directory '+os.path.join(output_dir, 'hypothalamus')+'\n')
+                print('ERROR: cannot create hypothalamus directory '+os.path.join(argsDict["output_dir"], 'hypothalamus')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'hypothalamus'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'hypothalamus'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'hypothalamus')
+                    e.filename = os.path.join(argsDict["output_dir"], 'hypothalamus')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'hypothalamus')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'hypothalamus')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if hippocampus subdirectory exists or can be created and is writable
-    if hippocampus is True or hippocampus_html is True:
-        if os.path.isdir(os.path.join(output_dir, 'hippocampus')):
-            print("Found hippocampus directory", os.path.join(output_dir, 'hippocampus'))
+    if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'hippocampus')):
+            print("Found hippocampus directory", os.path.join(argsDict["output_dir"], 'hippocampus'))
         else:
             try:
-                os.mkdir(os.path.join(output_dir, 'hippocampus'))
+                os.mkdir(os.path.join(argsDict["output_dir"], 'hippocampus'))
             except:
-                print('ERROR: cannot create hippocampus directory '+os.path.join(output_dir, 'hippocampus')+'\n')
+                print('ERROR: cannot create hippocampus directory '+os.path.join(argsDict["output_dir"], 'hippocampus')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'hippocampus'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'hippocampus'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'hippocampus')
+                    e.filename = os.path.join(argsDict["output_dir"], 'hippocampus')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'hippocampus')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'hippocampus')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if label file is given
-    if (hippocampus is True or hippocampus_html is True) and hippocampus_label is None:
+    if (argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True) and argsDict["hippocampus_label"] is None:
         print('ERROR: The --hippocampus-label <LABEL> argument must be specified if using --hippocampus or --hippocampus-html')
         print('       The filename of the segmentation file must correspond to [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz'+'\n')
         sys.exit(1)
 
     # check if shape subdirectory exists or can be created and is writable
-    if shape is True:
-        if os.path.isdir(os.path.join(output_dir, 'brainprint')):
-            print("Found brainprint directory", os.path.join(output_dir, 'brainprint'))
+    if argsDict["shape"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'brainprint')):
+            print("Found brainprint directory", os.path.join(argsDict["output_dir"], 'brainprint'))
         else:
             try:
-                os.makedirs(os.path.join(output_dir, 'brainprint'))
+                os.makedirs(os.path.join(argsDict["output_dir"], 'brainprint'))
             except:
-                print('\nERROR: cannot create brainprint directory '+os.path.join(output_dir, 'brainprint')+'\n')
+                print('\nERROR: cannot create brainprint directory '+os.path.join(argsDict["output_dir"], 'brainprint')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'brainprint'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'brainprint'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'brainprint')
+                    e.filename = os.path.join(argsDict["output_dir"], 'brainprint')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'brainprint')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'brainprint')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if shapeDNA / brainPrint dependencies
-    if shape is True:
+    if argsDict["shape"] is True:
         # check if brainprintpython can be imported
         if  importlib.util.find_spec("brainprint") is None:
             print("\nERROR: could not import the brainprint package, is it installed?")
@@ -658,140 +695,140 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             sys.exit(1)
 
     # check if outlier subdirectory exists or can be created and is writable
-    if outlier is True:
-        if os.path.isdir(os.path.join(output_dir, 'outliers')):
-            print("Found outliers directory", os.path.join(output_dir, 'outliers'))
+    if argsDict["outlier"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'outliers')):
+            print("Found outliers directory", os.path.join(argsDict["output_dir"], 'outliers'))
         else:
             try:
-                os.makedirs(os.path.join(output_dir, 'outliers'))
+                os.makedirs(os.path.join(argsDict["output_dir"], 'outliers'))
             except:
-                print('\nERROR: cannot create outliers directory '+os.path.join(output_dir, 'outliers')+'\n')
+                print('\nERROR: cannot create outliers directory '+os.path.join(argsDict["output_dir"], 'outliers')+'\n')
                 sys.exit(1)
 
             try:
-                testfile = tempfile.TemporaryFile(dir=os.path.join(output_dir, 'outliers'))
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'outliers'))
                 testfile.close()
             except OSError as e:
                 if e.errno != errno.EACCES:  # 13
-                    e.filename = os.path.join(output_dir, 'outliers')
+                    e.filename = os.path.join(argsDict["output_dir"], 'outliers')
                     raise
-                print('\nERROR: '+os.path.join(output_dir, 'outliers')+' not writeable (check access)!\n')
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'outliers')+' not writeable (check access)!\n')
                 sys.exit(1)
 
     # check if outlier-table exists if it was given, otherwise exit
-    if outlier_table is not None:
-        if os.path.isfile(outlier_table):
-            print("Found table with normative values ", outlier_table)
+    if argsDict["outlier_table"] is not None:
+        if os.path.isfile(argsDict["outlier_table"]):
+            print("Found table with normative values ", argsDict["outlier_table"])
         else:
-            print("ERROR: Could not find table with normative values ", outlier_table)
+            print("ERROR: Could not find table with normative values ", argsDict["outlier_table"])
             sys.exit(1)
 
     # check for required files
     subjects_to_remove = list()
-    for subject in subjects:
+    for subject in argsDict["subjects"]:
 
         # -files: stats/aseg.stats
-        path_check = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "stats", "aseg.stats")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: surf/[lr]h.w-g.pct.mgh, label/[lr]h.cortex.label
-        path_check = os.path.join(subjects_dir, subject, "surf", "lh.w-g.pct.mgh")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        path_check = os.path.join(subjects_dir, subject, "surf", "rh.w-g.pct.mgh")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        path_check = os.path.join(subjects_dir, subject, "label", "lh.cortex.label")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.cortex.label")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        path_check = os.path.join(subjects_dir, subject, "label", "rh.cortex.label")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.cortex.label")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/transforms/talairach.lta
-        path_check = os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "talairach.lta")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.orig.mgz for FastSurfer
-        path_check = os.path.join(subjects_dir, subject, "mri", "norm.mgz")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        path_check = os.path.join(subjects_dir, subject, "mri", "aseg.mgz")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aseg.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
-        if fastsurfer is True:
-            path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.orig.mgz")
+        if argsDict["fastsurfer"] is True:
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.orig.mgz")
         else:
-            path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.mgz")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: scripts/recon-all.log
-        path_check = os.path.join(subjects_dir, subject, "scripts", "recon-all.log")
+        path_check = os.path.join(argsDict["subjects_dir"], subject, "scripts", "recon-all.log")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # check screenshots
-        if (screenshots is True or screenshots_html is True) and screenshots_surf==["default"]:
+        if (argsDict["screenshots"] is True or argsDict["screenshots_html"] is True) and argsDict["screenshots_surf"]==["default"]:
 
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
-            path_check = os.path.join(subjects_dir, subject, "surf", "lh.white")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.white")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
-            path_check = os.path.join(subjects_dir, subject, "surf", "rh.white")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.white")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
-            path_check = os.path.join(subjects_dir, subject, "surf", "lh.pial")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
-            path_check = os.path.join(subjects_dir, subject, "surf", "rh.pial")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
         # check fornix
-        if fornix is True or fornix_html is True:
+        if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
 
             # -files: mri/transforms/cc_up.lta
-            path_check = os.path.join(subjects_dir, subject, "mri", "transforms", "cc_up.lta")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "cc_up.lta")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
     # remove subjects with missing files after creating unique list
-    [ subjects.remove(x) for x in list(set(subjects_to_remove)) ]
+    [ argsDict["subjects"].remove(x) for x in list(set(subjects_to_remove)) ]
 
     # check if we have any subjects after all
-    if not subjects:
+    if not argsDict["subjects"]:
         print("\nERROR: no subjects to process")
         sys.exit(1)
 
     # now return
-    return subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, hippocampus, hippocampus_html, hippocampus_label, outlier, outlier_table, fastsurfer
+    return argsDict
 
 
 # ------------------------------------------------------------------------------
@@ -832,7 +869,7 @@ def _check_packages():
 # ------------------------------------------------------------------------------
 # do qatools
 
-def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay=["default"], screenshots_surf=["default"], screenshots_views=["default"], screenshots_layout=None, fornix=False, fornix_html=False, hypothalamus=False, hypothalamus_html=False, hippocampus=False, hippocampus_html=False, hippocampus_label=False, outlier=False, outlier_table=None, fastsurfer=False):
+def _do_qatools(argsDict):
     """
     an internal function to run the qatools submodules
 
@@ -856,6 +893,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     from qatoolspython.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
     from qatoolspython.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
     from qatoolspython.createScreenshots import createScreenshots
+    from qatoolspython.createSurfacePlots import createSurfacePlots
     from qatoolspython.outlierDetection import outlierTable
     from qatoolspython.outlierDetection import outlierDetection
 
@@ -889,6 +927,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     # create images dict
     imagesScreenshotsDict = dict()
+    imagesSurfacesDict = dict()
     imagesFornixDict = dict()
     imagesHypothalamusDict = dict()
     imagesHippocampusLeftDict = dict()
@@ -898,7 +937,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     statusDict = dict()
 
     # loop through the specified subjects
-    for subject in subjects:
+    for subject in argsDict["subjects"]:
 
         #
         print("Starting qatools-python for subject", subject, "at", time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(time.time())))
@@ -907,7 +946,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # ----------------------------------------------------------------------
         # set images
 
-        if fastsurfer is True:
+        if argsDict["fastsurfer"] is True:
             aparc_image = "aparc+aseg.orig.mgz"
         else:
             aparc_image = "aparc+aseg.mgz"
@@ -926,7 +965,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # get WM and GM SNR for orig.mgz
         try:
-            wm_snr_orig, gm_snr_orig = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="orig.mgz", aparc_image=aparc_image)
+            wm_snr_orig, gm_snr_orig = checkSNR(argsDict["subjects_dir"], subject, SNR_AMOUT_EROSION, ref_image="orig.mgz", aparc_image=aparc_image)
 
         except:
             wm_snr_orig = np.nan
@@ -935,7 +974,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # get WM and GM SNR for norm.mgz
         try:
-            wm_snr_norm, gm_snr_norm = checkSNR(subjects_dir, subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
+            wm_snr_norm, gm_snr_norm = checkSNR(argsDict["subjects_dir"], subject, SNR_AMOUT_EROSION, ref_image="norm.mgz", aparc_image=aparc_image)
 
         except:
             wm_snr_norm = np.nan
@@ -944,7 +983,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # check CC size
         try:
-            cc_size = checkCCSize(subjects_dir, subject)
+            cc_size = checkCCSize(argsDict["subjects_dir"], subject)
 
         except:
             cc_size = np.nan
@@ -952,7 +991,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # check topology
         try:
-            holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(subjects_dir, subject)
+            holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(argsDict["subjects_dir"], subject)
 
         except:
             holes_lh = np.nan
@@ -965,7 +1004,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # check contrast
         try:
-            con_snr_lh, con_snr_rh = checkContrast(subjects_dir, subject)
+            con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
 
         except:
             con_snr_lh = np.nan
@@ -974,7 +1013,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
         # check rotation
         try:
-            rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(subjects_dir, subject)
+            rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(argsDict["subjects_dir"], subject)
 
         except:
             rot_tal_x = np.nan
@@ -1001,7 +1040,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # ----------------------------------------------------------------------
         # run optional modules: shape analysis
 
-        if shape is True:
+        if argsDict["shape"] is True:
 
             #
             try:
@@ -1015,10 +1054,10 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 from brainprint import brainprint
 
                 # check / create subject-specific brainprint_outdir
-                brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
+                brainprint_outdir = os.path.join(argsDict["output_dir"], 'brainprint', subject)
 
                 # run brainPrint
-                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=argsDict["subjects_dir"], sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
 
                 # get a subset of the brainprint results
                 distDict = { subject : dstMat }
@@ -1027,10 +1066,10 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 shape_ok = True
 
                 # check / create subject-specific brainprint_outdir
-                brainprint_outdir = os.path.join(output_dir, 'brainprint', subject)
+                brainprint_outdir = os.path.join(argsDict["output_dir"], 'brainprint', subject)
 
                 # run brainPrint
-                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=subjects_dir, sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=argsDict["subjects_dir"], sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
 
                 # get a subset of the brainprint results
                 distDict = { subject : dstMat }
@@ -1054,7 +1093,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # ----------------------------------------------------------------------
         # run optional modules: screenshots
 
-        if screenshots is True or screenshots_html is True:
+        if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
 
             #
             try:
@@ -1065,7 +1104,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 print("")
 
                 # check / create subject-specific screenshots_outdir
-                screenshots_outdir = os.path.join(output_dir, 'screenshots', subject)
+                screenshots_outdir = os.path.join(argsDict["output_dir"], 'screenshots', subject)
                 if not os.path.isdir(screenshots_outdir):
                     os.makedirs(screenshots_outdir)
                 outfile = os.path.join(screenshots_outdir, subject+'.png')
@@ -1076,45 +1115,45 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 screenshots_surf_subj = list()
 
                 # check screenshots_base
-                if screenshots_base[0] == "default":
-                    screenshots_base_subj = screenshots_base
+                if argsDict["screenshots_base"][0] == "default":
+                    screenshots_base_subj = argsDict["screenshots_base"]
                     print("Using default for screenshot base image")
-                elif os.path.isfile(screenshots_base[0]):
-                    screenshots_base_subj = screenshots_base
+                elif os.path.isfile(argsDict["screenshots_base"][0]):
+                    screenshots_base_subj = argsDict["screenshots_base"]
                     print("Using "+screenshots_base_subj[0]+" as screenshot base image")
-                elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])):
-                    screenshots_base_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_base[0])]
+                elif os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, 'mri', argsDict["screenshots_base"][0])):
+                    screenshots_base_subj = [os.path.join(argsDict["subjects_dir"], subject, 'mri', argsDict["screenshots_base"][0])]
                     print("Using "+screenshots_base_subj[0]+" as screenshot base image")
                 else:
-                    print('\nERROR: cannot find the screenshots base file '+screenshots_base[0]+'\n')
+                    print('\nERROR: cannot find the screenshots base file '+argsDict["screenshots_base"][0]+'\n')
                     sys.exit(1)
 
                 # check screenshots_overlay
-                if screenshots_overlay is not None:
-                    if screenshots_overlay[0] == "default":
-                        screenshots_overlay_subj = screenshots_overlay
+                if argsDict["screenshots_overlay"] is not None:
+                    if argsDict["screenshots_overlay"][0] == "default":
+                        screenshots_overlay_subj = argsDict["screenshots_overlay"]
                         print("Using default for screenshot overlay image")
-                    elif os.path.isfile(screenshots_overlay[0]):
-                        screenshots_overlay_subj = screenshots_overlay
+                    elif os.path.isfile(argsDict["screenshots_overlay"][0]):
+                        screenshots_overlay_subj = argsDict["screenshots_overlay"]
                         print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
-                    elif os.path.isfile(os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])):
-                        screenshots_overlay_subj = [os.path.join(subjects_dir, subject, 'mri', screenshots_overlay[0])]
+                    elif os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, 'mri', argsDict["screenshots_overlay"][0])):
+                        screenshots_overlay_subj = [os.path.join(argsDict["subjects_dir"], subject, 'mri', argsDict["screenshots_overlay"][0])]
                         print("Using "+screenshots_overlay_subj[0]+" as screenshot overlay image")
                     else:
-                        print('\nERROR: cannot find the screenshots overlay file '+screenshots_overlay[0]+'\n')
+                        print('\nERROR: cannot find the screenshots overlay file '+argsDict["screenshots_overlay"][0]+'\n')
                         sys.exit(1)
                 else:
-                    screenshots_overlay_subj = screenshots_overlay
+                    screenshots_overlay_subj = argsDict["screenshots_overlay"]
 
                 # check screenshots_surf
-                if screenshots_surf is not None:
-                    for screenshots_surf_i in screenshots_surf:
+                if argsDict["screenshots_surf"] is not None:
+                    for screenshots_surf_i in argsDict["screenshots_surf"]:
                         if screenshots_surf_i == "default":
                             print("Using default for screenshot surface")
                         elif os.path.isfile(screenshots_surf_i):
                             print("Using "+screenshots_surf_i+" as screenshot surface")
-                        elif os.path.isfile(os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)):
-                            screenshots_surf_i = os.path.join(subjects_dir, subject, 'surf', screenshots_surf_i)
+                        elif os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, 'surf', screenshots_surf_i)):
+                            screenshots_surf_i = os.path.join(argsDict["subjects_dir"], subject, 'surf', screenshots_surf_i)
                             print("Using "+screenshots_surf_i+" as screenshot surface")
                         else:
                             print('\nERROR: cannot find the screenshots surface file '+screenshots_surf_i+'\n')
@@ -1124,7 +1163,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                     screenshots_surf_subj = None
 
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=screenshots_views, LAYOUT=screenshots_layout)
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"])
 
                 # return
                 screenshots_ok = True
@@ -1145,9 +1184,48 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             statusDict[subject].update( { 'screenshots' : screenshots_ok } )
 
         # ----------------------------------------------------------------------
+        # run optional modules: surface plots
+
+        if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
+
+            #
+            try:
+
+                # message
+                print("-----------------------------")
+                print("Creating surface plots ...")
+                print("")
+
+                # check / create subject-specific surfaces_outdir
+                surfaces_outdir = os.path.join(argsDict["output_dir"], 'surfaces', subject)
+                if not os.path.isdir(surfaces_outdir):
+                    os.makedirs(surfaces_outdir)
+
+                # process
+                createSurfacePlots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], SURFACES_OUTDIR=surfaces_outdir)
+
+                # return
+                surfaces_ok = True
+
+            #
+            except:
+
+                print("ERROR: surfaces module failed for subject "+subject)
+                surfaces_ok = False
+
+            # store data
+            if surfaces_ok:
+                imagesSurfacesDict[subject] = surfaces_outdir
+            else:
+                imagesSurfacesDict[subject] = []
+
+            # store data
+            statusDict[subject].update( { 'surfaces' : surfaces_ok } )
+
+        # ----------------------------------------------------------------------
         # run optional modules: fornix
 
-        if fornix is True or fornix_html is True:
+        if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
 
             #
             try:
@@ -1158,13 +1236,13 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 print("")
 
                 # check / create subject-specific fornix_outdir
-                fornix_outdir = os.path.join(output_dir, 'fornix', subject)
+                fornix_outdir = os.path.join(argsDict["output_dir"], 'fornix', subject)
                 if not os.path.isdir(fornix_outdir):
                     os.makedirs(fornix_outdir)
                 fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
 
                 # process
-                fornixShapeOutput = evaluateFornixSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=fornix_outdir, CREATE_SCREENSHOT=FORNIX_SCREENSHOT, SCREENSHOTS_OUTFILE=fornix_screenshot_outfile, RUN_SHAPEDNA=FORNIX_SHAPE, N_EIGEN=FORNIX_N_EIGEN)
+                fornixShapeOutput = evaluateFornixSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=fornix_outdir, CREATE_SCREENSHOT=FORNIX_SCREENSHOT, SCREENSHOTS_OUTFILE=fornix_screenshot_outfile, RUN_SHAPEDNA=FORNIX_SHAPE, N_EIGEN=FORNIX_N_EIGEN)
 
                 # create a dictionary from fornix shape ouput
                 fornixShapeDict = { subject : dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)), fornixShapeOutput)) }
@@ -1195,7 +1273,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # ----------------------------------------------------------------------
         # run optional modules: hypothalamus
 
-        if hypothalamus is True or hypothalamus_html is True:
+        if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
 
             #
             try:
@@ -1206,13 +1284,13 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 print("")
 
                 # check / create subject-specific hypothalamus_outdir
-                hypothalamus_outdir = os.path.join(output_dir, 'hypothalamus', subject)
+                hypothalamus_outdir = os.path.join(argsDict["output_dir"], 'hypothalamus', subject)
                 if not os.path.isdir(hypothalamus_outdir):
                     os.makedirs(hypothalamus_outdir)
                 hypothalamus_screenshot_outfile = os.path.join(hypothalamus_outdir, "hypothalamus.png")
 
                 # process
-                evaluateHypothalamicSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=hypothalamus_outdir, CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile)
+                evaluateHypothalamicSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hypothalamus_outdir, CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile)
 
                 # return
                 hypothalamus_ok = True
@@ -1235,7 +1313,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # ----------------------------------------------------------------------
         # run optional modules: hippocampus
 
-        if hippocampus is True or hippocampus_html is True:
+        if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
 
             #
             try:
@@ -1246,15 +1324,15 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
                 print("")
 
                 # check / create subject-specific hippocampus_outdir
-                hippocampus_outdir = os.path.join(output_dir, 'hippocampus', subject)
+                hippocampus_outdir = os.path.join(argsDict["output_dir"], 'hippocampus', subject)
                 if not os.path.isdir(hippocampus_outdir):
                     os.makedirs(hippocampus_outdir)
                 hippocampus_screenshot_outfile_left = os.path.join(hippocampus_outdir, "hippocampus-left.png")
                 hippocampus_screenshot_outfile_right = os.path.join(hippocampus_outdir, "hippocampus-right.png")
 
                 # process left
-                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left, HEMI="lh", LABEL=hippocampus_label)
-                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=subjects_dir, OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right, HEMI="rh", LABEL=hippocampus_label)
+                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left, HEMI="lh", LABEL=argsDict["hippocampus_label"])
+                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right, HEMI="rh", LABEL=argsDict["hippocampus_label"])
 
                 # return
                 hippocampus_ok = True
@@ -1284,7 +1362,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
     # --------------------------------------------------------------------------
     # run optional modules: outlier detection
 
-    if outlier is True:
+    if argsDict["outlier"] is True:
 
         #
         try:
@@ -1295,18 +1373,18 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             print("")
 
             # determine outlier-table and get data
-            if outlier_table is None:
+            if argsDict["outlier_table"] is None:
                 outlierDict = outlierTable()
             else:
                 outlierDict = dict()
-                with open(outlier_table, newline='') as csvfile:
+                with open(argsDict["outlier_table"], newline='') as csvfile:
                     outlierCsv = csv.DictReader(csvfile, delimiter=',')
                     for row in outlierCsv:
                         outlierDict.update({row['label']: {'lower': float(row['lower']), 'upper': float(row['upper'])}})
 
             # process
-            outlier_outdir = os.path.join(output_dir, 'outliers')
-            n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(subjects, subjects_dir, outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN, hypothalamus=hypothalamus, hippocampus=hippocampus, hippocampus_label=hippocampus_label)
+            outlier_outdir = os.path.join(argsDict["output_dir"], 'outliers')
+            n_outlier_sample_nonpar, n_outlier_sample_param, n_outlier_norms = outlierDetection(argsDict["subjects"], argsDict["subjects_dir"], outlier_outdir, outlierDict, min_no_subjects=OUTLIER_N_MIN, hypothalamus=argsDict["hypothalamus"], hippocampus=argsDict["hippocampus"], hippocampus_label=argsDict["hippocampus_label"])
 
             # create a dictionary from outlier module ouput
             outlierDict = dict()
@@ -1355,21 +1433,21 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 
     # collect other keys; need to iterate over subjects, because not all of them
     # necessarily have the same set of keys
-    if shape is True:
+    if argsDict["shape"] is True:
         shapeKeys = list()
         for subject in distDict.keys():
             if len(distDict[subject])>0:
                 shapeKeys = list(np.unique(shapeKeys + list(distDict[subject].keys())))
         metricsFieldnames.extend(shapeKeys)
 
-    if (fornix is True or fornix_html is True) and FORNIX_SHAPE is True:
+    if (argsDict["fornix"] is True or argsDict["fornix_html"] is True) and FORNIX_SHAPE is True:
         fornixKeys = list()
         for subject in fornixShapeDict.keys():
             if len(fornixShapeDict[subject])>0:
                 fornixKeys = list(np.unique(fornixKeys + list(fornixShapeDict[subject].keys())))
         metricsFieldnames.extend(sorted(fornixKeys))
 
-    if outlier is True:
+    if argsDict["outlier"] is True:
         outlierKeys = list()
         for subject in outlierDict.keys():
             if len(outlierDict[subject])>0:
@@ -1377,8 +1455,8 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         metricsFieldnames.extend(sorted(outlierKeys))
 
     # determine output file names
-    path_data_file = os.path.join(output_dir, 'qatools-results.csv')
-    path_html_file = os.path.join(output_dir, 'qatools-results.html')
+    path_data_file = os.path.join(argsDict["output_dir"], 'qatools-results.csv')
+    path_html_file = os.path.join(argsDict["output_dir"], 'qatools-results.html')
 
     # write csv
     with open(path_data_file, 'w') as datafile:
@@ -1388,7 +1466,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             csvwriter.writerow(metricsDict[subject])
 
     # generate html output
-    if (screenshots_html is True) or (fornix_html is True) or (hypothalamus_html is True) or (hippocampus_html is True):
+    if (argsDict["screenshots_html"] is True) or (argsDict["surfaces_html"] is True) or (argsDict["fornix_html"] is True) or (argsDict["hypothalamus_html"] is True) or (argsDict["hippocampus_html"] is True):
         with open(path_html_file, 'w') as htmlfile:
             print("<html>", file=htmlfile)
             print("<head>", file=htmlfile)
@@ -1398,49 +1476,75 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
             print("<body style=\"background-color:Black\">", file=htmlfile)
 
             # screenshots
-            if screenshots_html is True:
+            if argsDict["screenshots_html"] is True:
                 print("<h1 style=\"color:white\">Screenshots</h1>", file=htmlfile)
                 for subject in sorted(list(imagesScreenshotsDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesScreenshotsDict[subject]: # should be False for empty string or empty list
-                        if os.path.isfile(os.path.join(output_dir, 'screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))):
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))):
                             print("<p><a href=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\">"
                                 +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+
+            # surfaces
+            if argsDict["surfaces_html"] is True:
+                print("<h1 style=\"color:white\">Surfaces</h1>", file=htmlfile)
+                for subject in sorted(list(imagesSurfacesDict.keys())):
+                    print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                    if imagesSurfacesDict[subject]: # should be False for empty string or empty list
+                        print("<p>", file=htmlfile)
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "lh.pial.png")):
+                            print("<a href=\""+os.path.join('surfaces', subject, "lh.pial.png")+"\">"
+                                +"<img src=\""+os.path.join('surfaces', subject, "lh.pial.png")+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "rh.pial.png")):
+                            print("<a href=\""+os.path.join('surfaces', subject, "rh.pial.png")+"\">"
+                                +"<img src=\""+os.path.join('surfaces', subject, "rh.pial.png")+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "lh.inflated.png")):
+                            print("<a href=\""+os.path.join('surfaces', subject, "lh.inflated.png")+"\">"
+                                +"<img src=\""+os.path.join('surfaces', subject, "lh.inflated.png")+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "rh.inflated.png")):
+                            print("<a href=\""+os.path.join('surfaces', subject, "rh.inflated.png")+"\">"
+                                +"<img src=\""+os.path.join('surfaces', subject, "rh.inflated.png")+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a></p>", file=htmlfile)
+                        print("</p>", file=htmlfile)
+
             # fornix
-            if fornix_html is True:
+            if argsDict["fornix_html"] is True:
                 print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
                 for subject in sorted(list(imagesFornixDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesFornixDict[subject]: # should be False for empty string or empty list
-                        if os.path.isfile(os.path.join(output_dir, 'fornix', subject, os.path.basename(imagesFornixDict[subject]))):
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'fornix', subject, os.path.basename(imagesFornixDict[subject]))):
                             print("<p><a href=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\">"
                                 +"<img src=\""+os.path.join('fornix', subject, os.path.basename(imagesFornixDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
             # hypothalamus
-            if hypothalamus_html is True:
+            if argsDict["hypothalamus_html"] is True:
                 print("<h1 style=\"color:white\">Hypothalamus</h1>", file=htmlfile)
                 for subject in sorted(list(imagesHypothalamusDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesHypothalamusDict[subject]: # should be False for empty string or empty list
-                        if os.path.isfile(os.path.join(output_dir, 'hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))):
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))):
                             print("<p><a href=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\">"
                                 +"<img src=\""+os.path.join('hypothalamus', subject, os.path.basename(imagesHypothalamusDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
             # hippocampus
-            if hippocampus_html is True:
+            if argsDict["hippocampus_html"] is True:
                 print("<h1 style=\"color:white\">hippocampus</h1>", file=htmlfile)
                 for subject in sorted(list(imagesHippocampusLeftDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesHippocampusLeftDict[subject]: # should be False for empty string or empty list
-                        if os.path.isfile(os.path.join(output_dir, 'hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))):
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))):
                             print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\">"
                                 +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusLeftDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
                     if imagesHippocampusRightDict[subject]: # should be False for empty string or empty list
-                        if os.path.isfile(os.path.join(output_dir, 'hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))):
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))):
                             print("<p><a href=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\">"
                                 +"<img src=\""+os.path.join('hippocampus', subject, os.path.basename(imagesHippocampusRightDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
@@ -1452,7 +1556,13 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
 # ------------------------------------------------------------------------------
 # run qatools
 
-def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, shape=False, screenshots=False, screenshots_html=False, screenshots_base="default", screenshots_overlay="default", screenshots_surf="default", screenshots_views="default", screenshots_layout=None, fornix=False, fornix_html=False, hypothalamus=False, hypothalamus_html=False, hippocampus=False, hippocampus_html=False, hippocampus_label=False, outlier=False, outlier_table=None, fastsurfer=False):
+def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects_file=None,
+                shape=False, screenshots=False, screenshots_html=False, screenshots_base="default",
+                screenshots_overlay="default", screenshots_surf="default", screenshots_views="default",
+                screenshots_layout=None, surfaces=False, surfaces_html=False, fornix=False,
+                fornix_html=False, hypothalamus=False, hypothalamus_html=False,
+                hippocampus=False, hippocampus_html=False, hippocampus_label=None,
+                outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -1461,11 +1571,53 @@ def run_qatools(subjects_dir, output_dir, subjects=None, subjects_file=None, sha
     # ------------------------------------------------------------------------------
     #
 
+    #
+    import sys
+
+    # create argsDict
+    if argsDict is None and (subjects_dir is None or output_dir is None):
+
+        print('\nERROR: nothing to do. Need to specify either the argsDict argument or the subjects_dir / output_dir arguments.\n')
+        sys.exit(1)
+
+    elif argsDict is None and subjects_dir is not None and output_dir is not None:
+
+        argsDict = dict()
+        argsDict["subjects_dir"] = subjects_dir
+        argsDict["output_dir"] = output_dir
+        argsDict["subjects"] = subjects
+        argsDict["subjects_file"] = subjects_file
+        argsDict["shape"] = shape
+        argsDict["screenshots"] = screenshots
+        argsDict["screenshots_html"] = screenshots_html
+        argsDict["screenshots_base"] = screenshots_base
+        argsDict["screenshots_overlay"] = screenshots_overlay
+        argsDict["screenshots_surf"] = screenshots_surf
+        argsDict["screenshots_views"] = screenshots_views
+        argsDict["screenshots_layout"] = screenshots_layout
+        argsDict["surfaces"] = surfaces
+        argsDict["surfaces_html"] = surfaces_html
+        argsDict["fornix"] = fornix
+        argsDict["fornix_html"] = fornix_html
+        argsDict["hypothalamus"] = hypothalamus
+        argsDict["hypothalamus_html"] = hypothalamus_html
+        argsDict["hippocampus"] = hippocampus
+        argsDict["hippocampus_html"] = hippocampus_html
+        argsDict["hippocampus_label"] = hippocampus_label
+        argsDict["outlier"] = outlier
+        argsDict["outlier_table"] = outlier_table
+        argsDict["fastsurfer"] = fastsurfer
+
+    elif (argsDict is not None) and (subjects_dir is not None or output_dir is not None):
+
+        print('\nERROR: cannot specify the argsDict and the subjects_dir / output_dir arguments at the same time.\n')
+        sys.exit(1)
+
     # check arguments
-    subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, hippocampus, hippocampus_html, hippocampus_label, outlier, outlier_table, fastsurfer = _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, hippocampus, hippocampus_html, hippocampus_label, outlier, outlier_table, fastsurfer)
+    argsDict = _check_arguments(argsDict)
 
     # check packages
     _check_packages()
 
     # run qatools
-    _do_qatools(subjects_dir, output_dir, subjects, shape, screenshots, screenshots_html, screenshots_base, screenshots_overlay, screenshots_surf, screenshots_views, screenshots_layout, fornix, fornix_html, hypothalamus, hypothalamus_html, hippocampus, hippocampus_html, hippocampus_label, outlier, outlier_table, fastsurfer)
+    _do_qatools(argsDict)
