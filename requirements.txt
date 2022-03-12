@@ -23,7 +23,7 @@ packaging==21.2
     # via nibabel
 pandas==1.3.4
     # via qatoolspython (setup.py)
-pillow==9.0.0
+pillow==9.0.1
     # via matplotlib
 pyparsing==2.4.7
     # via
