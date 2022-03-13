@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="qatoolspython",
-    version="1.3.0",
+    version="1.5.0",
     author="Kersten Diers, Martin Reuter, and others (see README)",
     description="A set of quality assurance / quality control scripts for Freesurfer-processed structural MRI data",
     long_description=long_description,
