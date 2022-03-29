@@ -50,6 +50,10 @@ python3 ../qatools.py --subjects_dir data --output_dir output/test024 --screensh
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test025 --hypothalamus
 
-python3 ../qatools.py --subjects_dir data --output_dir output/test026 --screenshots --hypothalamus-html --screenshots-html --fornix-html --hippocampus-html
+python3 ../qatools.py --subjects_dir data --output_dir output/test026 --screenshots --hypothalamus-html --screenshots-html --fornix-html --hippocampus-html --outlier
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test027 --hippocampus
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test028 --surfaces --subjects 129 130
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test029 --surfaces-html --subjects 129 130

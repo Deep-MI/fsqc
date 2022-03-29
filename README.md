@@ -133,7 +133,7 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
-## Roadmap
+## Recent changes and roadmap
 
 The goal of the `qatools-python` project is to create a modular and extensible
 software package that provides quantitative metrics and visual information for
@@ -145,10 +145,13 @@ of this toolbox and will be included in the main branch (`freesurfer-module-rele
 after a period of testing and evaluation. Unless explicitly announced, all new
 features will preserve compatibility with earlier versions.
 
+The current version is 1.5: recent changes in comparison to the previous
+versions include the addition of the hipopcampus and hypothalamus modules as
+well as the addition of a surface visualization module.
+
 Upcoming extensions include modules for the quality control of FreeSurfer's
-brainstem and thalamic segmentations. Another planned extension is the inclusion
-of the hippocampal, amygdalar, hypothalamic, thalamic, and brainstem volume
-estimates within the outlier module.
+brainstem and thalamic segmentations. Another planned extension is support for
+parallel processing of many cases.
 
 Feedback, suggestions, and contributions are always welcome.
 
@@ -160,10 +163,11 @@ ___
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]]
                           [--subjects-file <file>] [--screenshots]
-                          [--screenshots-html] [--fornix] [--fornix-html]
-                          [--hippocampus] [--hippocampus-html] [--hypothalamus]
-                          [--hypothalamus-html] [--shape] [--outlier]
-                          [--fastsurfer] [-h]
+                          [--screenshots-html] [--surfaces] [--surfaces-html]
+                          [--fornix] [--fornix-html] [--hippocampus]
+                          [--hippocampus-html] [--hippocampus-label ... ]
+                          [--hypothalamus] [--hypothalamus-html] [--shape]
+                          [--outlier] [--fastsurfer] [-h]
 
 
 required arguments:
@@ -256,7 +260,7 @@ The `qatools.py` script will then be executable from the command line, as
 detailed above.
 
 Optional packages (if running the shape analysis module) include the `brainprint-python`
-and `lapy` packages from . They can be installed using
+and `lapy` packages from https://github.com/Deep-MI. They can be installed using
 `pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
 and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They should
 both be version 0.2 or newer.
@@ -272,11 +276,6 @@ Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
 `pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
-
-Use the following code to install the package in editable mode to a location of
-your choice:
-
-`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
