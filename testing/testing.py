@@ -52,9 +52,9 @@ qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test124', subj
 
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test125', hypothalamus=True)
 
-qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test126', hypothalamus_html=True, fornix_html=True, hippocampus_html=True, screenshots_html=True, outlier=True)
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test126', hypothalamus_html=True, fornix_html=True, hippocampus_html=True, screenshots_html=True, outlier=True, hippocampus_label="T1.v21")
 
-qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test127', hippocampus=True)
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test127', hippocampus=True, hippocampus_label="T1.v21")
 
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test128', subjects=['129', '130'], surfaces=True)
 
