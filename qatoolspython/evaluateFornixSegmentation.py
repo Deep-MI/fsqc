@@ -9,15 +9,15 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     """
     A function to evaluate potential missegmentation of the fornix.
 
-    This script evaluates potential missegmentation of the fornix, which may 
+    This script evaluates potential missegmentation of the fornix, which may
     erroneously be attached to the 'corpus collosum' label.
 
-    It will run Freesurfer's 'mri_convert' script to apply the cc_up.lta 
-    transform to the norm.mgz and the aseg files, and create a binary corpus 
+    It will run Freesurfer's 'mri_convert' script to apply the cc_up.lta
+    transform to the norm.mgz and the aseg files, and create a binary corpus
     callosum mask and surface. Resulting files are saved to subject-specific
     directories witin the 'fornix' subdirectory of the output directory.
 
-    If the corresponding arguments are set to 'True', the script will also 
+    If the corresponding arguments are set to 'True', the script will also
     create screenshots and run a shape analysis of the corpus callosum surface.
     Resulting files will be saved to the same directory as indicated above.
 
@@ -38,7 +38,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         - mri/norm.mgz
 
     Returns:
-        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA is True, 
+        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA is True,
           otherwise a numpy array of NaNs of the same dimension
 
     """
@@ -139,11 +139,11 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         out[:] = np.nan
 
         return out
-        
+
     if not SCREENSHOTS_OUTFILE:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"cc.png")
 
-    ## run make_upright; note: rather than 'make_upright', better use 'mri_cc' 
+    ## run make_upright; note: rather than 'make_upright', better use 'mri_cc'
     ## to compute the transformation matrix, should this ever be necessary.
     #
     #cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCup.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
@@ -173,7 +173,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
-        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, 
+        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
             INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
             BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = SCREENSHOTS_OUTFILE)
 
@@ -209,5 +209,3 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         out[:] = np.nan
 
         return out
-
-

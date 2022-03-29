@@ -313,7 +313,8 @@ def get_help(print_help=True, return_help=False):
     these packages.
 
     For the shape analysis module, the brainprint and lapy packages from
-    https://github.com/Deep-MI are required (both version 0.2 or newer).
+    https://github.com/Deep-MI are required (brainprint version 0.2 or newer,
+    lapy version 0.3 or newer).
 
     This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
 
@@ -593,6 +594,27 @@ def _check_arguments(argsDict):
             print('ERROR: screenshots_layout argument can only contain integer numbers\n')
             sys.exit(1)
 
+    # check surfaces
+    if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
+        # check for LaPy
+        import packaging.version
+        if importlib.util.find_spec("lapy") is not None:
+            import lapy as lp
+            if not hasattr(lp, "__version__"):
+                print('ERROR: Could not determine version of the \'lapy\' package (see README.md for details on installation)')
+                sys.exit(1)
+            elif packaging.version.parse(lp.__version__) < packaging.version.parse("0.3"):
+                print('ERROR: A version >=0.3 of the \'lapy\' package is required for surface plots (see README.md for details on installation)')
+                sys.exit(1)
+        else:
+            print('ERROR: Could not find the \'lapy\' package (see README.md for details on installation)')
+            sys.exit(1)
+
+        # check for kaleido package
+        if importlib.util.find_spec("kaleido") is None:
+            print('ERROR: Could not find the \'kaleido\' package (use e.g. \"pip3 install --user -U kaleido\" to install)')
+            sys.exit(1)
+
     # check if fornix subdirectory exists or can be created and is writable
     if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], 'fornix')):
@@ -806,6 +828,40 @@ def _check_arguments(argsDict):
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+        # check surfaces
+        if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
+
+            # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.inflated")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.inflated")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.annot")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.annot")
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
@@ -1388,7 +1444,7 @@ def _do_qatools(argsDict):
 
             # create a dictionary from outlier module ouput
             outlierDict = dict()
-            for subject in subjects:
+            for subject in argsDict["subjects"]:
                 outlierDict.update({subject : {
                     'n_outlier_sample_nonpar' : n_outlier_sample_nonpar[subject],
                     'n_outlier_sample_param': n_outlier_sample_param[subject],
@@ -1416,7 +1472,7 @@ def _do_qatools(argsDict):
             outlier_ok = False
 
         # store data
-        for subject in subjects:
+        for subject in argsDict["subjects"]:
             metricsDict[subject].update(outlierDict[subject])
 
         # message
