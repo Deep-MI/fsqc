@@ -1,5 +1,5 @@
 # get OS
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # update OS
 RUN apt-get update
