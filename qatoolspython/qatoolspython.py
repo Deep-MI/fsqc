@@ -378,6 +378,7 @@ def _parse_arguments():
     optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=['1', '4'], nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--surfaces', dest='surfaces', help="create surface plots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--surfaces-html', dest='surfaces_html', help="create surface plots of individual brains with html summary page", default=False, action="store_true", required=False)
+    optional.add_argument('--surfaces_views', dest='surfaces_views', help="Specify camera views for surface images. Choose from: anterior, posterior, left, right, superior, inferior", default=['left','right','superior','inferior'], type=str, nargs='+', required=False)
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--fornix-html', dest='fornix_html', help="check fornix segmentation and create html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--hypothalamus', dest='hypothalamus', help="check hypothalamus segmentation", default=False, action="store_true", required=False)
@@ -414,6 +415,7 @@ def _parse_arguments():
     argsDict["screenshots_layout"] = args.screenshots_layout
     argsDict["surfaces"] = args.surfaces
     argsDict["surfaces_html"] = args.surfaces_html
+    argsDict["surfaces_views"] = args.surfaces_views
     argsDict["fornix"] = args.fornix
     argsDict["fornix_html"] = args.fornix_html
     argsDict["hypothalamus"] = args.hypothalamus
@@ -614,7 +616,6 @@ def _check_arguments(argsDict):
         if importlib.util.find_spec("kaleido") is None:
             print('ERROR: Could not find the \'kaleido\' package (use e.g. \"pip3 install --user -U kaleido\" to install)')
             sys.exit(1)
-
     # check if fornix subdirectory exists or can be created and is writable
     if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], 'fornix')):
@@ -865,7 +866,15 @@ def _check_arguments(argsDict):
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
-
+        
+        if len(argsDict['surfaces_views']) > 0:
+            _views_available = ['anterior','posterior','left','right','superior','inferior']
+            for v in argsDict["surfaces_views"].copy():
+                if v not in _views_available:
+                    print(f'ERROR: Skip unexpected view for surface plots: {v}')
+                    argsDict['surfaces_views'].remove(v)
+                
+                
         # check fornix
         if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
 
@@ -1258,8 +1267,7 @@ def _do_qatools(argsDict):
                     os.makedirs(surfaces_outdir)
 
                 # process
-                createSurfacePlots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], SURFACES_OUTDIR=surfaces_outdir)
-
+                createSurfacePlots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], SURFACES_OUTDIR=surfaces_outdir, VIEWS=argsDict['surfaces_views'])
                 # return
                 surfaces_ok = True
 
@@ -1548,25 +1556,46 @@ def _do_qatools(argsDict):
                 for subject in sorted(list(imagesSurfacesDict.keys())):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesSurfacesDict[subject]: # should be False for empty string or empty list
+                        # Produce first all plots for pial then for inflated surface.
+                        # Each view contains a left and right hemispheric plot. 
+                        _views_per_row = 2
+                        
+                        from PIL import Image
+                        filepath = os.path.join(argsDict["output_dir"], 'surfaces', subject, f'lh.pial.{argsDict["surfaces_views"][0]}.png')
+                        img = Image.open(filepath)
+                        width,height = img.size
+                        width *= 2*_views_per_row+0.1
+                        
+                        print("<p>", file=htmlfile)                        
+                        print(f'<div style=\"width:{width}; background-color:black; \">', file=htmlfile)
                         print("<p>", file=htmlfile)
-                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "lh.pial.png")):
-                            print("<a href=\""+os.path.join('surfaces', subject, "lh.pial.png")+"\">"
-                                +"<img src=\""+os.path.join('surfaces', subject, "lh.pial.png")+"\" "
-                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
-                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "rh.pial.png")):
-                            print("<a href=\""+os.path.join('surfaces', subject, "rh.pial.png")+"\">"
-                                +"<img src=\""+os.path.join('surfaces', subject, "rh.pial.png")+"\" "
-                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
-                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "lh.inflated.png")):
-                            print("<a href=\""+os.path.join('surfaces', subject, "lh.inflated.png")+"\">"
-                                +"<img src=\""+os.path.join('surfaces', subject, "lh.inflated.png")+"\" "
-                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
-                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, "rh.inflated.png")):
-                            print("<a href=\""+os.path.join('surfaces', subject, "rh.inflated.png")+"\">"
-                                +"<img src=\""+os.path.join('surfaces', subject, "rh.inflated.png")+"\" "
-                                +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a></p>", file=htmlfile)
+                        for i,v in enumerate(argsDict["surfaces_views"], start=1):
+                            if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, f"lh.pial.{v}.png")):
+                                print("<a href=\""+os.path.join('surfaces', subject, f"lh.pial.{v}.png")+"\">"
+                                    +"<img src=\""+os.path.join('surfaces', subject, f"lh.pial.{v}.png")+"\" "
+                                    +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                            if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, f"rh.pial.{v}.png")):
+                                print("<a href=\""+os.path.join('surfaces', subject, f"rh.pial.{v}.png")+"\">"
+                                    +"<img src=\""+os.path.join('surfaces', subject, f"rh.pial.{v}.png")+"\" "
+                                    +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                            if i%_views_per_row==0: print("</p> <p>", file=htmlfile) 
+                        print("</p> <p>", file=htmlfile)
+                        for i,v in enumerate(argsDict["surfaces_views"], start=1):
+                            if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, f"lh.inflated.{v}.png")):
+                                print("<a href=\""+os.path.join('surfaces', subject, f"lh.inflated.{v}.png")+"\">"
+                                    +"<img src=\""+os.path.join('surfaces', subject, f"lh.inflated.{v}.png")+"\" "
+                                    +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                            if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, f"rh.inflated.{v}.png")):
+                                print("<a href=\""+os.path.join('surfaces', subject, f"rh.inflated.{v}.png")+"\">"
+                                    +"<img src=\""+os.path.join('surfaces', subject, f"rh.inflated.{v}.png")+"\" "
+                                    +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
+                            if i%_views_per_row==0: 
+                                print("</p> <p>", file=htmlfile) 
                         print("</p>", file=htmlfile)
-
+                        print('</div>', file=htmlfile)
+                        print("</p>", file=htmlfile)
+                        
+                        
             # fornix
             if argsDict["fornix_html"] is True:
                 print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
