@@ -50,7 +50,7 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR):
         ctabL = annotL[1][:,0:3]
         indsL = annotL[0]
 
-    vAnnotL = ctabL[annotL[0],:]
+    vAnnotL = ctabL[indsL,:]
 
     # check if annotation has labels that are not included in the colortable
     if any(annotR[0]==-1):
@@ -61,7 +61,7 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR):
         ctabR = annotR[1][:,0:3]
         indsR = annotR[0]
 
-    vAnnotR = ctabR[annotR[0],:]
+    vAnnotR = ctabR[indsR,:]
 
     # -----------------------------------------------------------------------------
     # plots

@@ -45,8 +45,7 @@ RUN git clone https://github.com/Deep-MI/BrainPrint-python.git /app/brainprint
 RUN git clone https://github.com/Deep-MI/qatools-python.git /app/qatools-python
 
 # install additional python packages
-#RUN pip3 install -r /app/qatools-python/requirements.txt
-RUN pip3 install `cat /app/qatools-python/requirements.txt | grep -v "importlib" | grep -v "#.*" `
+RUN pip3 install `cat /app/qatools-python/requirements.txt | grep -v "#.*" `
 
 # Add FreeSurfer environment variables (.license file needed, alternatively export FS_LICENSE=path/to/license)
 ENV FREESURFER_HOME=/opt/freesurfer
