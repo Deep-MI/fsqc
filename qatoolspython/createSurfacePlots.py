@@ -5,7 +5,7 @@ This module provides a function to create surface plots
 
 # -----------------------------------------------------------------------------
 
-def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR):
+def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
 
     """
     function createSurfacePlots
@@ -26,7 +26,8 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR):
 
     # -----------------------------------------------------------------------------
     # settings
-
+    _views_available = [('anterior', 0,2,0), ('posterior', 0,-2,0), ('left', -2,0,0), ('right', 2,0,0), ('superior', 0,0,2), ('inferior', 0,0,-2)] 
+    scale_png = 0.8
     # -----------------------------------------------------------------------------
     # import surfaces and overlays
 
@@ -65,31 +66,25 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR):
 
     # -----------------------------------------------------------------------------
     # plots
+    
+    for view, x,y,z in _views_available:
+        fpath_lp = os.path.join(SURFACES_OUTDIR, f'lh.pial.{view}.png')
+        fpath_rp = os.path.join(SURFACES_OUTDIR, f'rh.pial.{view}.png')
+        fpath_li = os.path.join(SURFACES_OUTDIR, f'lh.inflated.{view}.png')
+        fpath_ri = os.path.join(SURFACES_OUTDIR, f'rh.inflated.{view}.png')
+        
+        if view in VIEWS:
+            camera = dict(
+                up=dict(x=0, y=0, z=1),
+                center=dict(x=0, y=0, z=0),
+                eye=dict(x=x, y=y, z=z))
 
-    camera = dict(
-        up=dict(x=0, y=0, z=1),
-        center=dict(x=0, y=0, z=0),
-        eye=dict(x=-2, y=0, z=0))
-
-    lpp.plot_tria_mesh(triaPialL, vcolor=vAnnotL, background_color="black", camera=camera, export_png=os.path.join(SURFACES_OUTDIR, 'lh.pial.png'), no_display=True, scale_png=0.25)
-
-    camera = dict(
-        up=dict(x=0, y=0, z=1),
-        center=dict(x=0, y=0, z=0),
-        eye=dict(x=2, y=0, z=0))
-
-    lpp.plot_tria_mesh(triaPialR, vcolor=vAnnotR, background_color="black", camera=camera, export_png=os.path.join(SURFACES_OUTDIR, 'rh.pial.png'), no_display=True, scale_png=0.25)
-
-    camera = dict(
-        up=dict(x=0, y=0, z=1),
-        center=dict(x=0, y=0, z=0),
-        eye=dict(x=-2, y=0, z=0))
-
-    lpp.plot_tria_mesh(triaInflL, vcolor=vAnnotL, background_color="black", camera=camera, export_png=os.path.join(SURFACES_OUTDIR, 'lh.inflated.png'), no_display=True, scale_png=0.25)
-
-    camera = dict(
-        up=dict(x=0, y=0, z=1),
-        center=dict(x=0, y=0, z=0),
-        eye=dict(x=2, y=0, z=0))
-
-    lpp.plot_tria_mesh(triaInflR, vcolor=vAnnotR, background_color="black", camera=camera, export_png=os.path.join(SURFACES_OUTDIR, 'rh.inflated.png'), no_display=True, scale_png=0.25)
+            lpp.plot_tria_mesh(triaPialL, vcolor=vAnnotL, background_color="black", camera=camera, export_png=fpath_lp, no_display=True, scale_png=scale_png)
+            lpp.plot_tria_mesh(triaPialR, vcolor=vAnnotR, background_color="black", camera=camera, export_png=fpath_rp, no_display=True, scale_png=scale_png)
+            lpp.plot_tria_mesh(triaInflL, vcolor=vAnnotL, background_color="black", camera=camera, export_png=fpath_li, no_display=True, scale_png=scale_png)
+            lpp.plot_tria_mesh(triaInflR, vcolor=vAnnotR, background_color="black", camera=camera, export_png=fpath_ri, no_display=True, scale_png=scale_png)
+        else:
+            # remove images potentially created in earlier run but not updated now
+            for fpath in [fpath_lp, fpath_rp, fpath_li, fpath_ri]:
+                if os.path.isfile(fpath):
+                    os.remove(fpath)
