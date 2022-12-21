@@ -189,6 +189,12 @@ ___
 
 ___
 
+## Main branch and development branch
+
+There are two branches in this repository, the main brach (`freesurfer-module-releases`) and the development branch (`freesurfer-module-dev`). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the main branch. To go to the development branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-dev).
+
+___
+
 ## Installation
 
 This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
@@ -214,12 +220,12 @@ package.
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
+`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases`
 
 Use the following code to install the package in editable mode to a location of
 your choice:
 
-`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
+`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
