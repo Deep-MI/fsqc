@@ -287,7 +287,7 @@ package.
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases#egg=qatoolspython`
+`pip3 install git+https://github.com/reuter-lab/qatools-python.git@freesurfer-module-dev`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
