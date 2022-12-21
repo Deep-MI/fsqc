@@ -122,7 +122,8 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     lut = np.array(lut)
 
     # some fs7 labels are not present in fs6 LUT, check and add if necessary
-    if not(np.isin([range(231, 247), 801, 802, 803, 804, 805, 806, 807, 808, 809, 810], lut[:,0]).all()):
+
+    if not(np.isin(list(range(231, 247)) + [801, 802, 803, 804, 805, 806, 807, 808, 809, 810], lut[:,0]).all()):
         lutAdd = np.array((
             [801, 'L_hypothalamus_anterior_inferior', 250, 255, 50, 0],
             [802, 'L_hypothalamus_anterior_superior', 80, 200, 255, 0],
