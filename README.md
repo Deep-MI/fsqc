@@ -262,6 +262,12 @@ ___
 
 ___
 
+## Main branch and development branch
+
+There are two branches in this repository, the main brach (freesurfer-module-releases) and the development branch (freesurfer-module-dev). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the development branch. To go to the main branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-releases).
+
+___
+
 ## Installation
 
 This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
