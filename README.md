@@ -68,6 +68,14 @@ within the output directory. These images can be used for quickly glimpsing
 through the processing results. Note that no display manager is required for
 this module, i.e. it can be run on a remote server, for example.
 
+- skullstrip module
+
+This module allows for the automated generation cross-sections of the brain
+that are overlaid with the colored and semi-transparent brainmask. this allows
+to check the quality of the skullstripping in FreeSurfer. The resulting images
+will be saved to the 'skullstrip' subdirectory that will be created within the
+output directory.
+
 - fornix module
 
 This is a module to assess potential issues with the segmentation of the
@@ -164,6 +172,7 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]]
                           [--subjects-file <file>] [--screenshots]
                           [--screenshots-html] [--surfaces] [--surfaces-html]
+                          [--skullstrip] [--skullstrip-html]
                           [--fornix] [--fornix-html] [--hippocampus]
                           [--hippocampus-html] [--hippocampus-label ... ]
                           [--hypothalamus] [--hypothalamus-html] [--shape]
@@ -186,7 +195,10 @@ optional arguments:
                          html summary page
   --surfaces             create screenshots of individual brain surfaces
   --surfaces-html        create screenshots of individual brain surfaces
-                         and html summary page                         
+                         and html summary page  
+  --skullstrip           create screenshots of individual brainmasks
+  --skullstrip-html      create screenshots of individual brainmasks and
+                         html summary page                                                
   --fornix               check fornix segmentation
   --fornix-html          check fornix segmentation and create html summary
                          page of fornix evaluation

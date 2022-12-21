@@ -6,8 +6,8 @@ This module provides a function to create screenshots
 # -----------------------------------------------------------------------------
 
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None,
-    BASE = ["default"], OVERLAY = ["default"], SURF = ["default"], SURFCOLOR = ["default"],
-    VIEWS = ["default"], XLIM = None, YLIM = None):
+    BASE = ["default"], OVERLAY = ["default"], LABELS = None, SURF = ["default"], SURFCOLOR = ["default"],
+    VIEWS = ["default"], XLIM = None, YLIM = None, BINARIZE = False):
 
     """
     function createScreenshots()
@@ -231,7 +231,16 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # index to lutMap
 
     if aseg is not None:
+
         asegData = aseg.get_data()
+
+        if LABELS is not None:
+
+            asegData = asegData * np.isin(asegData, LABELS)
+
+        if BINARIZE is True:
+
+            asegData = (asegData>0).astype(int)
 
         asegUnique, asegIdx = np.unique(asegData, return_inverse=True)
 

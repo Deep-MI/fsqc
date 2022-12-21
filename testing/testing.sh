@@ -57,3 +57,7 @@ python3 ../qatools.py --subjects_dir data --output_dir output/test027 --hippocam
 python3 ../qatools.py --subjects_dir data --output_dir output/test028 --surfaces --subjects 129 130
 
 python3 ../qatools.py --subjects_dir data --output_dir output/test029 --surfaces-html --subjects 129 130
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test030 --skullstrip --subjects 129 130
+
+python3 ../qatools.py --subjects_dir data --output_dir output/test031 --skullstrip-html --subjects 129 130

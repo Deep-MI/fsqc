@@ -59,3 +59,7 @@ qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test127', hipp
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test128', subjects=['129', '130'], surfaces=True)
 
 qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test129', subjects=['129', '130'], surfaces_html=True)
+
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test130', subjects=['129', '130'], skullstrip=True)
+
+qatoolspython.run_qatools(subjects_dir='data', output_dir='output/test130', subjects=['129', '131'], skullstrip_html=True)

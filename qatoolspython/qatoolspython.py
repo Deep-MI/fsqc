@@ -76,9 +76,15 @@ def get_help(print_help=True, return_help=False):
     This module allows for the automated generation of surface renderings of the
     left and right pial and inflated surfaces, overlaid with the aparc annotation.
     These images will be saved to the 'surfaces' subdirectory that will be created
-    within the output directory. These images can be used for quickly glimpsing
-    through the processing results. Note that no display manager is required for
-    this module, i.e. it can be run on a remote server, for example.
+    within the output directory.
+
+    - skullstrip module
+
+    This module allows for the automated generation cross-sections of the brain
+    that are overlaid with the colored and semi-transparent brainmask. this allows
+    to check the quality of the skullstripping in FreeSurfer. The resulting images
+    will be saved to the 'skullstrip' subdirectory that will be created within the
+    output directory.
 
     - fornix module
 
@@ -153,6 +159,7 @@ def get_help(print_help=True, return_help=False):
                                   [--subjects-file <file>]
                                   [--screenshots] [--screenshots-html]
                                   [--surfaces] [--surfaces-html]
+                                  [--skullstrip] [--skullstrip-html]
                                   [--fornix] [--fornix-html] [--hypothalamus]
                                   [--hypothalamus-html] [--hippocampus]
                                   [--hippocampus-html] [--hippocampus-label <label>]
@@ -176,6 +183,9 @@ def get_help(print_help=True, return_help=False):
           --surfaces            create screenshots of individual brain surfaces
           --surfaces-html       create screenshots of individual brain surfaces
                                 and html summary page
+          --skullstrip          create screenshots of individual brainmasks
+          --skullstrip-html     create screenshots of individual brainmasks and
+                                html summary page
           --fornix              check fornix segmentation
           --fornix-html         check fornix segmentation and create html summary
                                 page of fornix evaluation
@@ -379,6 +389,8 @@ def _parse_arguments():
     optional.add_argument('--surfaces', dest='surfaces', help="create surface plots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--surfaces-html', dest='surfaces_html', help="create surface plots of individual brains with html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--surfaces_views', dest='surfaces_views', help="Specify camera views for surface images. Choose from: anterior, posterior, left, right, superior, inferior", default=['left','right','superior','inferior'], type=str, nargs='+', required=False)
+    optional.add_argument('--skullstrip', dest='skullstrip', help="create brainmask plots of individual brains", default=False, action="store_true", required=False)
+    optional.add_argument('--skullstrip-html', dest='skullstrip_html', help="create brainmask plots of individual brains with html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--fornix', dest='fornix', help="check fornix segmentation", default=False, action="store_true", required=False)
     optional.add_argument('--fornix-html', dest='fornix_html', help="check fornix segmentation and create html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--hypothalamus', dest='hypothalamus', help="check hypothalamus segmentation", default=False, action="store_true", required=False)
@@ -416,6 +428,8 @@ def _parse_arguments():
     argsDict["surfaces"] = args.surfaces
     argsDict["surfaces_html"] = args.surfaces_html
     argsDict["surfaces_views"] = args.surfaces_views
+    argsDict["skullstrip"] = args.skullstrip
+    argsDict["skullstrip_html"] = args.skullstrip_html
     argsDict["fornix"] = args.fornix
     argsDict["fornix_html"] = args.fornix_html
     argsDict["hypothalamus"] = args.hypothalamus
@@ -616,6 +630,28 @@ def _check_arguments(argsDict):
         if importlib.util.find_spec("kaleido") is None:
             print('ERROR: Could not find the \'kaleido\' package (use e.g. \"pip3 install --user -U kaleido\" to install)')
             sys.exit(1)
+
+    # check if skullstrip subdirectory exists or can be created and is writable
+    if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
+        if os.path.isdir(os.path.join(argsDict["output_dir"], 'skullstrip')):
+            print("Found skullstrip directory", os.path.join(argsDict["output_dir"], 'skullstrip'))
+        else:
+            try:
+                os.mkdir(os.path.join(argsDict["output_dir"], 'skullstrip'))
+            except:
+                print('ERROR: cannot create skullstrip directory '+os.path.join(argsDict["output_dir"], 'skullstrip')+'\n')
+                sys.exit(1)
+
+            try:
+                testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], 'skullstrip'))
+                testfile.close()
+            except OSError as e:
+                if e.errno != errno.EACCES:  # 13
+                    e.filename = os.path.join(argsDict["output_dir"], 'skullstrip')
+                    raise
+                print('\nERROR: '+os.path.join(argsDict["output_dir"], 'skullstrip')+' not writeable (check access)!\n')
+                sys.exit(1)
+
     # check if fornix subdirectory exists or can be created and is writable
     if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], 'fornix')):
@@ -866,15 +902,28 @@ def _check_arguments(argsDict):
             if not os.path.isfile(path_check):
                 print("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
-        
+
         if len(argsDict['surfaces_views']) > 0:
             _views_available = ['anterior','posterior','left','right','superior','inferior']
             for v in argsDict["surfaces_views"].copy():
                 if v not in _views_available:
                     print(f'ERROR: Skip unexpected view for surface plots: {v}')
                     argsDict['surfaces_views'].remove(v)
-                
-                
+
+        # check skullstrip
+        if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
+
+            # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "brainmask.mgz")
+            if not os.path.isfile(path_check):
+                print("Could not find", path_check, "for subject", subject)
+                subjects_to_remove.extend([subject])
+
         # check fornix
         if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
 
@@ -993,6 +1042,7 @@ def _do_qatools(argsDict):
     # create images dict
     imagesScreenshotsDict = dict()
     imagesSurfacesDict = dict()
+    imagesSkullstripDict = dict()
     imagesFornixDict = dict()
     imagesHypothalamusDict = dict()
     imagesHippocampusLeftDict = dict()
@@ -1287,6 +1337,67 @@ def _do_qatools(argsDict):
             statusDict[subject].update( { 'surfaces' : surfaces_ok } )
 
         # ----------------------------------------------------------------------
+        # run optional modules: skullstrip
+
+        if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
+
+            #
+            try:
+
+                # message
+                print("-----------------------------")
+                print("Creating skullstrip evaluation  ...")
+                print("")
+
+                # check / create subject-specific skullstrip_outdir
+                skullstrip_outdir = os.path.join(argsDict["output_dir"], 'skullstrip', subject)
+                if not os.path.isdir(skullstrip_outdir):
+                    os.makedirs(skullstrip_outdir)
+                outfile = os.path.join(skullstrip_outdir, subject+'.png')
+
+                # re-initialize
+                skullstrip_base_subj = list()
+                skullstrip_overlay_subj = list()
+                skullstrip_surf_subj = list()
+
+                # check skullstrip_base
+                if os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, 'mri', 'orig.mgz')):
+                    skullstrip_base_subj = [os.path.join(argsDict["subjects_dir"], subject, 'mri', 'orig.mgz')]
+                    print("Using " + 'orig.mgz' + " as skullstrip base image")
+                else:
+                    print('\nERROR: cannot find the skullstrip base file ' + 'orig.mgz' +'\n')
+                    sys.exit(1)
+
+                # check skullstrip_overlay
+                if os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, 'mri', 'brainmask.mgz')):
+                    skullstrip_overlay_subj = [os.path.join(argsDict["subjects_dir"], subject, 'mri', 'brainmask.mgz')]
+                    print("Using " + 'brainmask.mgz' + " as skullstrip overlay image")
+                else:
+                    print('\nERROR: cannot find the skullstrip overlay file ' + 'brainmask.mgz' + '\n')
+                    sys.exit(1)
+
+                # process
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=skullstrip_base_subj, OVERLAY=skullstrip_overlay_subj, SURF=None, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"], BINARIZE=True)
+
+                # return
+                skullstrip_ok = True
+
+            #
+            except Exception as e:
+
+                print("ERROR: skullstrip module failed for subject " + subject)
+                skullstrip_ok = False
+
+            # store data
+            if skullstrip_ok:
+                imagesSkullstripDict[subject] = outfile
+            else:
+                imagesSkullstripDict[subject] = []
+
+            # store data
+            statusDict[subject].update( { 'skullstrip' : skullstrip_ok } )
+
+        # ----------------------------------------------------------------------
         # run optional modules: fornix
 
         if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
@@ -1530,7 +1641,7 @@ def _do_qatools(argsDict):
             csvwriter.writerow(metricsDict[subject])
 
     # generate html output
-    if (argsDict["screenshots_html"] is True) or (argsDict["surfaces_html"] is True) or (argsDict["fornix_html"] is True) or (argsDict["hypothalamus_html"] is True) or (argsDict["hippocampus_html"] is True):
+    if (argsDict["screenshots_html"] is True) or (argsDict["surfaces_html"] is True) or (argsDict["skullstrip_html"] is True) or (argsDict["fornix_html"] is True) or (argsDict["hypothalamus_html"] is True) or (argsDict["hippocampus_html"] is True):
         with open(path_html_file, 'w') as htmlfile:
             print("<html>", file=htmlfile)
             print("<head>", file=htmlfile)
@@ -1550,6 +1661,17 @@ def _do_qatools(argsDict):
                                 +"<img src=\""+os.path.join('screenshots', subject, os.path.basename(imagesScreenshotsDict[subject]))+"\" "
                                 +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
 
+            # skullstrip
+            if argsDict["skullstrip_html"] is True:
+                print("<h1 style=\"color:white\">Skullstrip</h1>", file=htmlfile)
+                for subject in sorted(list(imagesSkullstripDict.keys())):
+                    print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
+                    if imagesSkullstripDict[subject]: # should be False for empty string or empty list
+                        if os.path.isfile(os.path.join(argsDict["output_dir"], 'skullstrip', subject, os.path.basename(imagesSkullstripDict[subject]))):
+                            print("<p><a href=\""+os.path.join('skullstrip', subject, os.path.basename(imagesSkullstripDict[subject]))+"\">"
+                                +"<img src=\""+os.path.join('skullstrip', subject, os.path.basename(imagesSkullstripDict[subject]))+"\" "
+                                +"alt=\"Image for subject "+subject+"\" style=\"width:75vw;min_width:200px;\"></img></a></p>", file=htmlfile)
+
             # surfaces
             if argsDict["surfaces_html"] is True:
                 print("<h1 style=\"color:white\">Surfaces</h1>", file=htmlfile)
@@ -1557,16 +1679,16 @@ def _do_qatools(argsDict):
                     print("<h2 style=\"color:white\">Subject "+subject+"</h2>", file=htmlfile)
                     if imagesSurfacesDict[subject]: # should be False for empty string or empty list
                         # Produce first all plots for pial then for inflated surface.
-                        # Each view contains a left and right hemispheric plot. 
+                        # Each view contains a left and right hemispheric plot.
                         _views_per_row = 2
-                        
+
                         from PIL import Image
                         filepath = os.path.join(argsDict["output_dir"], 'surfaces', subject, f'lh.pial.{argsDict["surfaces_views"][0]}.png')
                         img = Image.open(filepath)
                         width,height = img.size
                         width *= 2*_views_per_row+0.1
-                        
-                        print("<p>", file=htmlfile)                        
+
+                        print("<p>", file=htmlfile)
                         print(f'<div style=\"width:{width}; background-color:black; \">', file=htmlfile)
                         print("<p>", file=htmlfile)
                         for i,v in enumerate(argsDict["surfaces_views"], start=1):
@@ -1578,7 +1700,7 @@ def _do_qatools(argsDict):
                                 print("<a href=\""+os.path.join('surfaces', subject, f"rh.pial.{v}.png")+"\">"
                                     +"<img src=\""+os.path.join('surfaces', subject, f"rh.pial.{v}.png")+"\" "
                                     +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
-                            if i%_views_per_row==0: print("</p> <p>", file=htmlfile) 
+                            if i%_views_per_row==0: print("</p> <p>", file=htmlfile)
                         print("</p> <p>", file=htmlfile)
                         for i,v in enumerate(argsDict["surfaces_views"], start=1):
                             if os.path.isfile(os.path.join(argsDict["output_dir"], 'surfaces', subject, f"lh.inflated.{v}.png")):
@@ -1589,13 +1711,13 @@ def _do_qatools(argsDict):
                                 print("<a href=\""+os.path.join('surfaces', subject, f"rh.inflated.{v}.png")+"\">"
                                     +"<img src=\""+os.path.join('surfaces', subject, f"rh.inflated.{v}.png")+"\" "
                                     +"alt=\"Image for subject "+subject+"\" style=\"\"></img></a>", file=htmlfile)
-                            if i%_views_per_row==0: 
-                                print("</p> <p>", file=htmlfile) 
+                            if i%_views_per_row==0:
+                                print("</p> <p>", file=htmlfile)
                         print("</p>", file=htmlfile)
                         print('</div>', file=htmlfile)
                         print("</p>", file=htmlfile)
-                        
-                        
+
+
             # fornix
             if argsDict["fornix_html"] is True:
                 print("<h1 style=\"color:white\">Fornix</h1>", file=htmlfile)
@@ -1644,10 +1766,10 @@ def _do_qatools(argsDict):
 def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects_file=None,
                 shape=False, screenshots=False, screenshots_html=False, screenshots_base="default",
                 screenshots_overlay="default", screenshots_surf="default", screenshots_views="default",
-                screenshots_layout=None, surfaces=False, surfaces_html=False, fornix=False,
-                fornix_html=False, hypothalamus=False, hypothalamus_html=False,
-                hippocampus=False, hippocampus_html=False, hippocampus_label=None,
-                outlier=False, outlier_table=None, fastsurfer=False):
+                screenshots_layout=None, surfaces=False, surfaces_html=False, skullstrip=False,
+                skullstrip_html=False, fornix=False, fornix_html=False, hypothalamus=False,
+                hypothalamus_html=False, hippocampus=False, hippocampus_html=False,
+                hippocampus_label=None, outlier=False, outlier_table=None, fastsurfer=False):
     """
     a function to run the qatools submodules
 
@@ -1682,6 +1804,8 @@ def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects
         argsDict["screenshots_layout"] = screenshots_layout
         argsDict["surfaces"] = surfaces
         argsDict["surfaces_html"] = surfaces_html
+        argsDict["skullstrip"] = skullstrip
+        argsDict["skullstrip_html"] = skullstrip_html
         argsDict["fornix"] = fornix
         argsDict["fornix_html"] = fornix_html
         argsDict["hypothalamus"] = hypothalamus
