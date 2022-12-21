@@ -1766,7 +1766,8 @@ def _do_qatools(argsDict):
 def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects_file=None,
                 shape=False, screenshots=False, screenshots_html=False, screenshots_base="default",
                 screenshots_overlay="default", screenshots_surf="default", screenshots_views="default",
-                screenshots_layout=None, surfaces=False, surfaces_html=False, skullstrip=False,
+                screenshots_layout=None, surfaces=False, surfaces_html=False,
+                surfaces_views=['left','right','superior','inferior'], skullstrip=False,
                 skullstrip_html=False, fornix=False, fornix_html=False, hypothalamus=False,
                 hypothalamus_html=False, hippocampus=False, hippocampus_html=False,
                 hippocampus_label=None, outlier=False, outlier_table=None, fastsurfer=False):
@@ -1804,6 +1805,7 @@ def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects
         argsDict["screenshots_layout"] = screenshots_layout
         argsDict["surfaces"] = surfaces
         argsDict["surfaces_html"] = surfaces_html
+        argsDict["surfaces_views"] = surfaces_views
         argsDict["skullstrip"] = skullstrip
         argsDict["skullstrip_html"] = skullstrip_html
         argsDict["fornix"] = fornix
