@@ -693,7 +693,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             subjects_to_remove.extend([subject])
 
         if fastsurfer is True:
-            path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.orig.mgz")
+            path_check = os.path.join(subjects_dir, subject, "mri", "aparc.DKTatlas+aseg.deep.mgz")
         else:
             path_check = os.path.join(subjects_dir, subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
