@@ -115,8 +115,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
                       header=None,
                       skipinitialspace=True,
                       skip_blank_lines=True,
-                      error_bad_lines=False,
-                      warn_bad_lines=True
+                      on_bad_lines='warn'
                       )
 
     lut = np.array(lut)

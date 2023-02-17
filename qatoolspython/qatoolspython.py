@@ -1284,10 +1284,10 @@ def _do_qatools(argsDict):
                 screenshots_ok = True
 
             #
-            except Excepction as e:
+            except Exception as e:
 
                 print("ERROR: screenshots module failed for subject " + subject)
-                print("Reason: " + e)
+                print("Reason: " + str(e))
                 screenshots_ok = False
 
             # store data
@@ -1323,9 +1323,10 @@ def _do_qatools(argsDict):
                 surfaces_ok = True
 
             #
-            except:
+            except Exception as e:
 
-                print("ERROR: surfaces module failed for subject "+subject)
+                print("ERROR: surfaces module failed for subject " + subject)
+                print("Reason: " + str(e))
                 surfaces_ok = False
 
             # store data
@@ -1387,7 +1388,7 @@ def _do_qatools(argsDict):
             except Exception as e:
 
                 print("ERROR: skullstrip module failed for subject " + subject)
-                print("Reason: " + e)
+                print("Reason: " + str(e))
                 skullstrip_ok = False
 
             # store data
