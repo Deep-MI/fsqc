@@ -681,7 +681,7 @@ def _check_arguments(subjects_dir, output_dir, subjects, subjects_file, shape, s
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
-        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.orig.mgz for FastSurfer
+        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc.DKTatlas+aseg.deep.mgz for FastSurfer
         path_check = os.path.join(subjects_dir, subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
             print("Could not find", path_check, "for subject", subject)
@@ -861,7 +861,7 @@ def _do_qatools(subjects_dir, output_dir, subjects, shape=False, screenshots=Fal
         # set images
 
         if fastsurfer is True:
-            aparc_image = "aparc+aseg.orig.mgz"
+            aparc_image = "aparc.DKTatlas+aseg.deep.mgz"
         else:
             aparc_image = "aparc+aseg.mgz"
 
