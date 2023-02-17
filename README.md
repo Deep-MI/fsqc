@@ -45,7 +45,7 @@ The program can also be run on images that were processed with [FastSurfer](http
 instead of FreeSurfer. In that case, simply add a `--fastsurfer` switch to your
 shell command. Note that the full processing stream FastSurfer must have been
 run, including surface reconstruction (i.e. brain segmentation alone is not
-sufficient).
+sufficient). FastSurfer v1.1 or later is required.
 
 In addition to the core functionality of the toolbox there are several optional
 modules that can be run according to need:
@@ -314,7 +314,7 @@ ___
 - A working installation of Freesurfer (6.0 or 7.11) must be sourced.
 
 - At least one structural MR image that was processed with Freesurfer 6.0, 7.11,
-  or FastSurfer (including the surface pipeline).
+  or FastSurfer v1.1 or later (including the surface pipeline).
 
 - A Python version >= 3.5 is required to run this script.
 
