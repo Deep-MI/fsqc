@@ -24,8 +24,8 @@ def get_help(print_help=True, return_help=False):
     Description:
     ============
 
-    This is a set of quality assurance / quality control scripts for Freesurfer
-    processed structural MRI data.
+    This is a set of quality assurance / quality control scripts for Fastsurfer-
+    or Freesurfer-processed structural MRI data.
 
     It is a revision, extension, and translation to the Python language of the
     original Freesurfer QA Tools that are provided at
@@ -326,7 +326,7 @@ def get_help(print_help=True, return_help=False):
     https://github.com/Deep-MI are required (brainprint version 0.2 or newer,
     lapy version 0.3 or newer).
 
-    This software has been tested on Ubuntu 16.04, CentOS7, and MacOS 10.14.
+    This software has been tested on Ubuntu 22.04, CentOS7, and MacOS 10.14.
 
 
     ========
