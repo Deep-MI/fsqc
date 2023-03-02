@@ -4,8 +4,8 @@ ___
 
 ## Description
 
-This is a set of quality assurance / quality control scripts for Freesurfer
-processed structural MRI data.
+This is a set of quality assurance / quality control scripts for Fastsurfer- or
+Freesurfer-processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
 Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
@@ -395,7 +395,7 @@ ___
 - For the shape analysis module, the brainprint and lapy packages from https://github.com/Deep-MI
   are required (both version 0.2 or newer).
 
-- This software has been tested on Ubuntu 20.04 and MacOS 10.15.
+- This software has been tested on Ubuntu 22.04 and MacOS 10.15.
 
 ___
 

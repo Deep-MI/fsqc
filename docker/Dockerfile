@@ -1,5 +1,5 @@
 # get OS
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # update OS
 RUN apt-get update
@@ -39,13 +39,13 @@ RUN wget -qO- https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.1/frees
     --exclude='freesurfer/lib/qt'\
     --exclude='freesurfer/MCRv80'
 
-# clone qatool-spython, brainprint-python, and lapy toolboxes
+# clone qatools-python, brainprint-python, and lapy toolboxes
 RUN git clone https://github.com/Deep-MI/LaPy.git /app/lapy
 RUN git clone https://github.com/Deep-MI/BrainPrint-python.git /app/brainprint
 RUN git clone https://github.com/Deep-MI/qatools-python.git /app/qatools-python
 
 # install additional python packages
-RUN pip3 install `cat /app/qatools-python/requirements.txt | grep -v "#.*" `
+RUN pip3 install -r /app/qatools-python/requirements.txt
 
 # Add FreeSurfer environment variables (.license file needed, alternatively export FS_LICENSE=path/to/license)
 ENV FREESURFER_HOME=/opt/freesurfer

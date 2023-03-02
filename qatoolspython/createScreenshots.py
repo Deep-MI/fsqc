@@ -222,7 +222,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
     # -----------------------------------------------------------------------------
     # get data for norm
 
-    normData = norm.get_data()
+    normData = norm.get_fdata()
 
     normVals = normData
 
@@ -232,7 +232,7 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
     if aseg is not None:
 
-        asegData = aseg.get_data()
+        asegData = aseg.get_fdata()
 
         if LABELS is not None:
 
