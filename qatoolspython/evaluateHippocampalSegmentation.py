@@ -6,7 +6,7 @@ hippocampus and amygdala
 
 # -----------------------------------------------------------------------------
 
-def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], HEMI = "lh", LABEL = "T1.v21"):
+def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['neurological'], HEMI = "lh", LABEL = "T1.v21"):
     """
     A function to evaluate potential missegmentation of the hippocampus and
     amygdala.
@@ -195,4 +195,4 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
     # create screenshots
 
     if CREATE_SCREENSHOT is True:
-        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, INTERACTIVE = False, VIEWS = [('x', ctr_tkr_x0), ('y', ctr_tkr_y0), ('z', ctr_tkr_z0)], LAYOUT = (1, 3), BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri",HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE, XLIM = XLIM, YLIM = YLIM)
+        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, INTERACTIVE = False, VIEWS = [('x', ctr_tkr_x0), ('y', ctr_tkr_y0), ('z', ctr_tkr_z0)], LAYOUT = (1, 3), BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri",HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE, ORIENTATION = SCREENSHOTS_ORIENTATION, XLIM = XLIM, YLIM = YLIM)

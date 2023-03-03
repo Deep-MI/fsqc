@@ -1,7 +1,5 @@
 # qatools-python
 
-___
-
 ## Description
 
 This is a set of quality assurance / quality control scripts for Fastsurfer- or
@@ -176,7 +174,8 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--fornix] [--fornix-html] [--hippocampus]
                           [--hippocampus-html] [--hippocampus-label ... ]
                           [--hypothalamus] [--hypothalamus-html] [--shape]
-                          [--outlier] [--fastsurfer] [-h]
+                          [--outlier] [--fastsurfer] [-h] [--more-help]
+                          [...]
 
 
 required arguments:
@@ -219,6 +218,48 @@ optional arguments:
 
 getting help:
   -h, --help            display this help message and exit
+  --more-help           display extensive help message and exit
+
+expert options:
+  --screenshots_base <image>
+                        filename of an image that should be used instead of
+                        norm.mgz as the base image for the screenshots. Can be
+                        an individual file (which would not be appropriate for
+                        multi-subject analysis) or can be a file without
+                        pathname and with the same filename across subjects
+                        within the 'mri' subdirectory of an individual FreeSurfer
+                        results directory (which would be appropriate for multi-
+                        subject analysis).
+  --screenshots_overlay <image>
+                        path to an image that should be used instead of
+                        aseg.mgz as the overlay image for the screenshots;
+                        can also be none. Can be an individual file (which would
+                        not be appropriate for multi-subject analysis) or can be
+                        a file without pathname and with the same filename across
+                        subjects within the 'mri' subdirectory of an individual
+                        FreeSurfer results directory (which would be appropriate
+                        for multi-subject analysis).
+  --screenshots_surf <surf> [<surf> ...]
+                        one or more surface files that should be used instead
+                        of [lr]h.white and [lr]h.pial; can also be none.
+                        Can be one or more individual file(s) (which would not be
+                        appropriate for multi-subject analysis) or can be a (list
+                        of) file(s) without pathname and with the same filename
+                        across subjects within the 'surf' subdirectory of an
+                        individual FreeSurfer results directory (which would be
+                        appropriate for multi-subject analysis).
+  --screenshots_views <view> [<view> ...]
+                        one or more views to use for the screenshots in
+                        the form of x=<numeric> y=<numeric> and/or
+                        z=<numeric>. order does not matter. default views
+                        are x=-10 x=10 y=0 z=0.
+  --screenshots_layout <rows> <columns>
+                        layout matrix for screenshot images.
+  --screenshots_orientation <neurological|radiological>
+                        left-right orientation for screenshot outputs. Must be
+                        either 'neurological' (left is left; default) or
+                        'radiological' (left is right; as in the 'freeview'
+                        program).
 
 ```
 
@@ -379,10 +420,10 @@ ___
 
 ## Requirements
 
-- A working installation of Freesurfer (6.0 or 7.11) must be sourced.
+- A working installation of Freesurfer (6.0 or 7.x) must be sourced.
 
-- At least one structural MR image that was processed with Freesurfer 6.0, 7.11,
-  or FastSurfer (including the surface pipeline).
+- At least one structural MR image that was processed with Freesurfer 6.0, 7.x,
+  or FastSurfer 1.1 or later (including the surface pipeline).
 
 - A Python version >= 3.5 is required to run this script.
 
