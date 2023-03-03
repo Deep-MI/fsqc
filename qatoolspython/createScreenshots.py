@@ -7,7 +7,7 @@ This module provides a function to create screenshots
 
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None,
     BASE = ["default"], OVERLAY = ["default"], LABELS = None, SURF = ["default"], SURFCOLOR = ["default"],
-    VIEWS = ["default"], XLIM = None, YLIM = None, BINARIZE = False):
+    VIEWS = ["default"], XLIM = None, YLIM = None, BINARIZE = False, ORIENTATION = ["neurological"]):
 
     """
     function createScreenshots()
@@ -397,6 +397,11 @@ def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT
 
         if YLIM is not None:
             axs[axsx,axsy].set_ylim(YLIM[p])
+
+        # determine left-right orientation for coronal and axial views
+        if ORIENTATION==["radiological"]:
+            if CutsRRAS[p][0] == 'y' or CutsRRAS[p][0] == 'z':
+                axs[axsx,axsy].invert_xaxis()
 
         # now plot
         for s in range(len(surf)):

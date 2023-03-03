@@ -5,7 +5,7 @@ This module provides a function to evaluate potential missegmentation of the hyp
 
 # -----------------------------------------------------------------------------
 
-def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = []):
+def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['neurological']):
     """
     A function to evaluate potential missegmentation of the hypothalamus.
 
@@ -218,4 +218,4 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
-        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, INTERACTIVE = False, VIEWS = [('x', ctr_tkr_x0), ('x', ctr_tkr_x1), ('y', ctr_tkr_y0), ('y', ctr_tkr_y1), ('y', ctr_tkr_y2), ('y', ctr_tkr_y3), ('y', ctr_tkr_y4), ('z', ctr_tkr_z0), ('z', ctr_tkr_z1)], LAYOUT = (1, 9), BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE, XLIM = XLIM, YLIM = YLIM)
+        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR, INTERACTIVE = False, VIEWS = [('x', ctr_tkr_x0), ('x', ctr_tkr_x1), ('y', ctr_tkr_y0), ('y', ctr_tkr_y1), ('y', ctr_tkr_y2), ('y', ctr_tkr_y3), ('y', ctr_tkr_y4), ('z', ctr_tkr_z0), ('z', ctr_tkr_z1)], LAYOUT = (1, 9), BASE = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")], OVERLAY = [os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE, ORIENTATION = SCREENSHOTS_ORIENTATION, XLIM = XLIM, YLIM = YLIM)

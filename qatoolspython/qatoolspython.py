@@ -206,6 +206,7 @@ def get_help(print_help=True, return_help=False):
 
         getting help:
           -h, --help            display this help message and exit
+          --more-help           display extensive help message and exit
 
         expert options:
           --screenshots_base <image>
@@ -242,6 +243,11 @@ def get_help(print_help=True, return_help=False):
                                 are x=-10 x=10 y=0 z=0.
           --screenshots_layout <rows> <columns>
                                 layout matrix for screenshot images
+          --screenshots_orientation <neurological|radiological>
+                                left-right orientation for screenshot outputs. Must be
+                                either 'neurological' (left is left; default) or
+                                'radiological' (left is right; as in the 'freeview'
+                                program).
 
 
     ========================
@@ -362,12 +368,14 @@ def _parse_arguments():
 
     # parse
     parser = argparse.ArgumentParser(description='''
-        This program takes existing Freesurfer analysis results of one
-        or more subjects and computes a set of quality metrics. These will be
-        reported in a summary csv table.
+        This program takes existing Freesurfer or Fastsurfer analysis results of
+        one or more subjects and computes a set of quality metrics. These will
+        be reported in a summary csv table.
 
         For a description of these metrics, see the gitlab/github page or the
         header section of this script.
+
+        Further modules are available to produce graphical outputs.
         ''',
         add_help=False, formatter_class=argparse.RawTextHelpFormatter)
 
@@ -381,11 +389,6 @@ def _parse_arguments():
     optional.add_argument('--shape', dest='shape', help="run shape analysis", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots', dest='screenshots', help="create screenshots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--screenshots-html', dest='screenshots_html', help="create screenshots of individual brains with html summary page", default=False, action="store_true", required=False)
-    optional.add_argument('--screenshots_base', dest='screenshots_base', help=argparse.SUPPRESS, default="default", metavar="<base image for screenshots>", required=False) # this is currently a hidden "expert" option
-    optional.add_argument('--screenshots_overlay', dest='screenshots_overlay', help=argparse.SUPPRESS, default="default", metavar="<overlay image for screenshots>", required=False) # this is currently a hidden "expert" option
-    optional.add_argument('--screenshots_surf', dest='screenshots_surf', help=argparse.SUPPRESS, default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False) # this is currently a hidden "expert" option
-    optional.add_argument('--screenshots_views', dest='screenshots_views', help=argparse.SUPPRESS, default=['x=-10','x=10','y=0','z=0'], nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False) # this is currently a hidden "expert" option
-    optional.add_argument('--screenshots_layout', dest='screenshots_layout', help=argparse.SUPPRESS, default=['1', '4'], nargs=2, metavar="<rows> <columns>", required=False) # this is currently a hidden "expert" option
     optional.add_argument('--surfaces', dest='surfaces', help="create surface plots of individual brains", default=False, action="store_true", required=False)
     optional.add_argument('--surfaces-html', dest='surfaces_html', help="create surface plots of individual brains with html summary page", default=False, action="store_true", required=False)
     optional.add_argument('--surfaces_views', dest='surfaces_views', help="Specify camera views for surface images. Choose from: anterior, posterior, left, right, superior, inferior", default=['left','right','superior','inferior'], type=str, nargs='+', required=False)
@@ -402,14 +405,31 @@ def _parse_arguments():
     optional.add_argument('--outlier-table', dest="outlier_table", help="specify normative values", default=None, metavar="<filename>", required=False)
     optional.add_argument('--fastsurfer', dest='fastsurfer', help="use FastSurfer output", default=False, action="store_true", required=False)
 
+    expert = parser.add_argument_group('expert arguments')
+    expert.add_argument('--screenshots_base', dest='screenshots_base', help="base image for screenshots", default="default", metavar="<base image for screenshots>", required=False)
+    expert.add_argument('--screenshots_overlay', dest='screenshots_overlay', help="overlay image for screenshots", default="default", metavar="<overlay image for screenshots>", required=False)
+    expert.add_argument('--screenshots_surf', dest='screenshots_surf', help="surface(s) for screenshots", default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False)
+    expert.add_argument('--screenshots_views', dest='screenshots_views', help="view specification for screenshots", default=['x=-10','x=10','y=0','z=0'], nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False)
+    expert.add_argument('--screenshots_layout', dest='screenshots_layout', help="layout for screenshots", default=['1', '4'], nargs=2, metavar="<num>", required=False)
+    expert.add_argument('--screenshots_orientation', dest='screenshots_orientation', help="orientation for screenshots", default=['neurological'], nargs=1, metavar="<neurological|radiological>", required=False)
+
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
+    help.add_argument('--more-help', dest='more_help', help="display extensive help message and exit", default=False, action='store_true', required=False)
 
     # check if there are any inputs; if not, print help and exit
     if len(sys.argv)==1:
         args = parser.parse_args(['--help'])
+    elif len(sys.argv)==2 and sys.argv[1]=='--more-help':
+        get_help()
+        sys.exit(0)
     else:
         args = parser.parse_args()
+
+    # check for extensive help (if it exists among other arguments)
+    if args.more_help:
+        get_help()
+        sys.exit(0)
 
     # prepare output
     argsDict = dict()
@@ -425,6 +445,7 @@ def _parse_arguments():
     argsDict["screenshots_surf"] = args.screenshots_surf
     argsDict["screenshots_views"] = args.screenshots_views
     argsDict["screenshots_layout"] = args.screenshots_layout
+    argsDict["screenshots_orientation"] = args.screenshots_orientation
     argsDict["surfaces"] = args.surfaces
     argsDict["surfaces_html"] = args.surfaces_html
     argsDict["surfaces_views"] = args.surfaces_views
@@ -609,6 +630,13 @@ def _check_arguments(argsDict):
         else:
             print('ERROR: screenshots_layout argument can only contain integer numbers\n')
             sys.exit(1)
+
+    # check screenshots_orientation
+    if argsDict["screenshots_orientation"] != ["neurological"] and argsDict["screenshots_orientation"] != ["radiological"]:
+        print('ERROR: screenshots_orientation argument must be either \'neurological\' or \'radiological\'.\n')
+        sys.exit(1)
+    else:
+        print("Found screenshot orientation set to " + argsDict["screenshots_orientation"][0])
 
     # check surfaces
     if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
@@ -1278,7 +1306,8 @@ def _do_qatools(argsDict):
                     screenshots_surf_subj = None
 
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"])
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"],
+                ORIENTATION=argsDict["screenshots_orientation"])
 
                 # return
                 screenshots_ok = True
@@ -1379,7 +1408,8 @@ def _do_qatools(argsDict):
                     sys.exit(1)
 
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=skullstrip_base_subj, OVERLAY=skullstrip_overlay_subj, SURF=None, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"], BINARIZE=True)
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=skullstrip_base_subj, OVERLAY=skullstrip_overlay_subj, SURF=None, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"], BINARIZE=True,
+                ORIENTATION=argsDict["screenshots_orientation"])
 
                 # return
                 skullstrip_ok = True
@@ -1468,7 +1498,7 @@ def _do_qatools(argsDict):
                 hypothalamus_screenshot_outfile = os.path.join(hypothalamus_outdir, "hypothalamus.png")
 
                 # process
-                evaluateHypothalamicSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hypothalamus_outdir, CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile)
+                evaluateHypothalamicSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hypothalamus_outdir, CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile, SCREENSHOTS_ORIENTATION=argsDict['screenshots_orientation'])
 
                 # return
                 hypothalamus_ok = True
@@ -1509,8 +1539,8 @@ def _do_qatools(argsDict):
                 hippocampus_screenshot_outfile_right = os.path.join(hippocampus_outdir, "hippocampus-right.png")
 
                 # process left
-                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left, HEMI="lh", LABEL=argsDict["hippocampus_label"])
-                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right, HEMI="rh", LABEL=argsDict["hippocampus_label"])
+                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left, SCREENSHOTS_ORIENTATION=argsDict['screenshots_orientation'], HEMI="lh", LABEL=argsDict["hippocampus_label"])
+                evaluateHippocampalSegmentation(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTPUT_DIR=hippocampus_outdir, CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT, SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right, SCREENSHOTS_ORIENTATION=argsDict['screenshots_orientation'], HEMI="rh", LABEL=argsDict["hippocampus_label"])
 
                 # return
                 hippocampus_ok = True
@@ -1769,9 +1799,9 @@ def _do_qatools(argsDict):
 def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects_file=None,
                 shape=False, screenshots=False, screenshots_html=False, screenshots_base="default",
                 screenshots_overlay="default", screenshots_surf="default", screenshots_views="default",
-                screenshots_layout=None, surfaces=False, surfaces_html=False,
-                surfaces_views=['left','right','superior','inferior'], skullstrip=False,
-                skullstrip_html=False, fornix=False, fornix_html=False, hypothalamus=False,
+                screenshots_layout=None, screenshots_orientation="neurological",
+                surfaces=False, surfaces_html=False, surfaces_views=['left','right','superior','inferior'],
+                skullstrip=False, skullstrip_html=False, fornix=False, fornix_html=False, hypothalamus=False,
                 hypothalamus_html=False, hippocampus=False, hippocampus_html=False,
                 hippocampus_label=None, outlier=False, outlier_table=None, fastsurfer=False):
     """
@@ -1806,6 +1836,7 @@ def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects
         argsDict["screenshots_surf"] = screenshots_surf
         argsDict["screenshots_views"] = screenshots_views
         argsDict["screenshots_layout"] = screenshots_layout
+        argsDict["screenshots_orientation"] = screenshots_orientation
         argsDict["surfaces"] = surfaces
         argsDict["surfaces_html"] = surfaces_html
         argsDict["surfaces_views"] = surfaces_views
