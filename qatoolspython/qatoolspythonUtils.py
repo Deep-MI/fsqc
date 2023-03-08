@@ -1,5 +1,5 @@
 """
-This module provides various import/export functions as well as the 
+This module provides various import/export functions as well as the
 'levelsetsTria' function
 
 """
@@ -115,8 +115,7 @@ def levelsetsTria(v, t, p, levelsets):
             oix = np.setdiff1d((0, 1, 2), oi)
 
             # check if we have interpolated for one or both of these points before
-
-            if np.count_nonzero(A[t[n[i], oi], t[n[i], oix[0]]]) == 0:
+            if np.count_nonzero(A[t[n[i], oi.item()], t[n[i], oix[0]]]) == 0:
 
                 # compute difference vectors between outlying point and other points
 
@@ -138,16 +137,15 @@ def levelsetsTria(v, t, p, levelsets):
 
                 # store between which two points we are interpolating (to avoid having duplicate points)
 
-                A[ t[n[i], oi], t[n[i], oix[0]] ] = ti10
-                A[ t[n[i], oix[0]], t[n[i], oi] ] = ti10
+                A[ t[n[i], oi.item()], t[n[i], oix[0]] ] = ti10
+                A[ t[n[i], oix[0]], t[n[i], oi.item()] ] = ti10
 
             else:
-
-                ti10 = int(A[ t[n[i], oi], t[n[i], oix[0]] ].toarray().item())
+                ti10 = int(A[ t[n[i], oi.item()], t[n[i], oix[0]] ])
 
             # essentially the same as above, just for oix[1]
 
-            if np.count_nonzero(A[t[n[i], oi], t[n[i], oix[1]]]) == 0:
+            if np.count_nonzero(A[t[n[i], oi.item()], t[n[i], oix[1]]]) == 0:
 
                 d20 = v[ t[n[i], oix[1]], :] - v[ t[n[i], oi], :]
 
@@ -161,12 +159,11 @@ def levelsetsTria(v, t, p, levelsets):
 
                 ti20 = len(vi)
 
-                A[ t[n[i], oi], t[n[i], oix[1]] ] = ti20
-                A[ t[n[i], oix[1]], t[n[i], oi] ] = ti20
+                A[ t[n[i], oi.item()], t[n[i], oix[1]] ] = ti20
+                A[ t[n[i], oix[1]], t[n[i], oi.item()] ] = ti20
 
             else:
-
-                ti20 = int(A[ t[n[i], oi], t[n[i], oix[1]] ].toarray().item())
+                ti20 = int(A[ t[n[i], oi.item()], t[n[i], oix[1]] ])
 
             # store new indices
 
