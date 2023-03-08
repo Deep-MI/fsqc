@@ -171,11 +171,11 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     # --------------------------------------------------------------------------
     # create screenshot
-    
+
     if CREATE_SCREENSHOT is True:
         createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
             INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE) # [os.path.join(OUTPUT_DIR,"cc.surf")]
+            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = SCREENSHOTS_OUTFILE)
 
     # --------------------------------------------------------------------------
     # run shapeDNA
