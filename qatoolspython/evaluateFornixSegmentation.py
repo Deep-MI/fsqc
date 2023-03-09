@@ -89,18 +89,18 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     # --------------------------------------------------------------------------
     # conduct transform for aseg and norm
-
-    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "aseg.mgz"), os.path.join(OUTPUT_DIR, "asegCCup.mgz"), mat=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="nearest")
+    
+    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "aseg.mgz"), os.path.join(OUTPUT_DIR, "asegCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="nearest")
 
     # when using 'make_upright', conducting the transform for norm.mgz is no
     # longer necessary (and will produce the same results)
 
-    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "norm.mgz"), os.path.join(OUTPUT_DIR, "normCCup.mgz"), mat=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="cubic")
-
+    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "norm.mgz"), os.path.join(OUTPUT_DIR, "normCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="cubic")
+    
     # create fornix mask
 
     binarizeImage(os.path.join(OUTPUT_DIR,"asegCCup.mgz"), os.path.join(OUTPUT_DIR, "cc.mgz"), match=[251, 252, 253, 254, 255])
-
+    
     # --------------------------------------------------------------------------
     # create screenshot
 

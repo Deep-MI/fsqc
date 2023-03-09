@@ -41,70 +41,13 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
 
     import os
     import sys
-    import shlex
-    import subprocess
     import numpy as np
     import nibabel as nb
+    from scipy import ndimage
     from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots
 
     # --------------------------------------------------------------------------
-    # auxiliary functions
-
-    def split_callback(option, opt, value, parser):
-      setattr(parser.values, option.dest, value.split(','))
-
-    def which(program):
-        def is_exe(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                path = path.strip('"')
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-            if is_exe(os.path.join('.',program)):
-                return os.path.join('.',program)
-
-        return None
-
-    def my_print(message):
-        """
-        print message, then flush stdout
-        """
-        print(message)
-        sys.stdout.flush()
-
-    def run_cmd(cmd,err_msg):
-        """
-        execute the comand
-        """
-        clist = cmd.split()
-        progname=which(clist[0])
-        if (progname) is None:
-            my_print('ERROR: '+ clist[0] +' not found in path!')
-            sys.exit(1)
-        clist[0]=progname
-        cmd = ' '.join(clist)
-        my_print('#@# Command: ' + cmd+'\n')
-
-        args = shlex.split(cmd)
-        try:
-            subprocess.check_call(args)
-        except subprocess.CalledProcessError as e:
-            my_print('ERROR: '+err_msg)
-            #sys.exit(1)
-            raise
-        my_print('\n')
-
-    # --------------------------------------------------------------------------
-    # main part
-
     # check files
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")):
@@ -122,56 +65,27 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
     if not SCREENSHOTS_OUTFILE:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"hippocampus.png")
 
-    # create mask and surface
+    # --------------------------------------------------------------------------
+    # create mask
 
     binarizeImage(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz"), os.path.join(OUTPUT_DIR, "hippocampus-" + HEMI + ".mgz"), match=None)
 
+    # --------------------------------------------------------------------------
     # get centroids
+    
+    seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz"))
+    seg_data = seg.get_fdata()
+    seg_labels = np.setdiff1d(np.unique(seg_data), 0)
 
-    if which("mri_segcentroids") is None:
+    centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, seg_labels))
+    centroids = np.concatenate((seg_labels[:, np.newaxis], centroids), axis=1)
 
-        # fs6 version
-        centroids = list()
+    vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
-        for i in [237, 238]:
-
-            #
-            cmd = "mri_vol2label --i " + os.path.join(SUBJECTS_DIR,SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz") + " --id " + str(i) + " --l " + os.path.join(OUTPUT_DIR, "hippocampus_labels_" + str(i) + "-"+HEMI+".txt")
-            run_cmd(cmd, "Could not create hippocampus centroids")
-
-            #
-            dat = np.loadtxt(os.path.join(OUTPUT_DIR, "hippocampus_labels_" + str(i) + "-"+HEMI+".txt.label"), skiprows=2)
-
-            dat[:,0] = i # replace -1 with label id
-
-            #
-            centroids.append(np.mean(dat, axis=0))
-
-        centroids = np.array(centroids)
-
-        # already in TkReg RAS format
-
-        ctr_tkr = centroids
-
-    else:
-
-        # fs7 version
-        cmd = "mri_segcentroids --i " + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz") + " --o " + os.path.join(OUTPUT_DIR, "hippocampus_centroids-"+HEMI+".txt")
-        run_cmd(cmd, "Could not create hippocampus centroids")
-
-        #
-        centroids = np.loadtxt(os.path.join(OUTPUT_DIR,"hippocampus_centroids-"+HEMI+".txt"), skiprows=2)
-
-        # convert from RAS to TkReg RAS
-        seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz"))
-
-        ras2vox = seg.header.get_ras2vox()
-        vox2ras_tkr = seg.header.get_vox2ras_tkr()
-
-        ctr_tkr = np.concatenate((centroids[:,1:4], np.ones((centroids.shape[0],1))), axis=1)
-        ctr_tkr = np.matmul(vox2ras_tkr, np.matmul(ras2vox, ctr_tkr.T)).T
-        ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
-
+    ctr_tkr = np.concatenate((centroids[:,1:4], np.ones((centroids.shape[0],1))), axis=1)
+    ctr_tkr = np.matmul(vox2ras_tkr, ctr_tkr.T).T
+    ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
+        
     # [7004, 237, 238]
 
     ctr_tkr_x0 = ctr_tkr[np.argwhere(ctr_tkr[:,0]==237),1]

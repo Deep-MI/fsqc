@@ -74,59 +74,74 @@ def importMGH(filename):
 def binarizeImage(img_file, out_file, match=None):
 
     import nibabel as nb
-
+    import numpy as np
+    
     # get image
-    nb.load(img_file)
+    img = nb.load(img_file)
+    img_data= img.get_fdata()
 
     # binarize
     if match is None:
-
-    elif:
+        img_data_bin = img_data != 0.0
+    else:
+        img_data_bin = np.isin(img_data, match)
 
     # write output
-    nb.save(out_file)
+    img_bin = nb.nifti1.Nifti1Image(img_data_bin.astype(int), img.affine, dtype="uint8")
+    nb.save(img_bin, out_file)
 
 # ------------------------------------------------------------------------------
 
 def applyTransform(img_file, out_file, mat_file, interp):
 
+    import os
+    import sys
     import nibabel as nb
+    import numpy as np
     from scipy import ndimage
 
     # get image
     img = nb.load(img_file)
-
+    img_data = img.get_fdata()
+    
+    # 
+    _, mat_file_ext = os.path.splitext(mat_file)
+    
     # get matrix
-    if mat_file:
-        xfm =
-        m =
-    elif mat_file:
+    if mat_file_ext == '.xfm':
+        print("ERROR: xfm matrices not (yet) supported. Please convert to lta format")
+        sys.exit(1)
+    elif  mat_file_ext == '.lta':
         # get lta matrix
-        lta = readLTA(ltaFile)
-
+        lta = readLTA(mat_file)
         # get vox2vox transform
         if lta['type'] == 1:
             # compute vox2vox from ras2ras as vox2ras2ras2vox transform:
             # vox2ras from input image (source)
             # ras2ras from make_upright.lta
             # ras2vox from upright image (target)
-            m = np.matmul(np.linalg.inv(upr.affine), np.matmul(lta['lta'], img.affine))
+            # m = np.matmul(np.linalg.inv(upr.affine), np.matmul(lta['lta'], img.affine))
+            print("ERROR: lta type 1 (ras2ras) not supported yet")
+            sys.exit(1)
         elif lta['type'] == 0:
             # vox2vox transform
             m = lta['lta']
-    else
+    else:
+        print("ERROR: matrices must be either xfm or lta format")
+        sys.exit(1)
 
     # apply transform
-    #scipy.ndimage affine_transform
-    #cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
-
     if interp=="nearest":
-        import pdb; pdb.set_trace()
+        img_data_interp = ndimage.affine_transform(img_data, np.linalg.inv(m), order=0)
     elif interp=="cubic":
+        img_data_interp = ndimage.affine_transform(img_data, np.linalg.inv(m), order=3)
     else:
+        print("ERROR: interpolation must be either nearest or cubic")
+        sys.exit(1)
 
     # write image
-    nb.save()
+    img_interp = nb.nifti1.Nifti1Image(img_data_interp, img.affine)
+    nb.save(img_interp, out_file)
 
 
 # ------------------------------------------------------------------------------
