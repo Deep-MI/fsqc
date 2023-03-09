@@ -69,7 +69,7 @@ this module, i.e. it can be run on a remote server, for example.
 - skullstrip module
 
 This module allows for the automated generation cross-sections of the brain
-that are overlaid with the colored and semi-transparent brainmask. this allows
+that are overlaid with the colored and semi-transparent brainmask. This allows
 to check the quality of the skullstripping in FreeSurfer. The resulting images
 will be saved to the 'skullstrip' subdirectory that will be created within the
 output directory.
@@ -143,8 +143,9 @@ ___
 
 The goal of the `qatools-python` project is to create a modular and extensible
 software package that provides quantitative metrics and visual information for
-the quality control of FreeSurfer-processed MR images. The package is currently
-under development, and new features are continuously added.
+the quality control of FreeSurfer- or Fastsurfer-processed MR images. 
+The package is currently under development, and new features are continuously 
+added.
 
 New features will initially be available in the development branch (`freesurfer-module-dev`)
 of this toolbox and will be included in the main branch (`freesurfer-module-releases`)
@@ -180,8 +181,8 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
 
 required arguments:
   --subjects_dir <directory>
-                         subjects directory with a set of Freesurfer 6.0 processed
-                         individual datasets.
+                         subjects directory with a set of Freesurfer- or 
+                         Fastsurfer-processed individual datasets.
   --output_dir <directory>
                          output directory
 
@@ -419,8 +420,6 @@ ___
 ___
 
 ## Requirements
-
-- A working installation of Freesurfer (6.0 or 7.x) must be sourced.
 
 - At least one structural MR image that was processed with Freesurfer 6.0, 7.x,
   or FastSurfer 1.1 or later (including the surface pipeline).
