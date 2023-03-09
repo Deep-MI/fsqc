@@ -1,5 +1,5 @@
 """
-This module provides various import/export functions as well as the 
+This module provides various import/export functions as well as the
 'levelsetsTria' function
 
 """
@@ -68,6 +68,148 @@ def importMGH(filename):
     fp.close()
 
     return vol
+
+# ------------------------------------------------------------------------------
+
+def binarizeImage(img_file, out_file, match=None):
+
+    import nibabel as nb
+
+    # get image
+    nb.load(img_file)
+
+    # binarize
+    if match is None:
+
+    elif:
+
+    # write output
+    nb.save(out_file)
+
+# ------------------------------------------------------------------------------
+
+def applyTransform(img_file, out_file, mat_file, interp):
+
+    import nibabel as nb
+    from scipy import ndimage
+
+    # get image
+    img = nb.load(img_file)
+
+    # get matrix
+    if mat_file:
+        xfm =
+        m =
+    elif mat_file:
+        # get lta matrix
+        lta = readLTA(ltaFile)
+
+        # get vox2vox transform
+        if lta['type'] == 1:
+            # compute vox2vox from ras2ras as vox2ras2ras2vox transform:
+            # vox2ras from input image (source)
+            # ras2ras from make_upright.lta
+            # ras2vox from upright image (target)
+            m = np.matmul(np.linalg.inv(upr.affine), np.matmul(lta['lta'], img.affine))
+        elif lta['type'] == 0:
+            # vox2vox transform
+            m = lta['lta']
+    else
+
+    # apply transform
+    #scipy.ndimage affine_transform
+    #cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
+
+    if interp=="nearest":
+        import pdb; pdb.set_trace()
+    elif interp=="cubic":
+    else:
+
+    # write image
+    nb.save()
+
+
+# ------------------------------------------------------------------------------
+
+def readLTA(file):
+        import re
+        import numpy as np
+        with open(file, 'r') as f:
+            lta = f.readlines()
+        d = dict()
+        i = 0
+        while i < len(lta):
+            if re.match('type', lta[i]) is not None:
+                d['type'] = int(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('nxforms', lta[i]) is not None:
+                d['nxforms'] = int(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('mean', lta[i]) is not None:
+                d['mean'] = [ float(x) for x in re.split(" +", re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip()) ]
+                i += 1
+            elif re.match('sigma', lta[i]) is not None:
+                d['sigma'] = float(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i]) is not None:
+                d['lta'] = np.array([
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+1]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+2]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+3]).string.strip()) ]
+                ])
+                i += 4
+            elif re.match('src volume info', lta[i]) is not None:
+                while i < len(lta) and re.match('dst volume info', lta[i]) is None:
+                    if re.match('valid', lta[i]) is not None:
+                        d['src_valid'] = int(re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('filename', lta[i]) is not None:
+                        d['src_filename'] = re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('volume', lta[i]) is not None:
+                        d['src_volume'] = [ int(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('voxelsize', lta[i]) is not None:
+                        d['src_voxelsize'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('xras', lta[i]) is not None:
+                        d['src_xras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('yras', lta[i]) is not None:
+                        d['src_yras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('zras', lta[i]) is not None:
+                        d['src_zras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('cras', lta[i]) is not None:
+                        d['src_cras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    i += 1
+            elif re.match('dst volume info', lta[i]) is not None:
+                while i < len(lta) and re.match('src volume info', lta[i]) is None:
+                    if re.match('valid', lta[i]) is not None:
+                        d['dst_valid'] = int(re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('filename', lta[i]) is not None:
+                        d['dst_filename'] = re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('volume', lta[i]) is not None:
+                        d['dst_volume'] = [ int(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('voxelsize', lta[i]) is not None:
+                        d['dst_voxelsize'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('xras', lta[i]) is not None:
+                        d['dst_xras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('yras', lta[i]) is not None:
+                        d['dst_yras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('zras', lta[i]) is not None:
+                        d['dst_zras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('cras', lta[i]) is not None:
+                        d['dst_cras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    i += 1
+            else:
+                i += 1
+        # create full transformation matrices
+        d['src'] = np.concatenate((
+            np.concatenate((np.c_[d['src_xras']], np.c_[d['src_yras']], np.c_[d['src_zras']], np.c_[d['src_cras']]), axis=1),
+            np.array([0.0, 0.0, 0.0, 1.0], ndmin=2)
+            ), axis=0)
+        d['dst'] = np.concatenate((
+            np.concatenate((np.c_[d['dst_xras']], np.c_[d['dst_yras']], np.c_[d['dst_zras']], np.c_[d['dst_cras']]), axis=1),
+            np.array([0.0, 0.0, 0.0, 1.0], ndmin=2)
+            ), axis=0)
+        # return
+        return d
 
 
 # ------------------------------------------------------------------------------

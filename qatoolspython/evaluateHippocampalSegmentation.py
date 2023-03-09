@@ -45,6 +45,7 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
     import subprocess
     import numpy as np
     import nibabel as nb
+    from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots
 
     # --------------------------------------------------------------------------
@@ -123,8 +124,7 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
 
     # create mask and surface
 
-    cmd = "mri_binarize --i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri",HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz")+" --min 1 --surf "+os.path.join(OUTPUT_DIR,"hippocampus-"+HEMI+".surf")+" --surf-smooth 1 --o "+os.path.join(OUTPUT_DIR,"hippocampus-"+HEMI+".mgz")
-    run_cmd(cmd,"Could not create hippocampus mask and surface")
+    binarizeImage(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz"), os.path.join(OUTPUT_DIR, "hippocampus-" + HEMI + ".mgz"), match=None)
 
     # get centroids
 

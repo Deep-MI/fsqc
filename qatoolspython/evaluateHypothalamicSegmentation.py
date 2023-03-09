@@ -41,6 +41,7 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     import subprocess
     import numpy as np
     import nibabel as nb
+    from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots
 
     # --------------------------------------------------------------------------
@@ -119,8 +120,7 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
 
     # create mask and surface
 
-    cmd = "mri_binarize --i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","hypothalamic_subunits_seg.v1.mgz")+" --match 801 802 803 804 805 806 807 808 809 810 --surf "+os.path.join(OUTPUT_DIR,"hypothalamus.surf")+" --surf-smooth 1 --o "+os.path.join(OUTPUT_DIR,"hypothalamus.mgz")
-    run_cmd(cmd,"Could not create hypothalamus mask and surface")
+    binarizeImage(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"), os.path.join(OUTPUT_DIR,"hypothalamus.mgz"), match=[801, 802, 803, 804, 805, 806, 807, 808, 809, 810])
 
     # get centroids
 
