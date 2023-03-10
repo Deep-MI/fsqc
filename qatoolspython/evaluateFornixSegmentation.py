@@ -110,8 +110,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         # surface otherwise)
         createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
             INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")],
-            SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)
+            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)
 
     # --------------------------------------------------------------------------
     # run shapeDNA
