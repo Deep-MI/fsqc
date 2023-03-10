@@ -69,6 +69,163 @@ def importMGH(filename):
 
     return vol
 
+# ------------------------------------------------------------------------------
+
+def binarizeImage(img_file, out_file, match=None):
+
+    import nibabel as nb
+    import numpy as np
+    
+    # get image
+    img = nb.load(img_file)
+    img_data= img.get_fdata()
+
+    # binarize
+    if match is None:
+        img_data_bin = img_data != 0.0
+    else:
+        img_data_bin = np.isin(img_data, match)
+
+    # write output
+    img_bin = nb.nifti1.Nifti1Image(img_data_bin.astype(int), img.affine, dtype="uint8")
+    nb.save(img_bin, out_file)
+
+# ------------------------------------------------------------------------------
+
+def applyTransform(img_file, out_file, mat_file, interp):
+
+    import os
+    import sys
+    import nibabel as nb
+    import numpy as np
+    from scipy import ndimage
+
+    # get image
+    img = nb.load(img_file)
+    img_data = img.get_fdata()
+    
+    # 
+    _, mat_file_ext = os.path.splitext(mat_file)
+    
+    # get matrix
+    if mat_file_ext == '.xfm':
+        print("ERROR: xfm matrices not (yet) supported. Please convert to lta format")
+        sys.exit(1)
+    elif  mat_file_ext == '.lta':
+        # get lta matrix
+        lta = readLTA(mat_file)
+        # get vox2vox transform
+        if lta['type'] == 1:
+            # compute vox2vox from ras2ras as vox2ras2ras2vox transform:
+            # vox2ras from input image (source)
+            # ras2ras from make_upright.lta
+            # ras2vox from upright image (target)
+            # m = np.matmul(np.linalg.inv(upr.affine), np.matmul(lta['lta'], img.affine))
+            print("ERROR: lta type 1 (ras2ras) not supported yet")
+            sys.exit(1)
+        elif lta['type'] == 0:
+            # vox2vox transform
+            m = lta['lta']
+    else:
+        print("ERROR: matrices must be either xfm or lta format")
+        sys.exit(1)
+
+    # apply transform
+    if interp=="nearest":
+        img_data_interp = ndimage.affine_transform(img_data, np.linalg.inv(m), order=0)
+    elif interp=="cubic":
+        img_data_interp = ndimage.affine_transform(img_data, np.linalg.inv(m), order=3)
+    else:
+        print("ERROR: interpolation must be either nearest or cubic")
+        sys.exit(1)
+
+    # write image
+    img_interp = nb.nifti1.Nifti1Image(img_data_interp, img.affine)
+    nb.save(img_interp, out_file)
+
+
+# ------------------------------------------------------------------------------
+
+def readLTA(file):
+        import re
+        import numpy as np
+        with open(file, 'r') as f:
+            lta = f.readlines()
+        d = dict()
+        i = 0
+        while i < len(lta):
+            if re.match('type', lta[i]) is not None:
+                d['type'] = int(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('nxforms', lta[i]) is not None:
+                d['nxforms'] = int(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('mean', lta[i]) is not None:
+                d['mean'] = [ float(x) for x in re.split(" +", re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip()) ]
+                i += 1
+            elif re.match('sigma', lta[i]) is not None:
+                d['sigma'] = float(re.sub('=', '', re.sub('[a-z]+', '', re.sub('#.*', '', lta[i]))).strip())
+                i += 1
+            elif re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i]) is not None:
+                d['lta'] = np.array([
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+1]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+2]).string.strip()) ],
+                    [ float(x) for x in re.split(" +", re.match('-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+-*[0-9]\.\S+\W+', lta[i+3]).string.strip()) ]
+                ])
+                i += 4
+            elif re.match('src volume info', lta[i]) is not None:
+                while i < len(lta) and re.match('dst volume info', lta[i]) is None:
+                    if re.match('valid', lta[i]) is not None:
+                        d['src_valid'] = int(re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('filename', lta[i]) is not None:
+                        d['src_filename'] = re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('volume', lta[i]) is not None:
+                        d['src_volume'] = [ int(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('voxelsize', lta[i]) is not None:
+                        d['src_voxelsize'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('xras', lta[i]) is not None:
+                        d['src_xras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('yras', lta[i]) is not None:
+                        d['src_yras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('zras', lta[i]) is not None:
+                        d['src_zras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('cras', lta[i]) is not None:
+                        d['src_cras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    i += 1
+            elif re.match('dst volume info', lta[i]) is not None:
+                while i < len(lta) and re.match('src volume info', lta[i]) is None:
+                    if re.match('valid', lta[i]) is not None:
+                        d['dst_valid'] = int(re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('filename', lta[i]) is not None:
+                        d['dst_filename'] = re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip())
+                    elif re.match('volume', lta[i]) is not None:
+                        d['dst_volume'] = [ int(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('voxelsize', lta[i]) is not None:
+                        d['dst_voxelsize'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('xras', lta[i]) is not None:
+                        d['dst_xras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('yras', lta[i]) is not None:
+                        d['dst_yras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('zras', lta[i]) is not None:
+                        d['dst_zras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    elif re.match('cras', lta[i]) is not None:
+                        d['dst_cras'] = [ float(x) for x in re.split(" +", re.sub('.*=', '', re.sub('#.*', '', lta[i])).strip()) ]
+                    i += 1
+            else:
+                i += 1
+        # create full transformation matrices
+        d['src'] = np.concatenate((
+            np.concatenate((np.c_[d['src_xras']], np.c_[d['src_yras']], np.c_[d['src_zras']], np.c_[d['src_cras']]), axis=1),
+            np.array([0.0, 0.0, 0.0, 1.0], ndmin=2)
+            ), axis=0)
+        d['dst'] = np.concatenate((
+            np.concatenate((np.c_[d['dst_xras']], np.c_[d['dst_yras']], np.c_[d['dst_zras']], np.c_[d['dst_cras']]), axis=1),
+            np.array([0.0, 0.0, 0.0, 1.0], ndmin=2)
+            ), axis=0)
+        # return
+        return d
+
 
 # ------------------------------------------------------------------------------
 

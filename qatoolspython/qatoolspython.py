@@ -167,8 +167,8 @@ def get_help(print_help=True, return_help=False):
 
         required arguments:
           --subjects_dir <directory>
-                                subjects directory with a set of Freesurfer
-                                processed individual datasets.
+                                subjects directory with a set of Freesurfer-  or
+                                Fastsurfer-processed individual datasets.
           --output_dir <directory>
                                 output directory
 
@@ -314,8 +314,6 @@ def get_help(print_help=True, return_help=False):
     =============
     Requirements:
     =============
-
-    A working installation of Freesurfer 6.0 or later must be sourced.
 
     At least one subject whose structural MR image was processed with Freesurfer
     6.0 or later.
@@ -569,16 +567,6 @@ def _check_arguments(argsDict):
     if (argsDict["screenshots"] is True or argsDict["screenshots_html"] is True) and importlib.util.find_spec("matplotlib") is None:
         print('\nERROR: the \'matplotlib\' package is required for running this script, please install.\n')
         sys.exit(1)
-
-    if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
-        if os.environ.get('FREESURFER_HOME') is None:
-            print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
-            sys.exit(1)
-        else:
-            path_check = os.path.join(os.environ['FREESURFER_HOME'], 'FreeSurferColorLUT.txt')
-            if not os.path.isfile(path_check):
-                print('\nERROR: the \'FreeSurferColorLUT.txt\' file needs to be present in the FREESURFER_HOME directory.\n')
-                sys.exit(1)
 
     # check screenshots_base
     argsDict["screenshots_base"] = [argsDict["screenshots_base"]]
@@ -985,10 +973,6 @@ def _check_packages():
     import os
     import sys
     import importlib.util
-
-    if os.environ.get('FREESURFER_HOME') is None:
-        print('\nERROR: need to set the FREESURFER_HOME environment variable\n')
-        sys.exit(1)
 
     if sys.version_info <= (3, 5):
         print('\nERROR: Python version must be 3.5 or greater\n')
@@ -1678,7 +1662,7 @@ def _do_qatools(argsDict):
         with open(path_html_file, 'w') as htmlfile:
             print("<html>", file=htmlfile)
             print("<head>", file=htmlfile)
-            print("<title>FreeSurfer QAtools screenshots</title>", file=htmlfile)
+            print("<title>fsqc screenshots</title>", file=htmlfile)
             print("</head>", file=htmlfile)
             print("<style> body, h1, h2, h3, h4, h5, h6  { font-family: Arial, Helvetica, sans-serif ; } </style>)", file=htmlfile)
             print("<body style=\"background-color:Black\">", file=htmlfile)

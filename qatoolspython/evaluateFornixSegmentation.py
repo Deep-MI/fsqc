@@ -12,10 +12,10 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     This script evaluates potential missegmentation of the fornix, which may
     erroneously be attached to the 'corpus collosum' label.
 
-    It will run Freesurfer's 'mri_convert' script to apply the cc_up.lta
-    transform to the norm.mgz and the aseg files, and create a binary corpus
-    callosum mask and surface. Resulting files are saved to subject-specific
-    directories witin the 'fornix' subdirectory of the output directory.
+    It will the cc_up.lta transform to the norm.mgz and the aseg files, and
+    create a binary corpus callosum mask and surface. Resulting files are saved
+    to subject-specific directories witin the 'fornix' subdirectory of the
+    output directory.
 
     If the corresponding arguments are set to 'True', the script will also
     create screenshots and run a shape analysis of the corpus callosum surface.
@@ -48,69 +48,13 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     import os
     import sys
-    import shlex
-    import subprocess
     import numpy as np
+    import nibabel as nb
+    from qatoolspython.qatoolspythonUtils import applyTransform
+    from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots
 
     # --------------------------------------------------------------------------
-    # auxiliary functions
-
-    def split_callback(option, opt, value, parser):
-      setattr(parser.values, option.dest, value.split(','))
-
-    def which(program):
-        def is_exe(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                path = path.strip('"')
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-            if is_exe(os.path.join('.',program)):
-                return os.path.join('.',program)
-
-        return None
-
-    def my_print(message):
-        """
-        print message, then flush stdout
-        """
-        print(message)
-        sys.stdout.flush()
-
-    def run_cmd(cmd,err_msg):
-        """
-        execute the comand
-        """
-        clist = cmd.split()
-        progname=which(clist[0])
-        if (progname) is None:
-            my_print('ERROR: '+ clist[0] +' not found in path!')
-            sys.exit(1)
-        clist[0]=progname
-        cmd = ' '.join(clist)
-        my_print('#@# Command: ' + cmd+'\n')
-
-        args = shlex.split(cmd)
-        try:
-            subprocess.check_call(args)
-        except subprocess.CalledProcessError as e:
-            my_print('ERROR: '+err_msg)
-            #sys.exit(1)
-            raise
-        my_print('\n')
-
-    # --------------------------------------------------------------------------
-    # main part
-
-
     # check files
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")):
@@ -143,39 +87,30 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     if not SCREENSHOTS_OUTFILE:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"cc.png")
 
-    ## run make_upright; note: rather than 'make_upright', better use 'mri_cc'
-    ## to compute the transformation matrix, should this ever be necessary.
-    #
-    #cmd = "make_upright  "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" "+os.path.join(OUTPUT_DIR,"normCCup.mgz")+" "+os.path.join(OUTPUT_DIR,"cc_up.lta")
-    #run_cmd(cmd,"Could not run make_upright")
-
-    # convert lta to xfm (need to adjust some directories when using make_upright)
-
-    cmd = "lta_convert --inlta "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")+" --outmni "+os.path.join(OUTPUT_DIR,"cc_up.xfm")
-    run_cmd(cmd,"Could not convert lta")
-
+    # --------------------------------------------------------------------------
     # conduct transform for aseg and norm
-
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt nearest -o "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")
-    run_cmd(cmd,"Could not conduct cc_up.xfm transform")
+    
+    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "aseg.mgz"), os.path.join(OUTPUT_DIR, "asegCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="nearest")
 
     # when using 'make_upright', conducting the transform for norm.mgz is no
     # longer necessary (and will produce the same results)
-    cmd = "mri_convert -i "+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+" -at "+os.path.join(OUTPUT_DIR,"cc_up.xfm")+" -rt cubic -o "+os.path.join(OUTPUT_DIR,"normCCup.mgz")
-    run_cmd(cmd,"Could not conduct cc_up.xfm transform")
 
-    # create fornix mask and surface
+    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "norm.mgz"), os.path.join(OUTPUT_DIR, "normCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="cubic")
+    
+    # create fornix mask
 
-    cmd = "mri_binarize --i "+os.path.join(OUTPUT_DIR,"asegCCup.mgz")+" --match 251 252 253 254 255 --dilate 2 --erode 2 --surf "+os.path.join(OUTPUT_DIR,"cc.surf")+" --surf-smooth 1 --o "+os.path.join(OUTPUT_DIR,"cc.mgz")
-    run_cmd(cmd,"Could not create fornix mask and surface")
-
+    binarizeImage(os.path.join(OUTPUT_DIR,"asegCCup.mgz"), os.path.join(OUTPUT_DIR, "cc.mgz"), match=[251, 252, 253, 254, 255])
+    
     # --------------------------------------------------------------------------
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
+        # Note: SURF = [os.path.join(OUTPUT_DIR,"cc.surf")] is no longer possible
+        # unless using FreeSurfer's mri_binarize function (or creating the fornix
+        # surface otherwise)
         createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
             INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = [os.path.join(OUTPUT_DIR,"cc.surf")], OUTFILE = SCREENSHOTS_OUTFILE)
+            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)
 
     # --------------------------------------------------------------------------
     # run shapeDNA
