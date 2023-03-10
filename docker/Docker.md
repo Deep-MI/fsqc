@@ -2,7 +2,7 @@
 
 Here we provide a [`Dockerfile`](Dockerfile) that can be used to create a Docker image and subsequently run the qatools scripts within a Docker container.
 
-The docker image will be based on Ubuntu 18.04, contain the qatools scripts, the lapy and brainprint libraries, and any additionally required packages from the Ubuntu distribution.
+The docker image will be based on Ubuntu, contain the qatools scripts, the lapy and brainprint libraries, and any additionally required packages from the Ubuntu distribution.
 
 ## Build qatools Docker image
 
