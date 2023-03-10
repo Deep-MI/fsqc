@@ -313,7 +313,7 @@ def get_help(print_help=True, return_help=False):
     At least one subject whose structural MR image was processed with Freesurfer
     6.0 or later.
 
-    A Python version >= 3.5 is required to run this script.
+    A Python version >= 3.8 is required to run this script.
 
     Required packages include (among others) the nibabel and skimage package for
     the core functionality, plus the the matplotlib, pandas, and transform3d
@@ -969,8 +969,8 @@ def _check_packages():
     import sys
     import importlib.util
 
-    if sys.version_info <= (3, 5):
-        print('\nERROR: Python version must be 3.5 or greater\n')
+    if sys.version_info <= (3, 8):
+        print('\nERROR: Python version must be 3.8 or greater\n')
         sys.exit(1)
 
     if importlib.util.find_spec("skimage") is None:

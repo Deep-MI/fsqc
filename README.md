@@ -372,7 +372,7 @@ instructions.
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install git+https://github.com/reuter-lab/qatools-python.git@dev`
+`pip3 install git+https://github.com/deep-mi/qatools-python.git@dev`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
@@ -393,7 +393,7 @@ ___
 - At least one structural MR image that was processed with Freesurfer 6.0, 7.x,
   or FastSurfer 1.1 or later (including the surface pipeline).
 
-- A Python version >= 3.5 is required to run this script.
+- A Python version >= 3.8 is required to run this script.
 
 - Required packages include (among others) the nibabel and skimage package for
   the core functionality, plus the matplotlib, pandas, and transform3d
