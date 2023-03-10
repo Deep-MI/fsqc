@@ -7,7 +7,7 @@ This module provides a function to create screenshots
 
 def createScreenshots(SUBJECT, SUBJECTS_DIR, OUTFILE, INTERACTIVE = True, LAYOUT = None,
     BASE = ["default"], OVERLAY = ["default"], LABELS = None, SURF = ["default"], SURFCOLOR = ["default"],
-    VIEWS = ["default"], XLIM = None, YLIM = None, BINARIZE = False, ORIENTATION = ["neurological"]):
+    VIEWS = ["default"], XLIM = None, YLIM = None, BINARIZE = False, ORIENTATION = ["radiological"]):
 
     """
     function createScreenshots()

@@ -6,7 +6,7 @@ hippocampus and amygdala
 
 # -----------------------------------------------------------------------------
 
-def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['neurological'], HEMI = "lh", LABEL = "T1.v21"):
+def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['radiological'], HEMI = "lh", LABEL = "T1.v21"):
     """
     A function to evaluate potential missegmentation of the hippocampus and
     amygdala.
@@ -72,7 +72,7 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
 
     # --------------------------------------------------------------------------
     # get centroids
-    
+
     seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", HEMI+".hippoAmygLabels-"+LABEL+".FSvoxelSpace.mgz"))
     seg_data = seg.get_fdata()
     seg_labels = np.setdiff1d(np.unique(seg_data), 0)
@@ -85,7 +85,7 @@ def evaluateHippocampalSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SC
     ctr_tkr = np.concatenate((centroids[:,1:4], np.ones((centroids.shape[0],1))), axis=1)
     ctr_tkr = np.matmul(vox2ras_tkr, ctr_tkr.T).T
     ctr_tkr = np.concatenate((np.array(centroids[:,0], ndmin=2).T, ctr_tkr[:,0:3]), axis=1)
-        
+
     # [7004, 237, 238]
 
     ctr_tkr_x0 = ctr_tkr[np.argwhere(ctr_tkr[:,0]==237),1]

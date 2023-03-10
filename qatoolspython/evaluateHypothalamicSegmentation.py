@@ -5,7 +5,7 @@ This module provides a function to evaluate potential missegmentation of the hyp
 
 # -----------------------------------------------------------------------------
 
-def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['neurological']):
+def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], SCREENSHOTS_ORIENTATION = ['radiological']):
     """
     A function to evaluate potential missegmentation of the hypothalamus.
 
@@ -39,7 +39,7 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     import sys
     import numpy as np
     import nibabel as nb
-    from scipy import ndimage    
+    from scipy import ndimage
     from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots
 
@@ -72,7 +72,7 @@ def evaluateHypothalamicSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_S
     seg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"))
     seg_data = seg.get_fdata()
     seg_labels = np.setdiff1d(np.unique(seg_data), 0)
-    
+
     centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, seg_labels))
     centroids = np.concatenate((seg_labels[:, np.newaxis], centroids), axis=1)
 

@@ -243,11 +243,6 @@ def get_help(print_help=True, return_help=False):
                                 are x=-10 x=10 y=0 z=0.
           --screenshots_layout <rows> <columns>
                                 layout matrix for screenshot images
-          --screenshots_orientation <neurological|radiological>
-                                left-right orientation for screenshot outputs. Must be
-                                either 'neurological' (left is left; default) or
-                                'radiological' (left is right; as in the 'freeview'
-                                program).
 
 
     ========================
@@ -409,7 +404,7 @@ def _parse_arguments():
     expert.add_argument('--screenshots_surf', dest='screenshots_surf', help="surface(s) for screenshots", default="default", nargs="+", metavar="<surface(s) for screenshots>", required=False)
     expert.add_argument('--screenshots_views', dest='screenshots_views', help="view specification for screenshots", default=['x=-10','x=10','y=0','z=0'], nargs="+", metavar="<dimension=coordinate [dimension=coordinate]>", required=False)
     expert.add_argument('--screenshots_layout', dest='screenshots_layout', help="layout for screenshots", default=['1', '4'], nargs=2, metavar="<num>", required=False)
-    expert.add_argument('--screenshots_orientation', dest='screenshots_orientation', help="orientation for screenshots", default=['neurological'], nargs=1, metavar="<neurological|radiological>", required=False)
+    expert.add_argument('--screenshots_orientation', dest='screenshots_orientation', help=argparse.SUPPRESS, default=['radiological'], nargs=1, metavar="<neurological|radiological>", required=False) # this is currently a hidden "expert" option
 
     help = parser.add_argument_group('getting help')
     help.add_argument('-h', '--help', help="display this help message and exit", action='help')
@@ -1783,7 +1778,7 @@ def _do_qatools(argsDict):
 def run_qatools(subjects_dir, output_dir, argsDict=None, subjects=None, subjects_file=None,
                 shape=False, screenshots=False, screenshots_html=False, screenshots_base="default",
                 screenshots_overlay="default", screenshots_surf="default", screenshots_views="default",
-                screenshots_layout=None, screenshots_orientation="neurological",
+                screenshots_layout=None, screenshots_orientation="radiological",
                 surfaces=False, surfaces_html=False, surfaces_views=['left','right','superior','inferior'],
                 skullstrip=False, skullstrip_html=False, fornix=False, fornix_html=False, hypothalamus=False,
                 hypothalamus_html=False, hippocampus=False, hippocampus_html=False,

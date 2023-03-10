@@ -143,8 +143,8 @@ ___
 
 The goal of the `qatools-python` project is to create a modular and extensible
 software package that provides quantitative metrics and visual information for
-the quality control of FreeSurfer- or Fastsurfer-processed MR images. 
-The package is currently under development, and new features are continuously 
+the quality control of FreeSurfer- or Fastsurfer-processed MR images.
+The package is currently under development, and new features are continuously
 added.
 
 New features will initially be available in the development branch (`freesurfer-module-dev`)
@@ -181,7 +181,7 @@ python3 qatools.py --subjects_dir <directory> --output_dir <directory>
 
 required arguments:
   --subjects_dir <directory>
-                         subjects directory with a set of Freesurfer- or 
+                         subjects directory with a set of Freesurfer- or
                          Fastsurfer-processed individual datasets.
   --output_dir <directory>
                          output directory
@@ -256,11 +256,6 @@ expert options:
                         are x=-10 x=10 y=0 z=0.
   --screenshots_layout <rows> <columns>
                         layout matrix for screenshot images.
-  --screenshots_orientation <neurological|radiological>
-                        left-right orientation for screenshot outputs. Must be
-                        either 'neurological' (left is left; default) or
-                        'radiological' (left is right; as in the 'freeview'
-                        program).
 
 ```
 
