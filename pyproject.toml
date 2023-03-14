@@ -1,17 +1,10 @@
-# quickstart: https://setuptools.pypa.io/en/latest/userguide/quickstart.html
-# toml: https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# pip: https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml
-# req: https://stackoverflow.com/questions/73600082/how-to-reference-a-requirements-txt-in-the-pyproject-toml-of-a-setuptools-projec
-
 [build-system]
 requires = ['setuptools >= 61.0.0']
 build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'qatoolspython'
-version = {file = 'VERSION'} ### maybe needs to be dynamic?
 description = 'A set of quality control scripts for Freesurfer- and Fastsurfer-processed structural MRI data'
-readme = 'README.md'
 license = {file = 'LICENSE'}
 requires-python = '>=3.8'
 authors = [
@@ -40,7 +33,12 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Intended Audience :: Science/Research',
 ]
-dependencies = {file = 'requirements.in'}  ### maybe needs to be dynamic? general question whether or not to set version numbers?
+dynamic = ["version", "readme", "dependencies"]
+
+[tool.setuptools.dynamic]
+version = {file = 'VERSION'}
+readme = {file = ["README.md", "CHANGES.md"]}
+dependencies = {file = 'requirements.in'}
 
 [project.optional-dependencies]
 build = [
@@ -62,7 +60,6 @@ test = [
 ]
 all = [
     'qatoolspython[build]',
-    'qatoolspython[doc]',
     'qatoolspython[style]',
     'qatoolspython[test]',
 ]
@@ -76,15 +73,15 @@ documentation = 'https://github.com/Deep-MI/qatools-python'
 source = 'https://github.com/Deep-MI/qatools-python'
 tracker = 'https://github.com/Deep-MI/qatools-python/issues'
 
-#[project.scripts]
+#[project.scripts] ### maybe use this, but for qatools exec (see old setup.py)
 #lapy-sys_info = 'lapy.commands.sys_info:run'
 
-#[tool.setuptools]
+#[tool.setuptools] ### probably not needed
 #include-package-data = false
 
-#[tool.setuptools.packages.find]
-#include = ['lapy*']
-#exclude = ['lapy*tests']
+[tool.setuptools.packages.find]
+include = ['qatoolspython']
+exclude = ['docker', 'testing', 'deprecated']
 
 # [tool.black]
 # line-length = 79
