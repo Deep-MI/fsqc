@@ -18,9 +18,10 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
     # imports
 
     import os
-    import numpy as np
-    import nibabel as nb
+
     import lapy as lp
+    import nibabel as nb
+    import numpy as np
     from lapy import Plot as lpp
 
     # -----------------------------------------------------------------------------

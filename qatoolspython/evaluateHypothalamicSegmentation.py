@@ -44,11 +44,13 @@ def evaluateHypothalamicSegmentation(
     # imports
 
     import os
-    import numpy as np
+
     import nibabel as nb
+    import numpy as np
     from scipy import ndimage
-    from qatoolspython.qatoolspythonUtils import binarizeImage
+
     from qatoolspython.createScreenshots import createScreenshots
+    from qatoolspython.qatoolspythonUtils import binarizeImage
 
     # --------------------------------------------------------------------------
     # check files

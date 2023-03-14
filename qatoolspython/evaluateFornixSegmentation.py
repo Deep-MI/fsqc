@@ -56,10 +56,11 @@ def evaluateFornixSegmentation(
     # imports
 
     import os
+
     import numpy as np
-    from qatoolspython.qatoolspythonUtils import applyTransform
-    from qatoolspython.qatoolspythonUtils import binarizeImage
+
     from qatoolspython.createScreenshots import createScreenshots
+    from qatoolspython.qatoolspythonUtils import applyTransform, binarizeImage
 
     # --------------------------------------------------------------------------
     # check files
@@ -157,7 +158,6 @@ def evaluateFornixSegmentation(
 
     if RUN_SHAPEDNA is True:
         import nibabel as nb
-
         from brainPrintPython import laplaceTria
 
         surf = nb.freesurfer.io.read_geometry(

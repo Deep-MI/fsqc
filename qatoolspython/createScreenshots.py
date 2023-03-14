@@ -54,16 +54,17 @@ def createScreenshots(
     # imports
 
     import os
-    import matplotlib
 
+    import matplotlib
+    import nibabel as nb
     import numpy as np
     import pandas as pd
-    import nibabel as nb
 
     if not INTERACTIVE:
         matplotlib.use("Agg")
 
     from matplotlib import pyplot as plt
+
     from qatoolspython.qatoolspythonUtils import levelsetsTria
 
     # -----------------------------------------------------------------------------

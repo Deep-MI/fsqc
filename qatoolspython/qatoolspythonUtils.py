@@ -23,6 +23,7 @@ def importMGH(filename):
 
     import os
     import struct
+
     import numpy
 
     if not os.path.exists(filename):
@@ -99,6 +100,7 @@ def binarizeImage(img_file, out_file, match=None):
 def applyTransform(img_file, out_file, mat_file, interp):
     import os
     import sys
+
     import nibabel as nb
     import numpy as np
     from scipy import ndimage
@@ -152,6 +154,7 @@ def applyTransform(img_file, out_file, mat_file, interp):
 
 def readLTA(file):
     import re
+
     import numpy as np
 
     with open(file, "r") as f:

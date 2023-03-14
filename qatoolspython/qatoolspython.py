@@ -358,8 +358,8 @@ def _parse_arguments():
     """
 
     # imports
-    import sys
     import argparse
+    import sys
 
     # parse
     parser = argparse.ArgumentParser(
@@ -665,16 +665,14 @@ def _check_arguments(argsDict):
     # --------------------------------------------------------------------------
     # imports
 
+    import errno
+    import importlib.util
     import os
     import sys
-    import errno
-
     import tempfile
-    import importlib.util
 
     # --------------------------------------------------------------------------
     # check arguments
-
     # check if subject directory exists
     if os.path.isdir(argsDict["subjects_dir"]):
         print("Found subjects directory", argsDict["subjects_dir"])
@@ -1228,8 +1226,8 @@ def _check_packages():
 
     """
 
-    import sys
     import importlib.util
+    import sys
 
     if sys.version_info <= (3, 8):
         print("\nERROR: Python version must be 3.8 or greater\n")
@@ -1262,25 +1260,27 @@ def _do_qatools(argsDict):
     # ------------------------------------------------------------------------------
     # imports
 
+    import csv
     import os
     import sys
-    import csv
     import time
 
     import numpy as np
 
-    from qatoolspython.checkSNR import checkSNR
     from qatoolspython.checkCCSize import checkCCSize
-    from qatoolspython.checkTopology import checkTopology
     from qatoolspython.checkContrast import checkContrast
     from qatoolspython.checkRotation import checkRotation
-    from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
-    from qatoolspython.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
-    from qatoolspython.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
+    from qatoolspython.checkSNR import checkSNR
+    from qatoolspython.checkTopology import checkTopology
     from qatoolspython.createScreenshots import createScreenshots
     from qatoolspython.createSurfacePlots import createSurfacePlots
-    from qatoolspython.outlierDetection import outlierTable
-    from qatoolspython.outlierDetection import outlierDetection
+    from qatoolspython.evaluateFornixSegmentation import \
+        evaluateFornixSegmentation
+    from qatoolspython.evaluateHippocampalSegmentation import \
+        evaluateHippocampalSegmentation
+    from qatoolspython.evaluateHypothalamicSegmentation import \
+        evaluateHypothalamicSegmentation
+    from qatoolspython.outlierDetection import outlierDetection, outlierTable
 
     # ------------------------------------------------------------------------------
     # internal settings (might be turned into command-line arguments in the future)
