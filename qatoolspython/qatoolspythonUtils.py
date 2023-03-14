@@ -313,7 +313,7 @@ def levelsetsTria(v, t, p, levelsets):
     """
 
     import numpy as np
-    from scipy.sparse import csr_matrix, lil_matrix
+    from scipy.sparse import lil_matrix
 
     vLVL = list()
     lLVL = list()
@@ -321,10 +321,10 @@ def levelsetsTria(v, t, p, levelsets):
 
     levelsets = np.array(levelsets, ndmin=2)
 
-    for l in range(len(levelsets)):
+    for lidx in range(len(levelsets)):
         A = lil_matrix((np.shape(v)[0], np.shape(v)[0]))
 
-        lvl = levelsets[l]
+        lvl = levelsets[lidx]
 
         nlvl = p[t] > lvl
 

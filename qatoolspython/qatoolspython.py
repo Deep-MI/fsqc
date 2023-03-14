@@ -1228,7 +1228,6 @@ def _check_packages():
 
     """
 
-    import os
     import sys
     import importlib.util
 
@@ -1264,6 +1263,7 @@ def _do_qatools(argsDict):
     # imports
 
     import os
+    import sys
     import csv
     import time
 
@@ -1966,7 +1966,7 @@ def _do_qatools(argsDict):
         except:
             # create a dictionary from outlier module ouput
             outlierDict = dict()
-            for subject in subjects:
+            for subject in argsDict["subjects"]:
                 outlierDict.update(
                     {
                         subject: {
