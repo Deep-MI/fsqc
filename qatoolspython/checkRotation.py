@@ -31,7 +31,8 @@ def checkRotation(subjects_dir, subject):
 
     #
 
-    import os, re
+    import os
+    import re
     import numpy as np
     import importlib.util
 

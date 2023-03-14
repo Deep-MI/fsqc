@@ -22,7 +22,6 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
     import nibabel as nb
     import lapy as lp
     from lapy import Plot as lpp
-    from lapy import TriaIO as lpio
 
     # -----------------------------------------------------------------------------
     # settings

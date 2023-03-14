@@ -28,7 +28,6 @@ def checkContrast(subjects_dir, subject):
 
     # Imports
     import os
-    import sys
     import numpy
     import nibabel
     from qatoolspython.qatoolspythonUtils import importMGH

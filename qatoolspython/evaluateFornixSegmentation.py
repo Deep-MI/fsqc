@@ -56,9 +56,7 @@ def evaluateFornixSegmentation(
     # imports
 
     import os
-    import sys
     import numpy as np
-    import nibabel as nb
     from qatoolspython.qatoolspythonUtils import applyTransform
     from qatoolspython.qatoolspythonUtils import binarizeImage
     from qatoolspython.createScreenshots import createScreenshots

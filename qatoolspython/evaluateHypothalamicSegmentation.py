@@ -44,7 +44,6 @@ def evaluateHypothalamicSegmentation(
     # imports
 
     import os
-    import sys
     import numpy as np
     import nibabel as nb
     from scipy import ndimage
