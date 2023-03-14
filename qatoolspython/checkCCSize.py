@@ -5,6 +5,7 @@ This module provides a function to check the relative size of the corpus callosu
 
 # -----------------------------------------------------------------------------
 
+
 def checkCCSize(subjects_dir, subject):
     """
     A function to check the relative size of the corpus callosum.
@@ -30,20 +31,26 @@ def checkCCSize(subjects_dir, subject):
     import numpy as np
 
     # Message
-    print('Checking size of the corpus callosum ...')
+    print("Checking size of the corpus callosum ...")
 
     # Check if files exist
-    path_stats_file = os.path.join(subjects_dir,subject,"stats","aseg.stats")
+    path_stats_file = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
 
     try:
         with open(path_stats_file) as stats_file:
             aseg_stats = stats_file.read().splitlines()
     except FileNotFoundError:
-        print("WARNING: could not open "+path_stats_file+", returning NaNs.")
+        print("WARNING: could not open " + path_stats_file + ", returning NaNs.")
         return np.nan
 
     # Initialize
-    cc_elements = ['CC_Posterior', 'CC_Mid_Posterior', 'CC_Central', 'CC_Mid_Anterior', 'CC_Anterior']
+    cc_elements = [
+        "CC_Posterior",
+        "CC_Mid_Posterior",
+        "CC_Central",
+        "CC_Mid_Anterior",
+        "CC_Anterior",
+    ]
 
     relative_cc = np.nan
 
@@ -56,12 +63,12 @@ def checkCCSize(subjects_dir, subject):
             # If the segmentation is found, compute the sum and return it.
             if cc_segmentation in aseg_stat_line:
                 sum_cc += float(aseg_stat_line.split()[3])
-            elif 'EstimatedTotalIntraCranialVol' in aseg_stat_line:
-                intracranial_volume= float(aseg_stat_line.split(',')[3])
+            elif "EstimatedTotalIntraCranialVol" in aseg_stat_line:
+                intracranial_volume = float(aseg_stat_line.split(",")[3])
 
-    relative_cc = sum_cc/intracranial_volume
+    relative_cc = sum_cc / intracranial_volume
 
-    print("Relative size of the corpus callosum is",'{:.4}'.format(relative_cc))
+    print("Relative size of the corpus callosum is", "{:.4}".format(relative_cc))
 
     # Return
     return relative_cc

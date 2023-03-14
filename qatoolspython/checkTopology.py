@@ -5,6 +5,7 @@ This module provides a function to check the topology of left and right surfaces
 
 # -----------------------------------------------------------------------------
 
+
 def checkTopology(subjects_dir, subject):
     """
     A function to check the topology of left and right surfaces.
@@ -35,15 +36,15 @@ def checkTopology(subjects_dir, subject):
 
     # Get the logfile, and return with NaNs if unsuccessful:
 
-    path_log_file = os.path.join(subjects_dir,subject,"scripts","recon-all.log")
+    path_log_file = os.path.join(subjects_dir, subject, "scripts", "recon-all.log")
 
     try:
-        with open(path_log_file, 'r') as logfile:
+        with open(path_log_file, "r") as logfile:
             lines_log_file = logfile.read().splitlines()
     except FileNotFoundError:
-            print("WARNING: could not find "+path_log_file+", returning NaNs.")
-            return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
-    
+        print("WARNING: could not find " + path_log_file + ", returning NaNs.")
+        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+
     # Initialize
 
     lh_holes = np.nan
@@ -59,7 +60,6 @@ def checkTopology(subjects_dir, subject):
     foundTopoLH = False
 
     for line_log_file in lines_log_file:
-
         # Look for the number of holes in the left and right hemisphere
         if "orig.nofix lhholes" in line_log_file:
             lh_holes = line_log_file.split()[3]
@@ -70,12 +70,12 @@ def checkTopology(subjects_dir, subject):
             print("Number of holes in the right hemisphere:", rh_holes)
 
         # Look for the number of defects
-        if "defects found" in line_log_file and foundDefectsLH is False :
+        if "defects found" in line_log_file and foundDefectsLH is False:
             lh_defects = line_log_file.split()[0]
             lh_defects = int(lh_defects)
             print("Number of defects in the left hemisphere:", lh_defects)
             foundDefectsLH = True
-        elif "defects found" in line_log_file and foundDefectsLH is True :
+        elif "defects found" in line_log_file and foundDefectsLH is True:
             rh_defects = line_log_file.split()[0]
             rh_defects = int(rh_defects)
             print("Number of defects in the right hemisphere:", rh_defects)
@@ -83,11 +83,15 @@ def checkTopology(subjects_dir, subject):
         # Look for the topological fixing time in the log file
         if "topology fixing took" in line_log_file and foundTopoLH is False:
             topo_time_lh = line_log_file.split()[3]
-            print("Topological fixing time for the left hemisphere:", topo_time_lh, "min")
+            print(
+                "Topological fixing time for the left hemisphere:", topo_time_lh, "min"
+            )
             foundTopoLH = True
         elif "topology fixing took" in line_log_file and foundTopoLH is True:
             topo_time_rh = line_log_file.split()[3]
-            print("Topological fixing time for the right hemisphere:", topo_time_rh, "min")
+            print(
+                "Topological fixing time for the right hemisphere:", topo_time_rh, "min"
+            )
 
     # Return
 

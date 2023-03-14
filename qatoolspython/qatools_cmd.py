@@ -1,4 +1,3 @@
-
 def _qatools():
     # say hello
     print("")

@@ -5,7 +5,16 @@ This module provides a function to evaluate potential missegmentation of the for
 
 # -----------------------------------------------------------------------------
 
-def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENSHOT = True, SCREENSHOTS_OUTFILE = [], RUN_SHAPEDNA = True, N_EIGEN = 15):
+
+def evaluateFornixSegmentation(
+    SUBJECT,
+    SUBJECTS_DIR,
+    OUTPUT_DIR,
+    CREATE_SCREENSHOT=True,
+    SCREENSHOTS_OUTFILE=[],
+    RUN_SHAPEDNA=True,
+    N_EIGEN=15,
+):
     """
     A function to evaluate potential missegmentation of the fornix.
 
@@ -14,7 +23,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
 
     It will appply the cc_up.lta transform to the norm.mgz and the aseg files,
     and create a binary corpus callosum mask and surface. Resulting files are
-    saved to subject-specific directories witin the 'fornix' subdirectory of
+    saved to subject-specific directories within the 'fornix' subdirectory of
     the output directory.
 
     If the corresponding arguments are set to 'True', the script will also
@@ -30,7 +39,7 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         - CREATE_SCREENSHOT <bool> (default: True)
         - SCREENSHOTS_OUTFILE <string> or empty list (default: [])
         - RUN_SHAPEDNA <bool> (default: True)
-        - N_EIGEN <int> number of Eigenvalues for shape analyis (default: 30)
+        - N_EIGEN <int> number of Eigenvalues for shape analysis (default: 30)
 
     Requires (if not found, returns NaNs):
         - mri/transforms/cc_up.lta
@@ -57,27 +66,38 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
     # --------------------------------------------------------------------------
     # check files
 
-    if not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")):
-
-        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","transforms","cc_up.lta")+', returning NaNs')
-
-        out = np.empty(N_EIGEN)
-        out[:] = np.nan
-
-        return out
-
-    elif not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")):
-
-        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","aseg.mgz")+', returning NaNs')
+    if not os.path.isfile(
+        os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta")
+    ):
+        print(
+            "WARNING: could not find "
+            + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta")
+            + ", returning NaNs"
+        )
 
         out = np.empty(N_EIGEN)
         out[:] = np.nan
 
         return out
 
-    elif not os.path.isfile(os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")):
+    elif not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz")):
+        print(
+            "WARNING: could not find "
+            + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz")
+            + ", returning NaNs"
+        )
 
-        print('WARNING: could not find '+os.path.join(SUBJECTS_DIR,SUBJECT,"mri","norm.mgz")+', returning NaNs')
+        out = np.empty(N_EIGEN)
+        out[:] = np.nan
+
+        return out
+
+    elif not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")):
+        print(
+            "WARNING: could not find "
+            + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")
+            + ", returning NaNs"
+        )
 
         out = np.empty(N_EIGEN)
         out[:] = np.nan
@@ -85,22 +105,36 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         return out
 
     if not SCREENSHOTS_OUTFILE:
-        SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR,"cc.png")
+        SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR, "cc.png")
 
     # --------------------------------------------------------------------------
     # conduct transform for aseg and norm
-    
-    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "aseg.mgz"), os.path.join(OUTPUT_DIR, "asegCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="nearest")
+
+    applyTransform(
+        os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz"),
+        os.path.join(OUTPUT_DIR, "asegCCup.mgz"),
+        mat_file=os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta"),
+        interp="nearest",
+    )
 
     # when using 'make_upright', conducting the transform for norm.mgz is no
     # longer necessary (and will produce the same results)
 
-    applyTransform(os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "norm.mgz"), os.path.join(OUTPUT_DIR, "normCCup.mgz"), mat_file=os.path.join(SUBJECTS_DIR,SUBJECT, "mri", "transforms", "cc_up.lta"), interp="cubic")
-    
+    applyTransform(
+        os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"),
+        os.path.join(OUTPUT_DIR, "normCCup.mgz"),
+        mat_file=os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta"),
+        interp="cubic",
+    )
+
     # create fornix mask
 
-    binarizeImage(os.path.join(OUTPUT_DIR,"asegCCup.mgz"), os.path.join(OUTPUT_DIR, "cc.mgz"), match=[251, 252, 253, 254, 255])
-    
+    binarizeImage(
+        os.path.join(OUTPUT_DIR, "asegCCup.mgz"),
+        os.path.join(OUTPUT_DIR, "cc.mgz"),
+        match=[251, 252, 253, 254, 255],
+    )
+
     # --------------------------------------------------------------------------
     # create screenshot
 
@@ -108,38 +142,46 @@ def evaluateFornixSegmentation(SUBJECT, SUBJECTS_DIR, OUTPUT_DIR, CREATE_SCREENS
         # Note: SURF = [os.path.join(OUTPUT_DIR,"cc.surf")] is no longer possible
         # unless using FreeSurfer's mri_binarize function (or creating the fornix
         # surface otherwise)
-        createScreenshots(SUBJECT = SUBJECT, SUBJECTS_DIR = SUBJECTS_DIR,
-            INTERACTIVE = False, VIEWS = [('x', -2), ('x', 0), ('x', 2)], LAYOUT = (1, 3),
-            BASE = [os.path.join(OUTPUT_DIR,"normCCup.mgz")], OVERLAY = [os.path.join(OUTPUT_DIR,"cc.mgz")], SURF = None, OUTFILE = SCREENSHOTS_OUTFILE)
+        createScreenshots(
+            SUBJECT=SUBJECT,
+            SUBJECTS_DIR=SUBJECTS_DIR,
+            INTERACTIVE=False,
+            VIEWS=[("x", -2), ("x", 0), ("x", 2)],
+            LAYOUT=(1, 3),
+            BASE=[os.path.join(OUTPUT_DIR, "normCCup.mgz")],
+            OVERLAY=[os.path.join(OUTPUT_DIR, "cc.mgz")],
+            SURF=None,
+            OUTFILE=SCREENSHOTS_OUTFILE,
+        )
 
     # --------------------------------------------------------------------------
     # run shapeDNA
 
     if RUN_SHAPEDNA is True:
-
         import nibabel as nb
 
         from brainPrintPython import laplaceTria
 
-        surf = nb.freesurfer.io.read_geometry(os.path.join(OUTPUT_DIR,"cc.surf"), read_metadata=True)
+        surf = nb.freesurfer.io.read_geometry(
+            os.path.join(OUTPUT_DIR, "cc.surf"), read_metadata=True
+        )
 
         ev, evec = laplaceTria(surf[0], surf[1], k=N_EIGEN)
 
         d = dict()
-        d['Refine'] = 0
-        d['Degree'] = 1
-        d['Dimension'] = 2
-        d['Elements'] = len(surf[1])
-        d['DoF'] = len(surf[0])
-        d['NumEW'] = N_EIGEN
-        d['Eigenvalues'] = ev
-        d['Eigenvectors'] = evec
+        d["Refine"] = 0
+        d["Degree"] = 1
+        d["Dimension"] = 2
+        d["Elements"] = len(surf[1])
+        d["DoF"] = len(surf[0])
+        d["NumEW"] = N_EIGEN
+        d["Eigenvalues"] = ev
+        d["Eigenvectors"] = evec
 
         # return
-        return d['Eigenvalues']
+        return d["Eigenvalues"]
 
     else:
-
         out = np.empty(N_EIGEN)
         out[:] = np.nan
 

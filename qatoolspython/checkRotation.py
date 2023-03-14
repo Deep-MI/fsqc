@@ -5,6 +5,7 @@ This module provides a function to determine the rotation angles of the Talairac
 
 # -----------------------------------------------------------------------------
 
+
 def checkRotation(subjects_dir, subject):
     """
     A function to determine the rotation angles of the Talairach transform.
@@ -24,7 +25,7 @@ def checkRotation(subjects_dir, subject):
         - unit of rotations is radians
 
     Requires valid mri/transforms/talairach.lta file and the 'transforms3d'
-    python packge. If not found, NaNs will be returned.
+    python package. If not found, NaNs will be returned.
 
     """
 
@@ -37,7 +38,9 @@ def checkRotation(subjects_dir, subject):
     #
 
     if importlib.util.find_spec("transforms3d") is None:
-        print('\nWARNING: the \'transforms3d\' package is required for running this script, returning NaNs.\n')
+        print(
+            "\nWARNING: the 'transforms3d' package is required for running this script, returning NaNs.\n"
+        )
         return np.nan, np.nan, np.nan
     else:
         import transforms3d as tr
@@ -48,20 +51,36 @@ def checkRotation(subjects_dir, subject):
 
     # read talairach.lta
 
-    if not os.path.isfile(os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta")):
-        print("WARNING: could not open "+os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta")+", returning NaNs.")
+    if not os.path.isfile(
+        os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
+    ):
+        print(
+            "WARNING: could not open "
+            + os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
+            + ", returning NaNs."
+        )
         return np.nan, np.nan, np.nan
 
-    with open(os.path.join(subjects_dir,subject,"mri","transforms","talairach.lta"), 'r') as datafile:
+    with open(
+        os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta"), "r"
+    ) as datafile:
         lines = datafile.readlines()
 
     # get first four rows with three entries in exp notation
 
     mat = list()
     for line in lines:
-        res = re.search('^[\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+', line)
+        res = re.search(
+            "^[\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+ [\\-0-9]+\\.[0-9]+e[\\-\\+][0-9]+",
+            line,
+        )
         if res is not None:
-            mat.append([ float(x) for x in res.group().replace('\n','').replace(';','').split() ])
+            mat.append(
+                [
+                    float(x)
+                    for x in res.group().replace("\n", "").replace(";", "").split()
+                ]
+            )
     mat = np.array(mat)
 
     # get translation, rotation, scale/zoom, and shear matrices
@@ -74,6 +93,14 @@ def checkRotation(subjects_dir, subject):
 
     rot_x, rot_y, rot_z = tr.euler.mat2euler(R)
 
-    print('Found Talairach rotation angles: x =','{:.3}'.format(rot_x),', y =','{:.3}'.format(rot_y),', z =','{:.3}'.format(rot_z),'radians.')
+    print(
+        "Found Talairach rotation angles: x =",
+        "{:.3}".format(rot_x),
+        ", y =",
+        "{:.3}".format(rot_y),
+        ", z =",
+        "{:.3}".format(rot_z),
+        "radians.",
+    )
 
     return rot_x, rot_y, rot_z
