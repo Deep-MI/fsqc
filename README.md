@@ -1,5 +1,13 @@
 # qatools-python
 
+## PLEASE NOTE
+
+Despite its name, this branch is still experimental and not the default branch. 
+It is the candidate for the next major release, but under continuing development
+and may change frequently. Please use the [default branch](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-releases) 
+or the [dev branch](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-dev) 
+instead.
+
 ___
 
 ## Description
