@@ -318,9 +318,9 @@ Alternatively, it can be cloned directly from its repository via `git clone http
 The `qatools.py` script will then be executable from the command line, as
 detailed above.
 
-Optional packages (if running the shape analysis module) include the `brainprint-python`
+Optional packages (if running the shape analysis module) include the `brainprint`
 and `lapy` packages from https://github.com/Deep-MI. They can be installed using
-`pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
+`pip3 install --user git+https://github.com/Deep-MI/BrainPrint.git`
 and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They should
 both be version 0.2 or newer.
 ___

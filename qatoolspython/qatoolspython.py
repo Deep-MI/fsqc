@@ -1193,26 +1193,16 @@ def _do_qatools(argsDict):
                 print("Running brainPrint analysis ...")
                 print("")
 
+                from pathlib import Path
+
                 # compute brainprint (will also compute shapeDNA)
                 from brainprint import brainprint
 
                 # check / create subject-specific brainprint_outdir
-                brainprint_outdir = os.path.join(argsDict["output_dir"], 'brainprint', subject)
+                brainprint_outdir = Path(os.path.join(argsDict["output_dir"], 'brainprint', subject))
 
                 # run brainPrint
-                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=argsDict["subjects_dir"], sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
-
-                # get a subset of the brainprint results
-                distDict = { subject : dstMat }
-
-                # return
-                shape_ok = True
-
-                # check / create subject-specific brainprint_outdir
-                brainprint_outdir = os.path.join(argsDict["output_dir"], 'brainprint', subject)
-
-                # run brainPrint
-                evMat, evecMat, dstMat = brainprint.run_brainprint(sdir=argsDict["subjects_dir"], sid=subject, outdir=brainprint_outdir, evec=SHAPE_EVEC, skipcortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+                evMat, evecMat, dstMat = brainprint.run_brainprint(subjects_dir=argsDict["subjects_dir"], subject_id=subject, destination=brainprint_outdir, keep_eigenvectors=SHAPE_EVEC, skip_cortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
 
                 # get a subset of the brainprint results
                 distDict = { subject : dstMat }
@@ -1306,8 +1296,7 @@ def _do_qatools(argsDict):
                     screenshots_surf_subj = None
 
                 # process
-                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"],
-                ORIENTATION=argsDict["screenshots_orientation"])
+                createScreenshots(SUBJECT=subject, SUBJECTS_DIR=argsDict["subjects_dir"], OUTFILE=outfile, INTERACTIVE=False, BASE=screenshots_base_subj, OVERLAY=screenshots_overlay_subj, SURF=screenshots_surf_subj, VIEWS=argsDict["screenshots_views"], LAYOUT=argsDict["screenshots_layout"], ORIENTATION=argsDict["screenshots_orientation"])
 
                 # return
                 screenshots_ok = True
