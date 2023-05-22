@@ -40,8 +40,6 @@ RUN wget -qO- https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.1/frees
     --exclude='freesurfer/MCRv80'
 
 # clone qatools-python, brainprint-python, and lapy toolboxes
-RUN git clone https://github.com/Deep-MI/LaPy.git /app/lapy
-RUN git clone https://github.com/Deep-MI/BrainPrint-python.git /app/brainprint
 RUN git clone https://github.com/Deep-MI/qatools-python.git /app/qatools-python
 
 # install additional python packages
@@ -49,15 +47,14 @@ RUN pip3 install -r /app/qatools-python/requirements.txt
 
 # Add FreeSurfer environment variables (.license file needed, alternatively export FS_LICENSE=path/to/license)
 ENV FREESURFER_HOME=/opt/freesurfer
+ENV NO_FSFAST=1 
+# disable matlab directory creation during FS setup (only required for functional analysis)
 
 # Add other environment variables
 ENV OMP_NUM_THREADS=1
 
 # Set the PATH
 ENV PATH=/opt/freesurfer/bin:/opt/freesurfer/fsfast/bin:/opt/freesurfer/tktools:/opt/freesurfer/mni/bin:${PATH}
-
-# Add toolbox directories to PYTHONPATH
-ENV PYTHONPATH=/app/lapy:/app/brainprint:${PYTHONPATH}
 
 # Set the working directory to /app
 WORKDIR /app
