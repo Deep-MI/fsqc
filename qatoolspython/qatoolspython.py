@@ -267,13 +267,36 @@ def get_help(print_help=True, return_help=False):
 
 
     =============
+    Requirements:
+    =============
+
+    At least one subject whose structural MR image was processed with Freesurfer
+    6.0 or later, or FastSurfer v1.1 or later (including the surface pipeline).
+
+    A Python version >= 3.8 is required to run this script.
+
+    Required packages include (among others) the nibabel and skimage package for
+    the core functionality, plus the the matplotlib, pandas, and transform3d
+    packages for some optional functions and modules. See the `requirements.txt`
+    file for a complete list. Use `pip3 install -r requirements.txt` to install
+    these packages.
+
+    This software has been tested on Ubuntu 22.04, CentOS7, and MacOS 10.14.
+
+
+    =============
     Known Issues:
     =============
 
-    The program will analyze recon-all logfiles, and may fail or return erroneous
-    results if the logfile is append by multiple restarts of recon-all runs.
-    Ideally, the logfile should therefore consist of just a single, successful
-    recon-all run.
+    - Aborted / restarted recon-all runs: the program will analyze recon-all
+      logfiles, and may fail or return erroneous results if the logfile is
+      appended by multiple restarts of recon-all runs. Ideally, the logfile should
+      therefore consist of just a single, successful recon-all run.
+    - High-resolution data: Prior to update v1.4, the screenshots and fornix module
+      did not work well with high-resolution data that was processed using the
+      -cm flag in recon-all. With update v1.4 this has been fixed for the
+      screenhots module, but the fornix module is still experimental for
+      high-resolution data.
 
 
     ========
@@ -306,27 +329,6 @@ def get_help(print_help=True, return_help=False):
     Initiative; 2016; Normative data for subcortical regional volumes over the lifetime
     of the adult human brain; Neuroimage: 137, 9-20;
     doi.org/10.1016/j.neuroimage.2016.05.016
-
-    =============
-    Requirements:
-    =============
-
-    At least one subject whose structural MR image was processed with Freesurfer
-    6.0 or later.
-
-    A Python version >= 3.8 is required to run this script.
-
-    Required packages include (among others) the nibabel and skimage package for
-    the core functionality, plus the the matplotlib, pandas, and transform3d
-    packages for some optional functions and modules. See the `requirements.txt`
-    file for a complete list. Use `pip3 install -r requirements.txt` to install
-    these packages.
-
-    For the shape analysis module, the brainprint and lapy packages from
-    https://github.com/Deep-MI are required (brainprint version 0.2 or newer,
-    lapy version 0.3 or newer).
-
-    This software has been tested on Ubuntu 22.04, CentOS7, and MacOS 10.14.
 
 
     ========
@@ -608,14 +610,14 @@ def _parse_arguments():
         args = parser.parse_args(["--help"])
     elif len(sys.argv) == 2 and sys.argv[1] == "--more-help":
         get_help()
-        sys.exit(0)
+        return None
     else:
         args = parser.parse_args()
 
     # check for extensive help (if it exists among other arguments)
     if args.more_help:
         get_help()
-        sys.exit(0)
+        return None
 
     # prepare output
     argsDict = dict()
@@ -799,9 +801,7 @@ def _check_arguments(argsDict):
                 print()
                 print("ERROR: could not understand " + x)
                 print()
-                print(
-                    "       the --screenshots_views argument can only contain one or more x=<numeric> y=<numeric> z=<numeric> expressions."
-                )
+                print("       the --screenshots_views argument can only contain one or more x=<numeric> y=<numeric> z=<numeric> expressions.")
                 print()
                 print("       for example: --screenshots_views x=0")
                 print("                    --screenshots_views x=-10 x=10 y=0")
@@ -851,13 +851,6 @@ def _check_arguments(argsDict):
                 sys.exit(1)
         else:
             print("ERROR: Could not find the 'lapy' package (see README.md for details on installation)")
-            sys.exit(1)
-
-        # check for kaleido package
-        if importlib.util.find_spec("kaleido") is None:
-            print(
-                "ERROR: Could not find the 'kaleido' package (use e.g. \"pip3 install --user -U kaleido\" to install)"
-            )
             sys.exit(1)
 
     # check if skullstrip subdirectory exists or can be created and is writable
@@ -1236,15 +1229,6 @@ def _check_packages():
     if importlib.util.find_spec("skimage") is None:
         print("\nERROR: the 'skimage' package is required for running this script, please install.\n")
         sys.exit(1)
-
-    if importlib.util.find_spec("nibabel") is None:
-        print("\nERROR: the 'nibabel' package is required for running this script, please install.\n")
-        sys.exit(1)
-
-    if importlib.util.find_spec("transforms3d") is None:
-        # this package is less important and less standard, so we just return a
-        # warning (and NaNs) if it is not found.
-        print("\nWARNING: the 'transforms3d' package is recommended, please install.\n")
 
 
 # ------------------------------------------------------------------------------
@@ -1694,7 +1678,6 @@ def _do_qatools(argsDict):
                 # re-initialize
                 skullstrip_base_subj = list()
                 skullstrip_overlay_subj = list()
-                skullstrip_surf_subj = list()
 
                 # check skullstrip_base
                 if os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")):
