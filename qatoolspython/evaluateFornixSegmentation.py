@@ -158,13 +158,16 @@ def evaluateFornixSegmentation(
 
     if RUN_SHAPEDNA is True:
         import nibabel as nb
-        from brainPrintPython import laplaceTria
+        from lapy import TriaMesh, ShapeDNA
 
         surf = nb.freesurfer.io.read_geometry(
             os.path.join(OUTPUT_DIR, "cc.surf"), read_metadata=True
         )
 
-        ev, evec = laplaceTria(surf[0], surf[1], k=N_EIGEN)
+        evDict = ShapeDNA.compute_shapedna(TriaMesh(v=surf[0], t=surf[1]), k=N_EIGEN)
+
+        ev = evDict['Eigenvalues']
+        evec = evDict['Eigenvectors']
 
         d = dict()
         d["Refine"] = 0
