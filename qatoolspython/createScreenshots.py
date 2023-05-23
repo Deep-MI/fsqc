@@ -54,7 +54,7 @@ def createScreenshots(
     # imports
 
     import os
-
+    import warnings
     import matplotlib
     import nibabel as nb
     import numpy as np
@@ -653,10 +653,7 @@ def createScreenshots(
                             )
                         sortIdx = np.delete(sortIdx, findIdx[0, 0])
                     elif findIdx.shape[0] > 1:
-                        # error
-                        print("A problem occurred with the surface overlays")
-                        break
-
+                        warnings.warn("WARNING: a problem occurred with the surface overlays")
                 # now final plot
                 axs[axsx, axsy].plot(
                     tmpxSort,
