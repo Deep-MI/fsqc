@@ -10,8 +10,6 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
     """
     function createSurfacePlots
 
-    requires the python kaleido package ("pip3 install --user -U kaleido")
-
     """
 
     # -----------------------------------------------------------------------------
