@@ -35,6 +35,11 @@ classifiers = [
 ]
 dynamic = ["version", "readme", "dependencies"]
 
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
 [tool.setuptools.dynamic]
 version = {file = 'VERSION'}
 readme = {file = ["README.md", "CHANGES.md"]}
