@@ -393,7 +393,7 @@ def _parse_arguments():
     optional.add_argument(
         "--subjects",
         dest="subjects",
-        help="list of subject IDs. If omitted, all suitable sub-directories witin the subjects directory will be used.",
+        help="list of subject IDs. If omitted, all suitable sub-directories within the subjects directory will be used.",
         default=None,
         nargs="+",
         metavar="SubjectID",
@@ -402,7 +402,7 @@ def _parse_arguments():
     optional.add_argument(
         "--subjects-file",
         dest="subjects_file",
-        help="filename with list of subject IDs (one per line). If omitted, all suitable sub-directories witin the subjects directory will be used.",
+        help="filename with list of subject IDs (one per line). If omitted, all suitable sub-directories within the subjects directory will be used.",
         default=None,
         metavar="<filename>",
         required=False,
@@ -1773,7 +1773,7 @@ def _do_qatools(argsDict):
                     N_EIGEN=FORNIX_N_EIGEN,
                 )
 
-                # create a dictionary from fornix shape ouput
+                # create a dictionary from fornix shape output
                 fornixShapeDict = {
                     subject: dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)), fornixShapeOutput))
                 }
@@ -1946,7 +1946,7 @@ def _do_qatools(argsDict):
                 hippocampus_label=argsDict["hippocampus_label"],
             )
 
-            # create a dictionary from outlier module ouput
+            # create a dictionary from outlier module output
             outlierDict = dict()
             for subject in argsDict["subjects"]:
                 outlierDict.update(
@@ -1964,7 +1964,7 @@ def _do_qatools(argsDict):
 
         #
         except:
-            # create a dictionary from outlier module ouput
+            # create a dictionary from outlier module output
             outlierDict = dict()
             for subject in argsDict["subjects"]:
                 outlierDict.update(
