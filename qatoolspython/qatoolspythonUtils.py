@@ -99,7 +99,6 @@ def binarizeImage(img_file, out_file, match=None):
 
 def applyTransform(img_file, out_file, mat_file, interp):
     import os
-    import sys
 
     import nibabel as nb
     import numpy as np
@@ -114,8 +113,7 @@ def applyTransform(img_file, out_file, mat_file, interp):
 
     # get matrix
     if mat_file_ext == ".xfm":
-        print("ERROR: xfm matrices not (yet) supported. Please convert to lta format")
-        sys.exit(1)
+        raise Exception("ERROR: xfm matrices not (yet) supported. Please convert to lta format")
     elif mat_file_ext == ".lta":
         # get lta matrix
         lta = readLTA(mat_file)
@@ -126,14 +124,12 @@ def applyTransform(img_file, out_file, mat_file, interp):
             # ras2ras from make_upright.lta
             # ras2vox from upright image (target)
             # m = np.matmul(np.linalg.inv(upr.affine), np.matmul(lta['lta'], img.affine))
-            print("ERROR: lta type 1 (ras2ras) not supported yet")
-            sys.exit(1)
+            raise Exception("ERROR: lta type 1 (ras2ras) not supported yet")
         elif lta["type"] == 0:
             # vox2vox transform
             m = lta["lta"]
     else:
-        print("ERROR: matrices must be either xfm or lta format")
-        sys.exit(1)
+        raise Exception("ERROR: matrices must be either xfm or lta format")
 
     # apply transform
     if interp == "nearest":
@@ -141,8 +137,7 @@ def applyTransform(img_file, out_file, mat_file, interp):
     elif interp == "cubic":
         img_data_interp = ndimage.affine_transform(img_data, np.linalg.inv(m), order=3)
     else:
-        print("ERROR: interpolation must be either nearest or cubic")
-        sys.exit(1)
+        raise Exception("ERROR: interpolation must be either nearest or cubic")
 
     # write image
     img_interp = nb.nifti1.Nifti1Image(img_data_interp, img.affine)
