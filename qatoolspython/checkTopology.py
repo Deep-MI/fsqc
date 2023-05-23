@@ -28,6 +28,7 @@ def checkTopology(subjects_dir, subject):
     # Imports
 
     import os
+    import warnings
 
     import numpy as np
 
@@ -39,11 +40,11 @@ def checkTopology(subjects_dir, subject):
 
     path_log_file = os.path.join(subjects_dir, subject, "scripts", "recon-all.log")
 
-    try:
+    if os.path.exists(path_log_file):
         with open(path_log_file, "r") as logfile:
             lines_log_file = logfile.read().splitlines()
-    except FileNotFoundError:
-        print("WARNING: could not find " + path_log_file + ", returning NaNs.")
+    else:
+        warnings.warn("WARNING: could not find " + path_log_file + ", returning NaNs.")
         return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
     # Initialize

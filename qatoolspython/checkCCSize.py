@@ -22,7 +22,7 @@ def checkCCSize(subjects_dir, subject):
     Returns:
         - relative_cc
 
-    Requires a valid stats/aseg.stats file. If not found, NaNs are returned.
+    Requires a valid stats/aseg.stats file.
 
     """
 
@@ -34,15 +34,11 @@ def checkCCSize(subjects_dir, subject):
     # Message
     print("Checking size of the corpus callosum ...")
 
-    # Check if files exist
+    # Get file name and read contents
     path_stats_file = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
 
-    try:
-        with open(path_stats_file) as stats_file:
+    with open(path_stats_file) as stats_file:
             aseg_stats = stats_file.read().splitlines()
-    except FileNotFoundError:
-        print("WARNING: could not open " + path_stats_file + ", returning NaNs.")
-        return np.nan
 
     # Initialize
     cc_elements = [

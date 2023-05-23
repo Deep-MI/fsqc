@@ -47,7 +47,7 @@ def checkSNR(
     # Imports
 
     import os
-
+    import warnings
     import nibabel as nib
     import numpy as np
     from skimage.morphology import binary_erosion
@@ -58,28 +58,28 @@ def checkSNR(
 
     # Get data
 
-    try:
-        path_reference_image = os.path.join(subjects_dir, subject, "mri", ref_image)
+    path_reference_image = os.path.join(subjects_dir, subject, "mri", ref_image)
+    if os.path.exists(path_reference_image):
         norm = nib.load(path_reference_image)
         norm_data = norm.get_fdata()
-    except FileNotFoundError:
-        print("WARNING: could not open " + path_reference_image + ", returning NaNs.")
+    else:
+        warnings.warn("WARNING: could not open " + path_reference_image + ", returning NaNs.")
         return np.nan, np.nan
 
-    try:
-        path_aseg = os.path.join(subjects_dir, subject, "mri", "aseg.mgz")
+    path_aseg = os.path.join(subjects_dir, subject, "mri", "aseg.mgz")
+    if os.path.exists(path_aseg):
         aseg = nib.load(path_aseg)
         data_aseg = aseg.get_fdata()
-    except FileNotFoundError:
-        print("WARNING: could not open " + path_aseg + ", returning NaNs.")
+    else:
+        warnings.warn("WARNING: could not open " + path_aseg + ", returning NaNs.")
         return np.nan, np.nan
 
-    try:
-        path_aparc_aseg = os.path.join(subjects_dir, subject, "mri", aparc_image)
+    path_aparc_aseg = os.path.join(subjects_dir, subject, "mri", aparc_image)
+    if os.path.exists(path_aparc_aseg):
         inseg = nib.load(path_aparc_aseg)
         data_aparc_aseg = inseg.get_fdata()
-    except FileNotFoundError:
-        print("WARNING: could not open " + path_aparc_aseg + ", returning NaNs.")
+    else:
+        warnings.warn("WARNING: could not open " + path_aparc_aseg + ", returning NaNs.")
         return np.nan, np.nan
 
     # Process white matter image
