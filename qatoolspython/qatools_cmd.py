@@ -1,4 +1,3 @@
-
 def _qatools():
     # say hello
     print("")
@@ -14,4 +13,5 @@ def _qatools():
     argsDict = qatoolspython._parse_arguments()
 
     # run qatools
-    qatoolspython.run_qatools(subjects_dir=None, output_dir=None, argsDict=argsDict)
+    if argsDict is not None:
+        qatoolspython.run_qatools(subjects_dir=None, output_dir=None, argsDict=argsDict)
