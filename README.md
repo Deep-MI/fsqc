@@ -3,7 +3,10 @@
 ## Contents
 
 - [Description](#description)
-- [Recent changes, main and development branches, and roadmap]
+- [Ongoing development](#ongoing-development)
+  - [Recent changes](#recent-changes)
+  - [Main and development branches](#main-and-development-branches)
+  - [Roadmap](#roadmap)
 - [Usage](#usage)
   - [As a command line tool](#as-a-command-line-tool)
   - [As a python package](#as-a-python-package)
@@ -12,7 +15,7 @@
    - [Download from GitHub](#download-from-github)
    - [Installation as a python package](#installation-as-a-python-package)
 - [Requirements](#requirements)
-- [Known Issues](#known-issues)
+- [Known issues](#known-issues)
 - [Authors](#authors)
 - [Citations](#citations)
 - [License](#license)
@@ -158,7 +161,7 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
-## Recent changes, main and development branches, and roadmap
+## Ongoing development
 
 ### Recent changes
 
@@ -415,7 +418,7 @@ ___
 
 ___
 
-## Known Issues
+## Known issues
 
 - Aborted / restarted recon-all runs: the program will analyze recon-all
   logfiles, and may fail or return erroneous results if the logfile is
