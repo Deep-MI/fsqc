@@ -31,32 +31,36 @@ def checkRotation(subjects_dir, subject):
 
     #
 
-    import importlib.util
     import os
     import re
+    import logging
+    import warnings
+    import importlib.util
 
     import numpy as np
+
+    # setttings
+
+    logging.captureWarnings(True)
+
+    # message
+
+    logging.info("Computing Talairach rotation angles ...")
 
     #
 
     if importlib.util.find_spec("transforms3d") is None:
-        print(
-            "\nWARNING: the 'transforms3d' package is required for running this script, returning NaNs.\n"
-        )
+        warnings.warn("WARNING: the 'transforms3d' package is required for running this script, returning NaNs.")
         return np.nan, np.nan, np.nan
     else:
         import transforms3d as tr
-
-    # message
-
-    print("Computing Talairach rotation angles ...")
 
     # read talairach.lta
 
     if not os.path.isfile(
         os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
     ):
-        print(
+        warnings.warn(
             "WARNING: could not open "
             + os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
             + ", returning NaNs."
@@ -95,14 +99,14 @@ def checkRotation(subjects_dir, subject):
 
     rot_x, rot_y, rot_z = tr.euler.mat2euler(R)
 
-    print(
-        "Found Talairach rotation angles: x =",
-        "{:.3}".format(rot_x),
-        ", y =",
-        "{:.3}".format(rot_y),
-        ", z =",
-        "{:.3}".format(rot_z),
-        "radians.",
+    logging.info(
+        "Found Talairach rotation angles: x = " +
+        "{:.3}".format(rot_x) +
+        ", y = " +
+        "{:.3}".format(rot_y) +
+        ", z = " +
+        "{:.3}".format(rot_z) +
+        " radians.",
     )
 
     return rot_x, rot_y, rot_z

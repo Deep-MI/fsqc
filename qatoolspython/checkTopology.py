@@ -28,13 +28,18 @@ def checkTopology(subjects_dir, subject):
     # Imports
 
     import os
+    import logging
     import warnings
 
     import numpy as np
 
+    # Setttings
+
+    logging.captureWarnings(True)
+
     # Message
 
-    print("Checking topology of the surfaces ...")
+    logging.info("Checking topology of the surfaces ...")
 
     # Get the logfile, and return with NaNs if unsuccessful:
 
@@ -68,31 +73,31 @@ def checkTopology(subjects_dir, subject):
             lh_holes = lh_holes[:-1]
             lh_holes = int(lh_holes)
             rh_holes = line_log_file.split()[6]
-            print("Number of holes in the left hemisphere:", lh_holes)
-            print("Number of holes in the right hemisphere:", rh_holes)
+            logging.info("Number of holes in the left hemisphere: " + str(lh_holes))
+            logging.info("Number of holes in the right hemisphere: " + str(rh_holes))
 
         # Look for the number of defects
         if "defects found" in line_log_file and foundDefectsLH is False:
             lh_defects = line_log_file.split()[0]
             lh_defects = int(lh_defects)
-            print("Number of defects in the left hemisphere:", lh_defects)
+            logging.info("Number of defects in the left hemisphere: " + str(lh_defects))
             foundDefectsLH = True
         elif "defects found" in line_log_file and foundDefectsLH is True:
             rh_defects = line_log_file.split()[0]
             rh_defects = int(rh_defects)
-            print("Number of defects in the right hemisphere:", rh_defects)
+            logging.info("Number of defects in the right hemisphere: " + str(rh_defects))
 
         # Look for the topological fixing time in the log file
         if "topology fixing took" in line_log_file and foundTopoLH is False:
             topo_time_lh = line_log_file.split()[3]
-            print(
-                "Topological fixing time for the left hemisphere:", topo_time_lh, "min"
+            logging.info(
+                "Topological fixing time for the left hemisphere: " + str(topo_time_lh) + " min"
             )
             foundTopoLH = True
         elif "topology fixing took" in line_log_file and foundTopoLH is True:
             topo_time_rh = line_log_file.split()[3]
-            print(
-                "Topological fixing time for the right hemisphere:", topo_time_rh, "min"
+            logging.info(
+                "Topological fixing time for the right hemisphere: " + str(topo_time_rh) + " min"
             )
 
     # Return

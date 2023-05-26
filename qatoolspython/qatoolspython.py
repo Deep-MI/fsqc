@@ -7,6 +7,15 @@ This module provides the main functionality of the qatoolspython package.
 # FUNCTIONS
 
 # ------------------------------------------------------------------------------
+# get_version()
+
+def get_version():
+
+    VERSION = "v1.8.0"
+
+    return VERSION
+
+# ------------------------------------------------------------------------------
 # get_help()
 
 
@@ -667,35 +676,38 @@ def _check_arguments(argsDict):
     # --------------------------------------------------------------------------
     # imports
 
-    import importlib.util
     import os
     import tempfile
+    import logging
+    import warnings
+
+    logging.captureWarnings(True)
 
     # --------------------------------------------------------------------------
     # check arguments
     # check if subject directory exists
     if os.path.isdir(argsDict["subjects_dir"]):
-        print("Found subjects directory", argsDict["subjects_dir"])
+        logging.info("Found subjects directory " + argsDict["subjects_dir"])
     else:
         raise FileNotFoundError("ERROR: subjects directory " + argsDict["subjects_dir"] + " is not an existing directory")
 
     # check if output directory exists or can be created and is writable
     if os.path.isdir(argsDict["output_dir"]):
-        print("Found output directory", argsDict["output_dir"])
+        logging.info("Found output directory " + argsDict["output_dir"])
     else:
         try:
             os.mkdir(argsDict["output_dir"])
         except Exception as e:
-            print("ERROR: cannot create output directory " + argsDict["output_dir"])
-            print("Reason:", e)
+            logging.error("ERROR: cannot create output directory " + argsDict["output_dir"])
+            logging.error("Reason:", e)
             raise
 
         try:
             testfile = tempfile.TemporaryFile(dir=argsDict["output_dir"])
             testfile.close()
         except Exception as e:
-            print("ERROR: " + argsDict["output_dir"] + " not writeable")
-            print("Reason:", e)
+            logging.error("ERROR: " + argsDict["output_dir"] + " not writeable")
+            logging.error("Reason:", e)
             raise
 
     # check if both subjects and subjects-file were specified
@@ -719,27 +731,27 @@ def _check_arguments(argsDict):
         for subject in os.listdir(argsDict["subjects_dir"]):
             path_aseg_stat = os.path.join(argsDict["subjects_dir"], subject, "stats", "aseg.stats")
             if os.path.isfile(path_aseg_stat):
-                print("Found subject", subject)
+                logging.info("Found subject " + subject)
                 argsDict["subjects"].extend([subject])
 
     # check if screenshots subdirectory exists or can be created and is writable
     if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "screenshots")):
-            print("Found screenshots directory", os.path.join(argsDict["output_dir"], "screenshots"))
+            logging.info("Found screenshots directory " + os.path.join(argsDict["output_dir"], "screenshots"))
         else:
             try:
                 os.mkdir(os.path.join(argsDict["output_dir"], "screenshots"))
             except Exception as e:
-                print("ERROR: cannot create screenshots directory " + os.path.join(argsDict["output_dir"], "screenshots"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create screenshots directory " + os.path.join(argsDict["output_dir"], "screenshots"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "screenshots"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "screenshots") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "screenshots") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check screenshots_base
@@ -748,7 +760,7 @@ def _check_arguments(argsDict):
     # check screenshots_overlay (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
     if argsDict["screenshots_overlay"].lower() == "none":
         argsDict["screenshots_overlay"] = None
-        print("Found screenshot overlays set to None")
+        logging.info("Found screenshot overlays set to None")
     else:
         argsDict["screenshots_overlay"] = [argsDict["screenshots_overlay"]]
 
@@ -757,7 +769,7 @@ def _check_arguments(argsDict):
         argsDict["screenshots_surf"] = [argsDict["screenshots_surf"]]
     if argsDict["screenshots_surf"][0].lower() == "none":
         argsDict["screenshots_surf"] = None
-        print("Found screenshot surfaces set to None")
+        logging.info("Found screenshot surfaces set to None")
 
     # check if screenshots_views argument can be evaluated
     if argsDict["screenshots_views"] == "default":
@@ -771,18 +783,14 @@ def _check_arguments(argsDict):
             except Exception:
                 isConvertible = False
             if not isXYZ or not isConvertible:
-                print()
-                print("ERROR: could not understand " + x)
-                print()
-                print("       the --screenshots_views argument can only contain one or more x=<numeric> y=<numeric> z=<numeric> expressions.")
-                print()
-                print("       for example: --screenshots_views x=0")
-                print("                    --screenshots_views x=-10 x=10 y=0")
-                print("                    --screenshots_views x=0 z=0")
-                print()
+                logging.error("ERROR: could not understand " + x)
+                logging.error("       the --screenshots_views argument can only contain one or more x=<numeric> y=<numeric> z=<numeric> expressions.")
+                logging.error("       for example: --screenshots_views x=0")
+                logging.error("                    --screenshots_views x=-10 x=10 y=0")
+                logging.error("                    --screenshots_views x=0 z=0")
                 raise ValueError
 
-        print("Found screenshot coordinates ", argsDict["screenshots_views"])
+        logging.info("Found screenshot coordinates " + ' '.join(argsDict["screenshots_views"]))
         argsDict["screenshots_views"] = [
             (y[0], int(y[1])) for y in [x.split("=") for x in argsDict["screenshots_views"]]
         ]
@@ -798,143 +806,138 @@ def _check_arguments(argsDict):
     if argsDict["screenshots_orientation"] != ["neurological"] and argsDict["screenshots_orientation"] != ["radiological"]:
         raise TypeError("ERROR: screenshots_orientation argument must be either 'neurological' or 'radiological'.")
     else:
-        print("Found screenshot orientation set to " + argsDict["screenshots_orientation"][0])
+        logging.info("Found screenshot orientation set to " + argsDict["screenshots_orientation"][0])
 
     # check if skullstrip subdirectory exists or can be created and is writable
     if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "skullstrip")):
-            print("Found skullstrip directory", os.path.join(argsDict["output_dir"], "skullstrip"))
+            logging.info("Found skullstrip directory " + os.path.join(argsDict["output_dir"], "skullstrip"))
         else:
             try:
                 os.mkdir(os.path.join(argsDict["output_dir"], "skullstrip"))
             except Exception as e:
-                print("ERROR: cannot create skullstrip directory " + os.path.join(argsDict["output_dir"], "skullstrip"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create skullstrip directory " + os.path.join(argsDict["output_dir"], "skullstrip"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "skullstrip"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "skullstrip") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "skullstrip") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if fornix subdirectory exists or can be created and is writable
     if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "fornix")):
-            print("Found fornix directory", os.path.join(argsDict["output_dir"], "fornix"))
+            logging.info("Found fornix directory " + os.path.join(argsDict["output_dir"], "fornix"))
         else:
             try:
                 os.mkdir(os.path.join(argsDict["output_dir"], "fornix"))
             except Exception as e:
-                print("ERROR: cannot create fornix directory " + os.path.join(argsDict["output_dir"], "fornix"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create fornix directory " + os.path.join(argsDict["output_dir"], "fornix"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "fornix"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "fornix") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "fornix") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if hypothalamus subdirectory exists or can be created and is writable
     if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "hypothalamus")):
-            print("Found hypothalamus directory", os.path.join(argsDict["output_dir"], "hypothalamus"))
+            logging.info("Found hypothalamus directory " + os.path.join(argsDict["output_dir"], "hypothalamus"))
         else:
             try:
                 os.mkdir(os.path.join(argsDict["output_dir"], "hypothalamus"))
             except Exception as e:
-                print("ERROR: cannot create hypothalamus directory " + os.path.join(argsDict["output_dir"], "hypothalamus"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create hypothalamus directory " + os.path.join(argsDict["output_dir"], "hypothalamus"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "hypothalamus"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "hypothalamus") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "hypothalamus") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if hippocampus subdirectory exists or can be created and is writable
     if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "hippocampus")):
-            print("Found hippocampus directory", os.path.join(argsDict["output_dir"], "hippocampus"))
+            logging.info("Found hippocampus directory " + os.path.join(argsDict["output_dir"], "hippocampus"))
         else:
             try:
                 os.mkdir(os.path.join(argsDict["output_dir"], "hippocampus"))
             except Exception as e:
-                print("ERROR: cannot create hippocampus directory " + os.path.join(argsDict["output_dir"], "hippocampus"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create hippocampus directory " + os.path.join(argsDict["output_dir"], "hippocampus"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "hippocampus"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "hippocampus") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "hippocampus") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if label file is given
     if (argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True) and argsDict["hippocampus_label"] is None:
-        print(
-            "ERROR: The --hippocampus-label <LABEL> argument must be specified if using --hippocampus or --hippocampus-html"
-        )
-        print(
-            "       The filename of the segmentation file must correspond to [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz"
-            + "\n"
-        )
+        logging.error("ERROR: The --hippocampus-label <LABEL> argument must be specified if using --hippocampus or --hippocampus-html")
+        logging.error("       The filename of the segmentation file must correspond to [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz")
         raise ValueError
 
     # check if shape subdirectory exists or can be created and is writable
     if argsDict["shape"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "brainprint")):
-            print("Found brainprint directory", os.path.join(argsDict["output_dir"], "brainprint"))
+            logging.info("Found brainprint directory " + os.path.join(argsDict["output_dir"], "brainprint"))
         else:
             try:
                 os.makedirs(os.path.join(argsDict["output_dir"], "brainprint"))
             except Exception as e:
-                print("ERROR: cannot create brainprint directory " + os.path.join(argsDict["output_dir"], "brainprint"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create brainprint directory " + os.path.join(argsDict["output_dir"], "brainprint"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "brainprint"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "brainprint") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "brainprint") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if outlier subdirectory exists or can be created and is writable
     if argsDict["outlier"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "outliers")):
-            print("Found outliers directory", os.path.join(argsDict["output_dir"], "outliers"))
+            logging.info("Found outliers directory " + os.path.join(argsDict["output_dir"], "outliers"))
         else:
             try:
                 os.makedirs(os.path.join(argsDict["output_dir"], "outliers"))
             except Exception as e:
-                print("ERROR: cannot create outliers directory " + os.path.join(argsDict["output_dir"], "outliers"))
-                print("Reason:", e)
+                logging.error("ERROR: cannot create outliers directory " + os.path.join(argsDict["output_dir"], "outliers"))
+                logging.error("Reason:", e)
                 raise
 
             try:
                 testfile = tempfile.TemporaryFile(dir=os.path.join(argsDict["output_dir"], "outliers"))
                 testfile.close()
             except Exception as e:
-                print("ERROR: " + os.path.join(argsDict["output_dir"], "outliers") + " not writeable")
-                print("Reason:", e)
+                logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "outliers") + " not writeable")
+                logging.error("Reason:", e)
                 raise
 
     # check if outlier-table exists if it was given, otherwise exit
     if argsDict["outlier_table"] is not None:
         if os.path.isfile(argsDict["outlier_table"]):
-            print("Found table with normative values ", argsDict["outlier_table"])
+            logging.info("Found table with normative values " + argsDict["outlier_table"])
         else:
             raise FileNotFoundError("ERROR: Could not find table with normative values ", argsDict["outlier_table"])
 
@@ -944,46 +947,46 @@ def _check_arguments(argsDict):
         # -files: stats/aseg.stats
         path_check = os.path.join(argsDict["subjects_dir"], subject, "stats", "aseg.stats")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: surf/[lr]h.w-g.pct.mgh, label/[lr]h.cortex.label
         path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.cortex.label")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.cortex.label")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/transforms/talairach.lta
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "talairach.lta")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.orig.mgz for FastSurfer
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aseg.mgz")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         if argsDict["fastsurfer"] is True:
@@ -991,13 +994,13 @@ def _check_arguments(argsDict):
         else:
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # -files: scripts/recon-all.log
         path_check = os.path.join(argsDict["subjects_dir"], subject, "scripts", "recon-all.log")
         if not os.path.isfile(path_check):
-            print("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find", path_check, "for subject", subject)
             subjects_to_remove.extend([subject])
 
         # check screenshots
@@ -1007,22 +1010,22 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.white")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.white")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
         # check surfaces
@@ -1030,39 +1033,39 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.inflated")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.inflated")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.annot")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.annot")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
         if len(argsDict["surfaces_views"]) > 0:
             _views_available = ["anterior", "posterior", "left", "right", "superior", "inferior"]
             for v in argsDict["surfaces_views"].copy():
                 if v not in _views_available:
-                    print(f"ERROR: Skip unexpected view for surface plots: {v}")
+                    logging.error(f"ERROR: Skip unexpected view for surface plots: {v}")
                     argsDict["surfaces_views"].remove(v)
 
         # check skullstrip
@@ -1070,12 +1073,12 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "brainmask.mgz")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
         # check fornix
@@ -1083,7 +1086,7 @@ def _check_arguments(argsDict):
             # -files: mri/transforms/cc_up.lta
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "cc_up.lta")
             if not os.path.isfile(path_check):
-                print("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find", path_check, "for subject", subject)
                 subjects_to_remove.extend([subject])
 
     # remove subjects with missing files after creating unique list
@@ -1152,6 +1155,7 @@ def _do_qatools(argsDict):
     import csv
     import os
     import time
+    import logging
 
     import numpy as np
 
@@ -1162,12 +1166,9 @@ def _do_qatools(argsDict):
     from qatoolspython.checkTopology import checkTopology
     from qatoolspython.createScreenshots import createScreenshots
     from qatoolspython.createSurfacePlots import createSurfacePlots
-    from qatoolspython.evaluateFornixSegmentation import \
-        evaluateFornixSegmentation
-    from qatoolspython.evaluateHippocampalSegmentation import \
-        evaluateHippocampalSegmentation
-    from qatoolspython.evaluateHypothalamicSegmentation import \
-        evaluateHypothalamicSegmentation
+    from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
+    from qatoolspython.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
+    from qatoolspython.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
     from qatoolspython.outlierDetection import outlierDetection, outlierTable
 
     # ------------------------------------------------------------------------------
@@ -1213,13 +1214,12 @@ def _do_qatools(argsDict):
     # loop through the specified subjects
     for subject in argsDict["subjects"]:
         #
-        print(
-            "Starting qatools-python for subject",
-            subject,
-            "at",
+        logging.info(
+            "Starting qatools-python for subject " +
+            subject +
+            " at " +
             time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())),
         )
-        print("")
 
         # ----------------------------------------------------------------------
         # set images
@@ -1248,8 +1248,8 @@ def _do_qatools(argsDict):
             )
 
         except Exception as e:
-            print("SNR computation failed for", subject)
-            print("Reason:", e)
+            logging.error("SNR computation failed for", subject)
+            logging.error("Reason:", e)
             wm_snr_orig = np.nan
             gm_snr_orig = np.nan
             metrics_ok = False
@@ -1261,8 +1261,8 @@ def _do_qatools(argsDict):
             )
 
         except Exception as e:
-            print("SNR computation failed for", subject)
-            print("Reason:", e)
+            logging.error("SNR computation failed for", subject)
+            logging.error("Reason:", e)
             wm_snr_norm = np.nan
             gm_snr_norm = np.nan
             metrics_ok = False
@@ -1272,8 +1272,8 @@ def _do_qatools(argsDict):
             cc_size = checkCCSize(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            print("CC size computation failed for", subject)
-            print("Reason:", e)
+            logging.error("CC size computation failed for", subject)
+            logging.error("Reason:", e)
             cc_size = np.nan
             metrics_ok = False
 
@@ -1282,8 +1282,8 @@ def _do_qatools(argsDict):
             holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            print("Topology check failed for", subject)
-            print("Reason:", e)
+            logging.error("Topology check failed for", subject)
+            logging.error("Reason:", e)
             holes_lh = np.nan
             holes_rh = np.nan
             defects_lh = np.nan
@@ -1297,8 +1297,8 @@ def _do_qatools(argsDict):
             con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            print("Contrast check failed for", subject)
-            print("Reason:", e)
+            logging.error("Contrast check failed for", subject)
+            logging.error("Reason:", e)
             con_snr_lh = np.nan
             con_snr_rh = np.nan
             metrics_ok = False
@@ -1308,8 +1308,8 @@ def _do_qatools(argsDict):
             rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            print("Rotation failed for", subject)
-            print("Reason:", e)
+            logging.error("Rotation failed for", subject)
+            logging.error("Reason:", e)
             rot_tal_x = np.nan
             rot_tal_y = np.nan
             rot_tal_z = np.nan
@@ -1339,9 +1339,6 @@ def _do_qatools(argsDict):
 
         # store data
         statusDict[subject].update({"metrics": metrics_ok})
-
-        #
-        print("")
 
         # ----------------------------------------------------------------------
         # run optional modules: shape analysis
@@ -1374,8 +1371,8 @@ def _do_qatools(argsDict):
             #
             except Exception as e:
                 distDict = {subject: []}
-                print("ERROR: the shape module failed for subject " + subject)
-                print("Reason:", e)
+                logging.error("ERROR: the shape module failed for subject " + subject)
+                logging.error("Reason:", e)
                 shape_ok = False
 
             # store data
@@ -1409,17 +1406,17 @@ def _do_qatools(argsDict):
                 # check screenshots_base
                 if argsDict["screenshots_base"][0] == "default":
                     screenshots_base_subj = argsDict["screenshots_base"]
-                    print("Using default for screenshot base image")
+                    logging.info("Using default for screenshot base image")
                 elif os.path.isfile(argsDict["screenshots_base"][0]):
                     screenshots_base_subj = argsDict["screenshots_base"]
-                    print("Using " + screenshots_base_subj[0] + " as screenshot base image")
+                    logging.info("Using " + screenshots_base_subj[0] + " as screenshot base image")
                 elif os.path.isfile(
                     os.path.join(argsDict["subjects_dir"], subject, "mri", argsDict["screenshots_base"][0])
                 ):
                     screenshots_base_subj = [
                         os.path.join(argsDict["subjects_dir"], subject, "mri", argsDict["screenshots_base"][0])
                     ]
-                    print("Using " + screenshots_base_subj[0] + " as screenshot base image")
+                    logging.info("Using " + screenshots_base_subj[0] + " as screenshot base image")
                 else:
                     raise FileNotFoundError("ERROR: cannot find the screenshots base file " + argsDict["screenshots_base"][0])
 
@@ -1427,17 +1424,17 @@ def _do_qatools(argsDict):
                 if argsDict["screenshots_overlay"] is not None:
                     if argsDict["screenshots_overlay"][0] == "default":
                         screenshots_overlay_subj = argsDict["screenshots_overlay"]
-                        print("Using default for screenshot overlay image")
+                        logging.info("Using default for screenshot overlay image")
                     elif os.path.isfile(argsDict["screenshots_overlay"][0]):
                         screenshots_overlay_subj = argsDict["screenshots_overlay"]
-                        print("Using " + screenshots_overlay_subj[0] + " as screenshot overlay image")
+                        logging.info("Using " + screenshots_overlay_subj[0] + " as screenshot overlay image")
                     elif os.path.isfile(
                         os.path.join(argsDict["subjects_dir"], subject, "mri", argsDict["screenshots_overlay"][0])
                     ):
                         screenshots_overlay_subj = [
                             os.path.join(argsDict["subjects_dir"], subject, "mri", argsDict["screenshots_overlay"][0])
                         ]
-                        print("Using " + screenshots_overlay_subj[0] + " as screenshot overlay image")
+                        logging.info("Using " + screenshots_overlay_subj[0] + " as screenshot overlay image")
                     else:
                         raise FileNotFoundError("ERROR: cannot find the screenshots overlay file " + argsDict["screenshots_overlay"][0])
                 else:
@@ -1447,16 +1444,16 @@ def _do_qatools(argsDict):
                 if argsDict["screenshots_surf"] is not None:
                     for screenshots_surf_i in argsDict["screenshots_surf"]:
                         if screenshots_surf_i == "default":
-                            print("Using default for screenshot surface")
+                            logging.info("Using default for screenshot surface")
                         elif os.path.isfile(screenshots_surf_i):
-                            print("Using " + screenshots_surf_i + " as screenshot surface")
+                            logging.info("Using " + screenshots_surf_i + " as screenshot surface")
                         elif os.path.isfile(
                             os.path.join(argsDict["subjects_dir"], subject, "surf", screenshots_surf_i)
                         ):
                             screenshots_surf_i = os.path.join(
                                 argsDict["subjects_dir"], subject, "surf", screenshots_surf_i
                             )
-                            print("Using " + screenshots_surf_i + " as screenshot surface")
+                            logging.info("Using " + screenshots_surf_i + " as screenshot surface")
                         else:
                             raise FileNotFoundError("ERROR: cannot find the screenshots surface file " + screenshots_surf_i)
                         screenshots_surf_subj.append(screenshots_surf_i)
@@ -1471,8 +1468,8 @@ def _do_qatools(argsDict):
 
             #
             except Exception as e:
-                print("ERROR: screenshots module failed for subject " + subject)
-                print("Reason: " + str(e))
+                logging.error("ERROR: screenshots module failed for subject " + subject)
+                logging.error("Reason: " + str(e))
                 screenshots_ok = False
 
             # store data
@@ -1512,8 +1509,8 @@ def _do_qatools(argsDict):
 
             #
             except Exception as e:
-                print("ERROR: surfaces module failed for subject " + subject)
-                print("Reason: " + str(e))
+                logging.error("ERROR: surfaces module failed for subject " + subject)
+                logging.error("Reason: " + str(e))
                 surfaces_ok = False
 
             # store data
@@ -1549,14 +1546,14 @@ def _do_qatools(argsDict):
                 # check skullstrip_base
                 if os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")):
                     skullstrip_base_subj = [os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")]
-                    print("Using " + "orig.mgz" + " as skullstrip base image")
+                    logging.info("Using " + "orig.mgz" + " as skullstrip base image")
                 else:
                     raise FileNotFoundError("ERROR: cannot find the skullstrip base file " + "orig.mgz")
 
                 # check skullstrip_overlay
                 if os.path.isfile(os.path.join(argsDict["subjects_dir"], subject, "mri", "brainmask.mgz")):
                     skullstrip_overlay_subj = [os.path.join(argsDict["subjects_dir"], subject, "mri", "brainmask.mgz")]
-                    print("Using " + "brainmask.mgz" + " as skullstrip overlay image")
+                    logging.info("Using " + "brainmask.mgz" + " as skullstrip overlay image")
                 else:
                     raise FileNotFoundError("ERROR: cannot find the skullstrip overlay file " + "brainmask.mgz")
 
@@ -1580,8 +1577,8 @@ def _do_qatools(argsDict):
 
             #
             except Exception as e:
-                print("ERROR: skullstrip module failed for subject " + subject)
-                print("Reason: " + str(e))
+                logging.error("ERROR: skullstrip module failed for subject " + subject)
+                logging.error("Reason: " + str(e))
                 skullstrip_ok = False
 
             # store data
@@ -1636,8 +1633,8 @@ def _do_qatools(argsDict):
                         zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)), np.full(FORNIX_N_EIGEN, np.nan))
                     )
                 }
-                print("ERROR: fornix module failed for subject " + subject)
-                print("Reason:", e)
+                logging.error("ERROR: fornix module failed for subject " + subject)
+                logging.error("Reason:", e)
                 fornix_ok = False
 
             # store data
@@ -1685,8 +1682,8 @@ def _do_qatools(argsDict):
 
             #
             except Exception as e:
-                print("ERROR: hypothalamus module failed for subject " + subject)
-                print("Reason:", e)
+                logging.error("ERROR: hypothalamus module failed for subject " + subject)
+                logging.error("Reason:", e)
                 hypothalamus_ok = False
 
             # store data
@@ -1743,8 +1740,8 @@ def _do_qatools(argsDict):
 
             #
             except Exception as e:
-                print("ERROR: hippocampus module failed for subject " + subject)
-                print("Reason:", e)
+                logging.error("ERROR: hippocampus module failed for subject " + subject)
+                logging.error("Reason:", e)
                 hippocampus_ok = False
 
             # store data
@@ -1760,8 +1757,7 @@ def _do_qatools(argsDict):
 
         # --------------------------------------------------------------------------
         # message
-        print("Finished subject", subject, "at", time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())))
-        print("")
+        logging.info("Finished subject", subject, "at", time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())))
 
     # --------------------------------------------------------------------------
     # run optional modules: outlier detection
@@ -1828,8 +1824,8 @@ def _do_qatools(argsDict):
                     }
                 )
 
-            print("ERROR: outlier module failed")
-            print("Reason:", e)
+            logging.error("ERROR: outlier module failed")
+            logging.error("Reason:", e)
             outlier_ok = False
 
         # store data
@@ -1837,8 +1833,7 @@ def _do_qatools(argsDict):
             metricsDict[subject].update(outlierDict[subject])
 
         # message
-        print("Done")
-        print("")
+        logging.info("Done")
 
     # --------------------------------------------------------------------------
     # generate output
@@ -2187,6 +2182,79 @@ def _do_qatools(argsDict):
 
 
 # ------------------------------------------------------------------------------
+# _start_logging
+
+def _start_logging(argsDict):
+    """
+    start logging
+
+    """
+
+    # imports
+    import os
+    import sys
+    import uuid
+    import time
+    import logging
+    import tempfile
+    import traceback
+
+    # setup function to log uncaught exceptions
+    def foo(exctype, value, tb):
+        # log
+        logging.error('Error Information:')
+        logging.error('Type: %s', exctype)
+        logging.error('Value: %s', value)
+        for i in traceback.format_list(traceback.extract_tb(tb)):
+            logging.error('Traceback: %s', i)
+        # message
+        raise ValueError('Program exited with ERRORS.')
+    sys.excepthook = foo
+
+    # check if logfile can be written in current working directory
+    try:
+        testfile = tempfile.TemporaryFile(dir=os.getcwd())
+        testfile.close()
+    except OSError as e:
+        logging.error("Directory ' + os.getcwd() + ' not writeable for temporary logfile.")
+        logging.error("Reason:", e)
+        raise
+
+    # start logging
+    logfile =  os.path.join(os.getcwd() , 'logfile-' + str(uuid.uuid4()) + '.log')
+    logging.basicConfig(filename=logfile, filemode='w', level=logging.INFO)
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # this adds output to stdout
+
+    # intial messages
+    logging.info("Starting logging for fsqctools ...")
+    logging.info("Logfile: %s", logfile)
+    logging.info("Version: %s", get_version())
+    logging.info("Date: %s", time.strftime('%d/%m/%Y %H:%M:%S'))
+
+    # log args
+    logging.info("Command: " + " ".join(sys.argv))
+
+    # update args
+    argsDict["logfile"] = logfile
+
+    # return
+    return argsDict
+
+
+def _stop_logging(argsDict):
+    """
+    stop logging
+
+    """
+
+    # imports
+    import os
+
+    # move logfile to output dir
+    os.replace(argsDict["logfile"], os.path.join(argsDict["output_dir"], "logfile.txt"))
+
+
+# ------------------------------------------------------------------------------
 # run qatools
 
 
@@ -2220,6 +2288,7 @@ def run_qatools(
     outlier=False,
     outlier_table=None,
     fastsurfer=False,
+    logfile=None,
 ):
     """
     a function to run the qatools submodules
@@ -2234,7 +2303,7 @@ def run_qatools(
 
     # create argsDict
     if argsDict is None and (subjects_dir is None or output_dir is None):
-        raise ValueError("ERROR: nothing to do. Need to specify either the argsDict argument or the subjects_dir / output_dir arguments.\n")
+        raise ValueError("ERROR: nothing to do. Need to specify either the argsDict argument or the subjects_dir / output_dir arguments.")
 
     elif argsDict is None and subjects_dir is not None and output_dir is not None:
         argsDict = dict()
@@ -2266,9 +2335,13 @@ def run_qatools(
         argsDict["outlier"] = outlier
         argsDict["outlier_table"] = outlier_table
         argsDict["fastsurfer"] = fastsurfer
+        argsDict["logfile"] = logfile
 
     elif (argsDict is not None) and (subjects_dir is not None or output_dir is not None):
-        raise ValueError("ERROR: cannot specify the argsDict and the subjects_dir / output_dir arguments at the same time.\n")
+        raise ValueError("ERROR: cannot specify the argsDict and the subjects_dir / output_dir arguments at the same time.")
+
+    # start logging
+    argsDict = _start_logging(argsDict)
 
     # check arguments
     argsDict = _check_arguments(argsDict)
@@ -2278,3 +2351,6 @@ def run_qatools(
 
     # run qatools
     _do_qatools(argsDict)
+
+    # stop logging
+    _stop_logging(argsDict)

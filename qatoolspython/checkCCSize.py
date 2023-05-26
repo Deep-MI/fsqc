@@ -28,11 +28,11 @@ def checkCCSize(subjects_dir, subject):
 
     # Imports
     import os
-
+    import logging
     import numpy as np
 
     # Message
-    print("Checking size of the corpus callosum ...")
+    logging.info("Checking size of the corpus callosum ...")
 
     # Get file name and read contents
     path_stats_file = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
@@ -65,7 +65,7 @@ def checkCCSize(subjects_dir, subject):
 
     relative_cc = sum_cc / intracranial_volume
 
-    print("Relative size of the corpus callosum is", "{:.4}".format(relative_cc))
+    logging.info("Relative size of the corpus callosum is " + "{:.4}".format(relative_cc))
 
     # Return
     return relative_cc

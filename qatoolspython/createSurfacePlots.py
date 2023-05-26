@@ -33,6 +33,7 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
         ("inferior", 0, 0, -2),
     ]
     scale_png = 0.8
+    
     # -----------------------------------------------------------------------------
     # import surfaces and overlays
 

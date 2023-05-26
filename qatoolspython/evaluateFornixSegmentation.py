@@ -56,7 +56,8 @@ def evaluateFornixSegmentation(
     # imports
 
     import os
-
+    import logging
+    import warnings
     import numpy as np
 
     from qatoolspython.createScreenshots import createScreenshots
@@ -65,10 +66,12 @@ def evaluateFornixSegmentation(
     # --------------------------------------------------------------------------
     # check files
 
+    logging.captureWarnings(True)
+
     if not os.path.isfile(
         os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta")
     ):
-        print(
+        warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta")
             + ", returning NaNs"
@@ -80,7 +83,7 @@ def evaluateFornixSegmentation(
         return out
 
     elif not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz")):
-        print(
+        warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz")
             + ", returning NaNs"
@@ -92,7 +95,7 @@ def evaluateFornixSegmentation(
         return out
 
     elif not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")):
-        print(
+        warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")
             + ", returning NaNs"

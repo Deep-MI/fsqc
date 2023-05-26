@@ -54,6 +54,7 @@ def createScreenshots(
     # imports
 
     import os
+    import logging
     import warnings
     import matplotlib
     import nibabel as nb
@@ -69,6 +70,8 @@ def createScreenshots(
 
     # -----------------------------------------------------------------------------
     # settings
+
+    logging.captureWarnings(True)
 
     FIGSIZE = 8
 
@@ -221,7 +224,7 @@ def createScreenshots(
             closestCutValue = rasIdxFlat3[
                 np.abs(rasIdxFlat3[:, iDim] - icr[1]).argmin(), iDim
             ]
-            print(
+            logging.info(
                 f"INFO: the VIEW {icr} will be changed to ('{icr[0]}', {closestCutValue:.2f}) so it is not"
                 " necessary to interpolate volumetric data"
             )
@@ -374,7 +377,7 @@ def createScreenshots(
     # plot each panel
 
     for p in range(len(CutsRRAS)):
-        print("Panel " + str(p))
+        logging.info("Panel " + str(p))
 
         axsx = myLayoutList[p][0]
         axsy = myLayoutList[p][1]
@@ -538,7 +541,7 @@ def createScreenshots(
         # now plot
         for s in range(len(surf)):
             if len(LVL[s][p][0][0]) > 0:
-                print("Surface " + str(s))
+                logging.info("Surface " + str(s))
 
                 # create array of line segments
                 tmpx = list()
@@ -671,5 +674,3 @@ def createScreenshots(
 
     # -----------------------------------------------------------------------------
     #
-
-    print()

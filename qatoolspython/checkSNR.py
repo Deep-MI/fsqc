@@ -47,14 +47,19 @@ def checkSNR(
     # Imports
 
     import os
+    import logging
     import warnings
     import nibabel as nib
     import numpy as np
     from skimage.morphology import binary_erosion
 
+    # Setttings
+
+    logging.captureWarnings(True)
+
     # Message
 
-    print("Computing white and gray matter SNR for " + ref_image + " ...")
+    logging.info("Computing white and gray matter SNR for " + ref_image + " ...")
 
     # Get data
 
@@ -105,7 +110,7 @@ def checkSNR(
     signal_wm_mean = np.mean(signal_wm)
     signal_wm_std = np.std(signal_wm)
     wm_snr = signal_wm_mean / signal_wm_std
-    print("White matter signal to noise ratio:", "{:.4}".format(wm_snr))
+    logging.info("White matter signal to noise ratio: " + "{:.4}".format(wm_snr))
 
     # Process gray matter image
 
@@ -126,7 +131,7 @@ def checkSNR(
     signal_gm_mean = np.mean(signal_gm)
     signal_gm_std = np.std(signal_gm)
     gm_snr = signal_gm_mean / signal_gm_std
-    print("Gray matter signal to noise ratio:", "{:.4}".format(gm_snr))
+    logging.info("Gray matter signal to noise ratio: " + "{:.4}".format(gm_snr))
 
     # Return
     return wm_snr, gm_snr

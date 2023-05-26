@@ -44,6 +44,7 @@ def evaluateHypothalamicSegmentation(
     # imports
 
     import os
+    import logging
 
     import nibabel as nb
     import numpy as np
@@ -56,7 +57,7 @@ def evaluateHypothalamicSegmentation(
     # check files
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")):
-        print(
+        logging.error(
             "ERROR: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")
             + ", not running hypothalamus module."
@@ -67,7 +68,7 @@ def evaluateHypothalamicSegmentation(
     if not os.path.isfile(
         os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz")
     ):
-        print(
+        logging.error(
             "ERROR: could not find "
             + os.path.join(
                 SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"

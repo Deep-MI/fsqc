@@ -50,6 +50,7 @@ def evaluateHippocampalSegmentation(
     # imports
 
     import os
+    import logging
 
     import nibabel as nb
     import numpy as np
@@ -62,7 +63,7 @@ def evaluateHippocampalSegmentation(
     # check files
 
     if not os.path.isfile(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")):
-        print(
+        logging.error(
             "ERROR: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")
             + ", not running hippocampus module."
@@ -78,7 +79,7 @@ def evaluateHippocampalSegmentation(
             HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
         )
     ):
-        print(
+        logging.error(
             "ERROR: could not find "
             + os.path.join(
                 SUBJECTS_DIR,

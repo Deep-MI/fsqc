@@ -22,12 +22,15 @@ def importMGH(filename):
     """
 
     import os
-    import struct
-
+    import logging
     import numpy
+    import struct
+    import warnings
+
+    logging.captureWarnings(True)
 
     if not os.path.exists(filename):
-        print("WARNING: could not find " + filename + ", returning NaNs")
+        warnings.warn("WARNING: could not find " + filename + ", returning NaNs")
         return numpy.nan
 
     fp = open(filename, "rb")
