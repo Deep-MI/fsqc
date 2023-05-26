@@ -168,7 +168,7 @@ def get_help(print_help=True, return_help=False):
 
         required arguments:
           --subjects_dir <directory>
-                                subjects directory with a set of Freesurfer-  or
+                                subjects directory with a set of Freesurfer- or
                                 Fastsurfer-processed individual datasets.
           --output_dir <directory>
                                 output directory
@@ -2204,7 +2204,7 @@ def run_qatools(
     screenshots_surf="default",
     screenshots_views="default",
     screenshots_layout=None,
-    screenshots_orientation="radiological",
+    screenshots_orientation=["radiological"],
     surfaces=False,
     surfaces_html=False,
     surfaces_views=["left", "right", "superior", "inferior"],
