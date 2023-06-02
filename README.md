@@ -1,11 +1,31 @@
 # qatools-python
 
+## Contents
+
+- [Description](#description)
+- [Ongoing development](#ongoing-development)
+  - [Recent changes](#recent-changes)
+  - [Main and development branches](#main-and-development-branches)
+  - [Roadmap](#roadmap)
+- [Usage](#usage)
+  - [As a command line tool](#as-a-command-line-tool)
+  - [As a python package](#as-a-python-package)
+  - [As a docker image](#as-a-docker-image)
+- [Installation](#installation)
+   - [Download from GitHub](#download-from-github)
+   - [Installation as a python package](#installation-as-a-python-package)
+- [Requirements](#requirements)
+- [Known issues](#known-issues)
+- [Authors](#authors)
+- [Citations](#citations)
+- [License](#license)
+
 ___
 
 ## Description
 
-This is a set of quality assurance / quality control scripts for Freesurfer
-processed structural MRI data.
+This is a set of quality assurance / quality control scripts for Fastsurfer- or
+Freesurfer-processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
 Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
@@ -42,10 +62,10 @@ write a csv table into that location. The csv table will contain the above
 metrics plus a subject identifier.
 
 The program can also be run on images that were processed with [FastSurfer](https://github.com/Deep-MI/FastSurfer)
-instead of FreeSurfer. In that case, simply add a `--fastsurfer` switch to your
-shell command. Note that the full processing stream FastSurfer must have been
-run, including surface reconstruction (i.e. brain segmentation alone is not
-sufficient). FastSurfer v1.1 or later is required.
+(v1.1 or later) instead of FreeSurfer. In that case, simply add a `--fastsurfer`
+switch to your shell command. Note that FastSurfer's full processing stream must
+have been run, including surface reconstruction (i.e. brain segmentation alone
+is not sufficient).
 
 In addition to the core functionality of the toolbox there are several optional
 modules that can be run according to need:
@@ -59,17 +79,42 @@ that will be created within the output directory. These images can be used for
 quickly glimpsing through the processing results. Note that no display manager
 is required for this module, i.e. it can be run on a remote server, for example.
 
+- surfaces module
+
+This module allows for the automated generation of surface renderings of the
+left and right pial and inflated surfaces, overlaid with the aparc annotation.
+These images will be saved to the 'surfaces' subdirectory that will be created
+within the output directory. These images can be used for quickly glimpsing
+through the processing results. Note that no display manager is required for
+this module, i.e. it can be run on a remote server, for example.
+
+- skullstrip module
+
+This module allows for the automated generation cross-sections of the brain
+that are overlaid with the colored and semi-transparent brainmask. This allows
+to check the quality of the skullstripping in FreeSurfer. The resulting images
+will be saved to the 'skullstrip' subdirectory that will be created within the
+output directory.
+
 - fornix module
 
-This is a module to assess potential issues with the segementation of the
+This is a module to assess potential issues with the segmentation of the
 corpus callosum, which may incorrectly include parts of the fornix. To assess
 segmentation quality, a screenshot of the contours of the corpus callosum
 segmentation overlaid on the norm.mgz will be saved as 'cc.png' for each
 subject within the 'fornix' subdirectory of the output directory.
 
+- modules for the amygdala, hippocampus, and hypothalamus
+
+These modules evaluate potential missegmentations of the amygdala, hippocampus,
+and hypothalamus. To assess segmentation quality, screenshots will be created
+These modules require prior processing of the MR images with FreeSurfer's
+dedicated toolboxes for the segmentation of the amygdala and hippocampus, and
+the hypothalamus, respectively.
+
 - shape module
 
-The shape module will run a shapeDNA / braiprint analysis to compute distances
+The shape module will run a shapeDNA / brainprint analysis to compute distances
 of shape descriptors between lateralized brain structures. This can be used
 to identify discrepancies and irregularities between pairs of corresponding
 structures. The results will be included in the main csv table, and the output
@@ -78,7 +123,10 @@ directory will also contain a 'brainprint' subdirectory.
 - outlier module
 
 This is a module to detect extreme values among the subcortical ('aseg')
-segmentations. The outlier detection is based on comparisons with the
+segmentations as well as the cortical parcellations. If present, hypothalamic
+and hippocampal subsegmentations will also be included.
+
+The outlier detection is based on comparisons with the
 distributions of the sample as well as normative values taken from the
 literature (see References).
 
@@ -96,8 +144,10 @@ alternative, users may specify their own normative values by using the
 '--outlier-table' argument. This requires a custom csv table with headers
 `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
 names. It can be a subset and the order is arbitrary, but naming must exactly
-match the nomenclature of the 'aseg.stats' file. `upper` and `lower` are user-
-specified upper and lower bounds.
+match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file.
+If cortical parcellations are included in the outlier table for a comparison
+with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. file.
+`upper` and `lower` are user-specified upper and lower bounds.
 
 The main csv table will be appended with the following summary variables, and
 more detailed output about will be saved as csv tables in the 'outliers'
@@ -111,20 +161,67 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
+## Ongoing development
+
+### Recent changes
+
+A list of changes is available [here](CHANGES.md). The current version of this
+toolbox is v2.0; recent changes include the addition of the skullstrip,
+hipopcampus and hypothalamus modules as well as the addition of a surface
+visualization module.
+
+### Main and development branches
+
+This repository contains multiple branches, reflecting the continued
+development of the toolbox. The two primary branches are the main branch
+(`stable`) and the development branch (`dev`). New features will first be added
+to the development branch, and eventually be merged with the main branch. You
+are currently on the development branch. To go to the main branch, select it
+from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/stable).
+
+### Roadmap
+
+The goal of the `qatools-python` project is to create a modular and extensible
+software package that provides quantitative metrics and visual information for
+the quality control of FreeSurfer- or Fastsurfer-processed MR images. The
+package is currently under development, and new features are continuously
+added.
+
+New features will initially be available in the [development branch](https://github.com/Deep-MI/qatools-python/tree/dev)
+of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/qatools-python/tree/stable)
+after a period of testing and evaluation. Unless explicitly announced, all new
+features will preserve compatibility with earlier versions.
+
+Upcoming extensions include modules for the quality control of FreeSurfer's
+brainstem and thalamic segmentations. Another planned extension is support for
+parallel processing of many cases.
+
+Feedback, suggestions, and contributions are always welcome, preferably via
+issues and pull requests.
+
+___
+
 ## Usage
+
+### As a command line tool
 
 ```
 python3 qatools.py --subjects_dir <directory> --output_dir <directory>
                           [--subjects SubjectID [SubjectID ...]]
                           [--subjects-file <file>] [--screenshots]
-                          [--screenshots-html] [--fornix] [--fornix-html]
-                          [--shape] [--outlier] [--fastsurfer] [-h]
+                          [--screenshots-html] [--surfaces] [--surfaces-html]
+                          [--skullstrip] [--skullstrip-html]
+                          [--fornix] [--fornix-html] [--hippocampus]
+                          [--hippocampus-html] [--hippocampus-label ... ]
+                          [--hypothalamus] [--hypothalamus-html] [--shape]
+                          [--outlier] [--fastsurfer] [-h] [--more-help]
+                          [...]
 
 
 required arguments:
   --subjects_dir <directory>
-                         subjects directory with a set of Freesurfer 6.0 processed
-                         individual datasets.
+                         subjects directory with a set of Freesurfer- or
+                         Fastsurfer-processed individual datasets.
   --output_dir <directory>
                          output directory
 
@@ -132,26 +229,78 @@ optional arguments:
   --subjects SubjectID [SubjectID ...]
                          list of subject IDs
   --subjects-file <file> filename of a file with subject IDs (one per line)
-  --screenshots          create screenshots
-  --screenshots-html     create html summary page of screenshots (requires 
-                         --screenshots)
+  --screenshots          create screenshots of individual brains
+  --screenshots-html     create screenshots of individual brains incl.
+                         html summary page
+  --surfaces             create screenshots of individual brain surfaces
+  --surfaces-html        create screenshots of individual brain surfaces
+                         and html summary page  
+  --skullstrip           create screenshots of individual brainmasks
+  --skullstrip-html      create screenshots of individual brainmasks and
+                         html summary page
   --fornix               check fornix segmentation
-  --fornix-html          create html summary page of fornix evaluation (requires 
-                         --fornix)
+  --fornix-html          check fornix segmentation and create html summary
+                         page of fornix evaluation
+  --hypothalamus         check hypothalamic segmentation
+  --hypothalamus-html    check hypothalamic segmentation and create html
+                         summary page
+  --hippocampus          check segmentation of hippocampus and amygdala
+  --hippocampus-html     check segmentation of hippocampus and amygdala
+                         and create html summary page
+  --hippocampus-label    specify label for hippocampus segmentation files
+                         (default: T1.v21). The full filename is then
+                         [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz
   --shape                run shape analysis
   --outlier              run outlier detection
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
+  --exit-on-error        terminate the program when encountering an error; 
+                         otherwise, try to continue with the next module or 
+                         case  
 
 getting help:
   -h, --help            display this help message and exit
+  --more-help           display extensive help message and exit
+
+expert options:
+  --screenshots_base <image>
+                        filename of an image that should be used instead of
+                        norm.mgz as the base image for the screenshots. Can be
+                        an individual file (which would not be appropriate for
+                        multi-subject analysis) or can be a file without
+                        pathname and with the same filename across subjects
+                        within the 'mri' subdirectory of an individual
+                        FreeSurfer results directory (which would be appropriate
+                        for multi-subject analysis).
+  --screenshots_overlay <image>
+                        path to an image that should be used instead of aseg.mgz
+                        as the overlay image for the screenshots; can also be
+                        none. Can be an individual file (which would not be
+                        appropriate for multi-subject analysis) or can be a file
+                        without pathname and with the same filename across
+                        subjects within the 'mri' subdirectory of an individual
+                        FreeSurfer results directory (which would be appropriate
+                        for multi-subject analysis).
+  --screenshots_surf <surf> [<surf> ...]
+                        one or more surface files that should be used instead
+                        of [lr]h.white and [lr]h.pial; can also be none. Can be
+                        one or more individual file(s) (which would not be
+                        appropriate for multi-subject analysis) or can be a
+                        (list of) file(s) without pathname and with the same
+                        filename across subjects within the 'surf' subdirectory
+                        of an individual FreeSurfer results directory (which
+                        would be appropriate for multi-subject analysis).
+  --screenshots_views <view> [<view> ...]
+                        one or more views to use for the screenshots in the form
+                        of x=<numeric> y=<numeric> and/or z=<numeric>. Order
+                        does not matter. Default views are x=-10 x=10 y=0 z=0.
+  --screenshots_layout <rows> <columns>
+                        layout matrix for screenshot images.
 
 ```
 
-___
-
-## Examples
+*Examples:*
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
@@ -187,45 +336,55 @@ ___
 
 - Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
 
+### As a python package
+
+As an alternative to their command-line usage, the qatools-python scripts can
+also be run within a pure python environment, i.e. installed and imported as a
+python package.
+
+Use `import qatoolspython` (or sth. equivalent) to import the package within a
+python environment.
+
+Use the `run_qatools` function from the `qatoolspython` module to run an
+analysis:
+
+`from qatoolspython import qatoolspython`
+
+`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
+
+See `help(qatoolspython)` for further usage info and additional options.
+
+### As a docker image
+
+We provide a `Dockerfile` that can be used to create a Docker image for the
+qatools-python scripts. Documentation is provided on the [Docker page](docker/Docker.md).
 ___
 
 ## Main branch and development branch
 
-There are two branches in this repository, the main brach (`freesurfer-module-releases`) and the development branch (`freesurfer-module-dev`). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the main branch. To go to the development branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-dev).
+There are two branches in this repository, the main brach (`stable`) and the development branch (`dev`). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the development branch. To go to the main branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/stable).
 
 ___
 
 ## Installation
+
+### Download from GitHub
 
 This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
 
 Alternatively, it can be cloned directly from its repository via `git clone https://github.com/Deep-MI/qatools-python`.
 
 The `qatools.py` script will then be executable from the command line, as
-detailed above.
+detailed above. Note, however, that the required dependencies will have to be
+installed manually. See the [requirements](#requirements) section for
+instructions.
 
-Optional packages (if running the shape analysis module) include the `brainprint-python`
-and `lapy` packages from . They can be installed using
-`pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
-and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They should
-both be version 0.2 or newer.
-___
-
-## Use as a python package
-
-As an alternative to their command-line usage, the qc scripts can also be run
-within a pure python environment, i.e. installed and imported as a python
-package.
+### Installation as a python package
 
 Use the following code to download, build and install a package from its github
 repository into your local python package directory:
 
-`pip3 install --user git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases`
-
-Use the following code to install the package in editable mode to a location of
-your choice:
-
-`pip3 install --user --src /my/preferred/location --editable git+https://github.com/Deep-MI/qatools-python.git@freesurfer-module-releases`
+`pip3 install git+https://github.com/deep-mi/qatools-python.git@dev`
 
 Use `import qatoolspython` (or sth. equivalent) to import the package within a
 python environment.
@@ -241,41 +400,43 @@ See `help(qatoolspython)` for further usage info and additional options.
 
 ___
 
-## Running from a Docker image
+## Requirements
 
-We provide a `Dockerfile` that can be used to create a Docker image for the qatools-python scripts. Documentation is provided on the [Docker page](docker/Docker.md).
+- At least one structural MR image that was processed with Freesurfer 6.0, 7.x,
+  or FastSurfer 1.1 or later (including the surface pipeline).
+
+- A Python version >= 3.8 is required to run this script.
+
+- Required packages include (among others) the nibabel and skimage package for
+  the core functionality, plus the matplotlib, pandas, and transform3d
+  packages for some optional functions and modules. See the `requirements.txt`
+  file for a complete list. Use `pip3 install -r requirements.txt` to install
+  these packages.
+
+- Optional packages (if running the shape analysis module) include the `brainprint-python`
+  and `lapy` packages from https://github.com/Deep-MI. They can be installed
+  using `pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
+  and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They
+  should both be version 0.2 or newer.
+
+- If installing the toolbox as a python package or if using the docker image,
+  all required packages will be installed automatically and manual installation
+  as detailed above will not be necessary.
+
+- This software has been tested on Ubuntu 22.04 and MacOS 10.15.
 
 ___
 
-## Testing
+## Known issues
 
-Included with this toolbox is a `testing` subdirectory which contains two
-testing routines, `testing.sh` and `testing.py`. These can be used to test the
-installation and verify results.
-
-These operate on a subset of the [Freesurfer tutorial data](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/Data),
-which must be downloaded separately.
-
-Extracting the downloaded file with `tar -xzvf tutorial_data.tar.gz` should
-give a `tutorial_data` directory. From `tutorial_data/buckner_data/tutorial_subjs/group_analysis_tutorial`,
-copy the following subjects to the `testing/data` subdirectory within the
-toolbox directory: `017`, `091`, `092`, `124`, `129`, `130`, `136`, and `145`.
-
-Run the tests by executing `testing.sh` and/or `python3 testing.py` from within
-the `testing` subdirectory of this toolbox.
-
-___
-
-## Known Issues
-
-- Aborted / restarted recon-all runs: the program will analyze recon-all 
-  logfiles, and may fail or return erroneous results if the logfile is 
-  append by multiple restarts of recon-all runs. Ideally, the logfile should
+- Aborted / restarted recon-all runs: the program will analyze recon-all
+  logfiles, and may fail or return erroneous results if the logfile is
+  appended by multiple restarts of recon-all runs. Ideally, the logfile should
   therefore consist of just a single, successful recon-all run.
-- High-resolution data: Prior to update v1.4, the screenshots and fornix module 
-  did not work well with high-resolution data that was processed using the 
-  -cm flag in recon-all. With update v1.4 this has been fixed for the 
-  screenhots module, but the fornix module is still experimental for 
+- High-resolution data: Prior to update v1.4, the screenshots and fornix module
+  did not work well with high-resolution data that was processed using the
+  -cm flag in recon-all. With update v1.4 this has been fixed for the
+  screenhots module, but the fornix module is still experimental for
   high-resolution data.
 
 ___
@@ -303,31 +464,9 @@ ___
   Eigenvalues and Topological Features of Eigenfunctions for Statistical Shape
   Analysis; Computer-Aided Design: 41, 739-755; doi:10.1016/j.cad.2009.02.007.
 
-- Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease Neuroimaging
-  Initiative; 2016; Normative data for subcortical regional volumes over the lifetime
-  of the adult human brain; Neuroimage: 137, 9-20; doi.org/10.1016/j.neuroimage.2016.05.016
-
-___
-
-## Requirements
-
-- A working installation of Freesurfer (6.0 or 7.11) must be sourced.
-
-- At least one structural MR image that was processed with Freesurfer 6.0, 7.11,
-  or FastSurfer v1.1 or later (including the surface pipeline).
-
-- A Python version >= 3.5 is required to run this script.
-
-- Required packages include (among others) the nibabel and skimage package for
-  the core functionality, plus the matplotlib, pandas, and transform3d
-  packages for some optional functions and modules. See the `requirements.txt`
-  file for a complete list. Use `pip3 install -r requirements.txt` to install
-  these packages.
-
-- For the shape analysis module, the brainprint and lapy packages from https://github.com/Deep-MI
-  are required (both version 0.2 or newer).
-
-- This software has been tested on Ubuntu 20.04 and MacOS 10.15.
+- Potvin O, Mouiha A, Dieumegarde L, Duchesne S, & Alzheimer's Disease
+  Neuroimaging Initiative; 2016; Normative data for subcortical regional volumes
+  over the lifetime of the adult human brain; Neuroimage: 137, 9-20; doi.org/10.1016/j.neuroimage.2016.05.016
 
 ___
 
