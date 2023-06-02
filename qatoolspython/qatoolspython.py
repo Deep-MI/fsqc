@@ -213,6 +213,9 @@ def get_help(print_help=True, return_help=False):
           --outlier-table       specify normative values (only in conjunction with
                                 --outlier)
           --fastsurfer          use FastSurfer instead of FreeSurfer output
+          --exit-on-error       terminate the program when encountering an error;
+                                otherwise, try to continue with the next module or
+                                case
 
         getting help:
           -h, --help            display this help message and exit
@@ -548,6 +551,14 @@ def _parse_arguments():
         action="store_true",
         required=False,
     )
+    optional.add_argument(
+        "--exit-on-error",
+        dest="exit_on_error",
+        help="terminate the program when encountering an error",
+        default=False,
+        action="store_true",
+        required=False,
+    )
 
     expert = parser.add_argument_group("expert arguments")
     expert.add_argument(
@@ -658,6 +669,7 @@ def _parse_arguments():
     argsDict["outlier"] = args.outlier
     argsDict["outlier_table"] = args.outlier_table
     argsDict["fastsurfer"] = args.fastsurfer
+    argsDict["exit_on_error"] = args.exit_on_error
 
     #
     return argsDict
@@ -699,7 +711,7 @@ def _check_arguments(argsDict):
             os.mkdir(argsDict["output_dir"])
         except Exception as e:
             logging.error("ERROR: cannot create output directory " + argsDict["output_dir"])
-            logging.error("Reason:", e)
+            logging.error("Reason: " + str(e))
             raise
 
         try:
@@ -707,7 +719,7 @@ def _check_arguments(argsDict):
             testfile.close()
         except Exception as e:
             logging.error("ERROR: " + argsDict["output_dir"] + " not writeable")
-            logging.error("Reason:", e)
+            logging.error("Reason: " + str(e))
             raise
 
     # check if both subjects and subjects-file were specified
@@ -743,7 +755,7 @@ def _check_arguments(argsDict):
                 os.mkdir(os.path.join(argsDict["output_dir"], "screenshots"))
             except Exception as e:
                 logging.error("ERROR: cannot create screenshots directory " + os.path.join(argsDict["output_dir"], "screenshots"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -751,7 +763,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "screenshots") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check screenshots_base
@@ -817,7 +829,7 @@ def _check_arguments(argsDict):
                 os.mkdir(os.path.join(argsDict["output_dir"], "skullstrip"))
             except Exception as e:
                 logging.error("ERROR: cannot create skullstrip directory " + os.path.join(argsDict["output_dir"], "skullstrip"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -825,7 +837,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "skullstrip") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if fornix subdirectory exists or can be created and is writable
@@ -837,7 +849,7 @@ def _check_arguments(argsDict):
                 os.mkdir(os.path.join(argsDict["output_dir"], "fornix"))
             except Exception as e:
                 logging.error("ERROR: cannot create fornix directory " + os.path.join(argsDict["output_dir"], "fornix"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -845,7 +857,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "fornix") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if hypothalamus subdirectory exists or can be created and is writable
@@ -857,7 +869,7 @@ def _check_arguments(argsDict):
                 os.mkdir(os.path.join(argsDict["output_dir"], "hypothalamus"))
             except Exception as e:
                 logging.error("ERROR: cannot create hypothalamus directory " + os.path.join(argsDict["output_dir"], "hypothalamus"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -865,7 +877,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "hypothalamus") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if hippocampus subdirectory exists or can be created and is writable
@@ -877,7 +889,7 @@ def _check_arguments(argsDict):
                 os.mkdir(os.path.join(argsDict["output_dir"], "hippocampus"))
             except Exception as e:
                 logging.error("ERROR: cannot create hippocampus directory " + os.path.join(argsDict["output_dir"], "hippocampus"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -885,7 +897,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "hippocampus") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if label file is given
@@ -903,7 +915,7 @@ def _check_arguments(argsDict):
                 os.makedirs(os.path.join(argsDict["output_dir"], "brainprint"))
             except Exception as e:
                 logging.error("ERROR: cannot create brainprint directory " + os.path.join(argsDict["output_dir"], "brainprint"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -911,7 +923,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "brainprint") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if outlier subdirectory exists or can be created and is writable
@@ -923,7 +935,7 @@ def _check_arguments(argsDict):
                 os.makedirs(os.path.join(argsDict["output_dir"], "outliers"))
             except Exception as e:
                 logging.error("ERROR: cannot create outliers directory " + os.path.join(argsDict["output_dir"], "outliers"))
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
             try:
@@ -931,7 +943,7 @@ def _check_arguments(argsDict):
                 testfile.close()
             except Exception as e:
                 logging.error("ERROR: " + os.path.join(argsDict["output_dir"], "outliers") + " not writeable")
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 raise
 
     # check if outlier-table exists if it was given, otherwise exit
@@ -1248,11 +1260,13 @@ def _do_qatools(argsDict):
             )
 
         except Exception as e:
-            logging.error("SNR computation failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: SNR computation failed for " + subject)
+            logging.error("Reason: " + str(e))
             wm_snr_orig = np.nan
             gm_snr_orig = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # get WM and GM SNR for norm.mgz
         try:
@@ -1261,29 +1275,33 @@ def _do_qatools(argsDict):
             )
 
         except Exception as e:
-            logging.error("SNR computation failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: SNR computation failed for " + subject)
+            logging.error("Reason: " + str(e))
             wm_snr_norm = np.nan
             gm_snr_norm = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # check CC size
         try:
             cc_size = checkCCSize(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            logging.error("CC size computation failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: CC size computation failed for " + subject)
+            logging.error("Reason: " + str(e))
             cc_size = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # check topology
         try:
             holes_lh, holes_rh, defects_lh, defects_rh, topo_lh, topo_rh = checkTopology(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            logging.error("Topology check failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: Topology check failed for " + subject)
+            logging.error("Reason: " + str(e))
             holes_lh = np.nan
             holes_rh = np.nan
             defects_lh = np.nan
@@ -1291,29 +1309,40 @@ def _do_qatools(argsDict):
             topo_lh = np.nan
             topo_rh = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # check contrast
         try:
             con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
 
         except Exception as e:
-            logging.error("Contrast check failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: Contrast check failed for " + subject)
+            logging.error("Reason: " + str(e))
             con_snr_lh = np.nan
             con_snr_rh = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # check rotation
         try:
             rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(argsDict["subjects_dir"], subject)
 
+            if subject == "129":
+                fufu
+            else:
+                print("Hello!")
+
         except Exception as e:
-            logging.error("Rotation failed for", subject)
-            logging.error("Reason:", e)
+            logging.error("ERROR: Rotation failed for " + subject)
+            logging.error("Reason: " + str(e))
             rot_tal_x = np.nan
             rot_tal_y = np.nan
             rot_tal_z = np.nan
             metrics_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # store data
         metricsDict[subject].update(
@@ -1372,8 +1401,10 @@ def _do_qatools(argsDict):
             except Exception as e:
                 distDict = {subject: []}
                 logging.error("ERROR: the shape module failed for subject " + subject)
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 shape_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             metricsDict[subject].update(distDict[subject])
@@ -1471,6 +1502,8 @@ def _do_qatools(argsDict):
                 logging.error("ERROR: screenshots module failed for subject " + subject)
                 logging.error("Reason: " + str(e))
                 screenshots_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if screenshots_ok:
@@ -1512,6 +1545,8 @@ def _do_qatools(argsDict):
                 logging.error("ERROR: surfaces module failed for subject " + subject)
                 logging.error("Reason: " + str(e))
                 surfaces_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if surfaces_ok:
@@ -1580,6 +1615,8 @@ def _do_qatools(argsDict):
                 logging.error("ERROR: skullstrip module failed for subject " + subject)
                 logging.error("Reason: " + str(e))
                 skullstrip_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if skullstrip_ok:
@@ -1634,8 +1671,10 @@ def _do_qatools(argsDict):
                     )
                 }
                 logging.error("ERROR: fornix module failed for subject " + subject)
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 fornix_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if FORNIX_SHAPE:
@@ -1683,8 +1722,10 @@ def _do_qatools(argsDict):
             #
             except Exception as e:
                 logging.error("ERROR: hypothalamus module failed for subject " + subject)
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 hypothalamus_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if HYPOTHALAMUS_SCREENSHOT and hypothalamus_ok:
@@ -1741,8 +1782,10 @@ def _do_qatools(argsDict):
             #
             except Exception as e:
                 logging.error("ERROR: hippocampus module failed for subject " + subject)
-                logging.error("Reason:", e)
+                logging.error("Reason: " + str(e))
                 hippocampus_ok = False
+                if argsDict["exit_on_error"] is True:
+                    raise
 
             # store data
             if HIPPOCAMPUS_SCREENSHOT and hippocampus_ok:
@@ -1757,7 +1800,7 @@ def _do_qatools(argsDict):
 
         # --------------------------------------------------------------------------
         # message
-        logging.info("Finished subject", subject, "at", time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())))
+        logging.info("Finished subject " +  subject + " at " + time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())))
 
     # --------------------------------------------------------------------------
     # run optional modules: outlier detection
@@ -1825,8 +1868,10 @@ def _do_qatools(argsDict):
                 )
 
             logging.error("ERROR: outlier module failed")
-            logging.error("Reason:", e)
+            logging.error("Reason: " + str(e))
             outlier_ok = False
+            if argsDict["exit_on_error"] is True:
+                raise
 
         # store data
         for subject in argsDict["subjects"]:
@@ -2208,7 +2253,7 @@ def _start_logging(argsDict):
         for i in traceback.format_list(traceback.extract_tb(tb)):
             logging.error('Traceback: %s', i)
         # message
-        raise ValueError('Program exited with ERRORS.')
+        logging.error('Status: program exited with errors')
     sys.excepthook = foo
 
     # check if logfile can be written in current working directory
@@ -2216,8 +2261,8 @@ def _start_logging(argsDict):
         testfile = tempfile.TemporaryFile(dir=os.getcwd())
         testfile.close()
     except OSError as e:
-        logging.error("Directory ' + os.getcwd() + ' not writeable for temporary logfile.")
-        logging.error("Reason:", e)
+        logging.error("ERROR: Directory ' + os.getcwd() + ' not writeable for temporary logfile.")
+        logging.error("Reason: " + str(e))
         raise
 
     # start logging
@@ -2288,6 +2333,7 @@ def run_qatools(
     outlier=False,
     outlier_table=None,
     fastsurfer=False,
+    exit_on_error=False,
     logfile=None,
 ):
     """
@@ -2335,6 +2381,7 @@ def run_qatools(
         argsDict["outlier"] = outlier
         argsDict["outlier_table"] = outlier_table
         argsDict["fastsurfer"] = fastsurfer
+        argsDict["exit_on_error"] = exit_on_error
         argsDict["logfile"] = logfile
 
     elif (argsDict is not None) and (subjects_dir is not None or output_dir is not None):

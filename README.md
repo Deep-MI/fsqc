@@ -255,6 +255,9 @@ optional arguments:
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
+  --exit-on-error        terminate the program when encountering an error; 
+                         otherwise, try to continue with the next module or 
+                         case  
 
 getting help:
   -h, --help            display this help message and exit
