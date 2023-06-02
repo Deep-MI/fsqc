@@ -46,26 +46,11 @@ readme = {file = ["README.md", "CHANGES.md"]}
 dependencies = {file = 'requirements.in'}
 
 [project.optional-dependencies]
-build = [
-    'build',
-    'twine',
-]
 style = [
-    'black',
-    'codespell',
-    'isort',
     'flake8',
-    'pydocstyle[toml]',
-]
-test = [
-    'pytest',
-    'pytest-cov',
-    'pytest-timeout',
 ]
 all = [
-    'qatoolspython[build]',
     'qatoolspython[style]',
-    'qatoolspython[test]',
 ]
 full = [
     'qatoolspython[all]',
@@ -85,52 +70,4 @@ tracker = 'https://github.com/Deep-MI/qatools-python/issues'
 
 [tool.setuptools.packages.find]
 include = ['qatoolspython']
-exclude = ['docker', 'testing', 'deprecated']
-
-# [tool.black]
-# line-length = 79
-# target-version = ['py38']
-# include = '\.pyi?$'
-# extend-exclude = '''
-# (
-#       __pycache__
-#     | \.github
-#     | setup.py
-# )
-# '''
-
-# [tool.isort]
-# profile = 'black'
-# multi_line_output = 3
-# line_length = 88
-# py_version = 38
-# extend_skip_glob = [
-#     'setup.py'
-# ]
-
-# [tool.pydocstyle]
-# convention = 'numpy'
-# ignore-decorators = '(copy_doc|property|.*setter|.*getter|pyqtSlot|Slot)'
-# match = '^(?!setup|__init__|test_).*\.py'
-# match-dir = '^qatoolspython.*'
-# add_ignore = 'D100,D104,D107'
-
-# [tool.pytest.ini_options]
-# minversion = '6.0'
-# addopts = '--durations 20 --junit-xml=junit-results.xml --verbose'
-# filterwarnings = []
-
-# [tool.coverage.run]
-# branch = true
-# cover_pylib = false
-# omit = [
-#     '**/__init__.py',
-#     '**/tests/**'
-# ]
-
-# [tool.coverage.report]
-# exclude_lines = [
-#     'pragma: no cover',
-#     'if __name__ == .__main__.:',
-# ]
-# precision = 2
+exclude = ['docker']
