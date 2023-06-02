@@ -360,6 +360,12 @@ We provide a `Dockerfile` that can be used to create a Docker image for the
 qatools-python scripts. Documentation is provided on the [Docker page](docker/Docker.md).
 ___
 
+## Main branch and development branch
+
+There are two branches in this repository, the main brach (`stable`) and the development branch (`dev`). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the development branch. To go to the main branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/stable).
+
+___
+
 ## Installation
 
 ### Download from GitHub

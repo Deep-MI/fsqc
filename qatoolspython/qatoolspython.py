@@ -990,7 +990,7 @@ def _check_arguments(argsDict):
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
-        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.orig.mgz for FastSurfer
+        # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc.DKTatlas+aseg.deep.mgz for FastSurfer
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
             warnings.warn("Could not find", path_check, "for subject", subject)
@@ -1002,7 +1002,7 @@ def _check_arguments(argsDict):
             subjects_to_remove.extend([subject])
 
         if argsDict["fastsurfer"] is True:
-            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.orig.mgz")
+            path_check = os.path.join(subjects_dir, subject, "mri", "aparc.DKTatlas+aseg.deep.mgz")
         else:
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
@@ -1237,7 +1237,7 @@ def _do_qatools(argsDict):
         # set images
 
         if argsDict["fastsurfer"] is True:
-            aparc_image = "aparc+aseg.orig.mgz"
+            aparc_image = "aparc.DKTatlas+aseg.deep.mgz"
         else:
             aparc_image = "aparc+aseg.mgz"
 
