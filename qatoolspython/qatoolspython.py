@@ -1142,8 +1142,8 @@ def _check_packages():
         import lapy as lp
         if not hasattr(lp, "__version__"):
             raise ImportError("ERROR: Could not determine version of the 'lapy' package (see README.md for details on installation)")
-        elif packaging.version.parse(lp.__version__) < packaging.version.parse("0.3"):
-            raise ImportError("ERROR: A version >=0.3 of the 'lapy' package is required for surface plots (see README.md for details on installation)")
+        elif packaging.version.parse(lp.__version__) < packaging.version.parse("1.0"):
+            raise ImportError("ERROR: A version >=1.0 of the 'lapy' package is required for surface plots (see README.md for details on installation)")
     else:
         raise ImportError("ERROR: Could not find the 'lapy' package (see README.md for details on installation)")
 

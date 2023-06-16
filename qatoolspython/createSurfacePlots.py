@@ -20,7 +20,7 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
     import lapy as lp
     import nibabel as nb
     import numpy as np
-    from lapy import Plot as lpp
+    from lapy import plot as lpp
 
     # -----------------------------------------------------------------------------
     # settings
