@@ -413,12 +413,6 @@ ___
   file for a complete list. Use `pip3 install -r requirements.txt` to install
   these packages.
 
-- Optional packages (if running the shape analysis module) include the `brainprint-python`
-  and `lapy` packages from https://github.com/Deep-MI. They can be installed
-  using `pip3 install --user git+https://github.com/Deep-MI/BrainPrint-python.git`
-  and `pip3 install --user git+https://github.com/Deep-MI/LaPy.git`. They
-  should both be version 0.2 or newer.
-
 - If installing the toolbox as a python package or if using the docker image,
   all required packages will be installed automatically and manual installation
   as detailed above will not be necessary.
