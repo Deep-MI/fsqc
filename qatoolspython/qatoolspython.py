@@ -2256,7 +2256,7 @@ def _start_logging(argsDict):
         raise
 
     # start logging
-    logfile =  os.path.join(os.getcwd() , 'logfile-' + str(uuid.uuid4()) + '.log')
+    logfile =  os.path.join(argsDict["output_dir"], 'logfile.txt')
     logging.basicConfig(filename=logfile, filemode='w', level=logging.INFO)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # this adds output to stdout
 
