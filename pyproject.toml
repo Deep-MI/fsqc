@@ -43,7 +43,7 @@ addopts = [
 [tool.setuptools.dynamic]
 version = {file = 'VERSION'}
 readme = {file = ["README.md", "CHANGES.md"]}
-dependencies = {file = 'requirements.in'}
+dependencies = {file = 'requirements.txt'}
 
 [project.optional-dependencies]
 style = [
