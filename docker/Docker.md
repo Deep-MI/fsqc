@@ -15,7 +15,7 @@ The name of the image will be `qatoolsdocker`, and it will be built from the `Do
 
 The `--rm` flag will remove intermediate containers after a successful build; `-t` specifies the name of the image, and `-f` indicates the configuration file from which to build.
 
-Take a look at the contents of the [`Dockerfile`](Dockerfile) to see what is done during the build process: essentially, it is getting the Ubuntu 18.04 image, installing additional packages from the distribution, downloading the qatools-python, brainprint-python, and lapy toolboxes, and setting the necessary environment variables. Unless the `Dockerfile` changes, the build process has to be done only once.
+Take a look at the contents of the [`Dockerfile`](Dockerfile) to see what is done during the build process: essentially, it is getting the Ubuntu 22.04 image, installing additional packages from the distribution, downloading the qatools-python toolbox, and setting the necessary environment variables. Unless the `Dockerfile` changes, the build process has to be done only once.
 
 ## Run qatools from a Docker image
 
