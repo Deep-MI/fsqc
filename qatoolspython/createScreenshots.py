@@ -26,8 +26,6 @@ def createScreenshots(
     """
     function createScreenshots()
 
-    Requires FREESURFER_HOME environment variable
-
     BASE, VIEWS must be lists, can be ["default"]
 
     OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"]
@@ -66,8 +64,8 @@ def createScreenshots(
 
     from matplotlib import pyplot as plt
 
-    from qatoolspython.qatoolspythonUtils import levelsetsTria
-
+    from qatoolspython.qatoolspythonUtils import levelsetsTria, returnFreeSurferColorLUT
+ 
     # -----------------------------------------------------------------------------
     # settings
 
@@ -126,17 +124,7 @@ def createScreenshots(
     # import colortable, compute auxiliary variables, and transform to matplotlib
     # colortable
 
-    lut = pd.read_csv(
-        os.path.join(os.environ["FREESURFER_HOME"], "FreeSurferColorLUT.txt"),
-        sep=" ",
-        comment="#",
-        header=None,
-        skipinitialspace=True,
-        skip_blank_lines=True,
-        on_bad_lines="warn",
-    )
-
-    lut = np.array(lut)
+    lut = returnFreeSurferColorLUT()
 
     # some fs7 labels are not present in fs6 LUT, check and add if necessary
 
