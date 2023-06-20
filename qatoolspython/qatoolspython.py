@@ -1313,11 +1313,6 @@ def _do_qatools(argsDict):
         try:
             rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(argsDict["subjects_dir"], subject)
 
-            if subject == "129":
-                fufu
-            else:
-                print("Hello!")
-
         except Exception as e:
             logging.error("ERROR: Rotation failed for " + subject)
             logging.error("Reason: " + str(e))
