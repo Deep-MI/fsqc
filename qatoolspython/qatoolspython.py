@@ -704,23 +704,7 @@ def _check_arguments(argsDict):
         raise FileNotFoundError("ERROR: subjects directory " + argsDict["subjects_dir"] + " is not an existing directory")
 
     # check if output directory exists or can be created and is writable
-    if os.path.isdir(argsDict["output_dir"]):
-        logging.info("Found output directory " + argsDict["output_dir"])
-    else:
-        try:
-            os.mkdir(argsDict["output_dir"])
-        except Exception as e:
-            logging.error("ERROR: cannot create output directory " + argsDict["output_dir"])
-            logging.error("Reason: " + str(e))
-            raise
-
-        try:
-            testfile = tempfile.TemporaryFile(dir=argsDict["output_dir"])
-            testfile.close()
-        except Exception as e:
-            logging.error("ERROR: " + argsDict["output_dir"] + " not writeable")
-            logging.error("Reason: " + str(e))
-            raise
+    # -> this is now done during start_logging()
 
     # check if both subjects and subjects-file were specified
     if argsDict["subjects"] is not None and argsDict["subjects_file"] is not None:
@@ -2256,12 +2240,23 @@ def _start_logging(argsDict):
         logging.error('Status: program exited with errors')
     sys.excepthook = foo
 
-    # check if logfile can be written in current working directory
+    # check if output directory exists or can be created
+    if os.path.isdir(argsDict["output_dir"]):
+        logging.info("Found output directory " + argsDict["output_dir"])
+    else:
+        try:
+            os.mkdir(argsDict["output_dir"])
+        except Exception as e:
+            logging.error("ERROR: cannot create output directory " + argsDict["output_dir"])
+            logging.error("Reason: " + str(e))
+            raise
+
+    # check if logfile can be written in output directory
     try:
-        testfile = tempfile.TemporaryFile(dir=os.getcwd())
+        testfile = tempfile.TemporaryFile(dir=argsDict["output_dir"])
         testfile.close()
-    except OSError as e:
-        logging.error("ERROR: Directory ' + os.getcwd() + ' not writeable for temporary logfile.")
+    except Exception as e:
+        logging.error("ERROR: " + argsDict["output_dir"] + " not writeable")
         logging.error("Reason: " + str(e))
         raise
 
@@ -2284,19 +2279,6 @@ def _start_logging(argsDict):
 
     # return
     return argsDict
-
-
-def _stop_logging(argsDict):
-    """
-    stop logging
-
-    """
-
-    # imports
-    import os
-
-    # move logfile to output dir
-    os.replace(argsDict["logfile"], os.path.join(argsDict["output_dir"], "logfile.txt"))
 
 
 # ------------------------------------------------------------------------------
@@ -2399,5 +2381,3 @@ def run_qatools(
     # run qatools
     _do_qatools(argsDict)
 
-    # stop logging
-    _stop_logging(argsDict)
