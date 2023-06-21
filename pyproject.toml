@@ -62,13 +62,12 @@ documentation = 'https://github.com/Deep-MI/fsqc'
 source = 'https://github.com/Deep-MI/fsqc'
 tracker = 'https://github.com/Deep-MI/fsqc/issues'
 
-# TODO
-#[project.scripts] ### maybe use this, but for qatools exec (see old setup.py; see brainprint toml for cli)
-#lapy-sys_info = 'lapy.commands.sys_info:run'
+#[project.scripts]
+#fsqc = 'fsqc.cli:main'
 
 #[tool.setuptools] ### probably not needed
 #include-package-data = false
 
 [tool.setuptools.packages.find]
 include = ['fsqc']
-exclude = ['docker']
+exclude = ['docker', 'singularity']
