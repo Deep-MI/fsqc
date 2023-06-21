@@ -203,7 +203,7 @@ brainstem and thalamic segmentations. Another planned extension is support for
 parallel processing of many cases.
 
 Feedback, suggestions, and contributions are always welcome, preferably via
-[issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests]((https://github.com/Deep-MI/fsqc/pulls).
+[issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests](https://github.com/Deep-MI/fsqc/pulls).
 
 ___
 
@@ -310,35 +310,51 @@ expert options:
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
+```
 
 - Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2
+```
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory` after full FastSurfer processing:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer
+```
 
 - Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots
+```
 
 - Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix
+```
 
 - Run the QC pipeline plus the shape analysis pipeline for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape
+```
 
 - Run the QC pipeline plus the outlier detection module for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier
+```
 
 - Run the QC pipeline plus the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
 
-    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+```bash
+run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv
+```
 
 - Note that `run_fsqc` is shorthand for `python3 /my/fsqc/directory/fsqc.py`.
 
@@ -403,12 +419,16 @@ source /path/to/my/virtual/environment/bin/activate
 Use the following code to download, build and install the fsqc package from its
 GitHub repository into your local Python package directory:
 
-`pip install git+https://github.com/deep-mi/fsqc.git`
+```bash
+pip install git+https://github.com/deep-mi/fsqc.git
+```
 
 This can be useful if you want to install a particular branch - such as the `dev`
 branch in the following example:
 
-`pip install git+https://github.com/deep-mi/fsqc.git@dev`
+```bash
+pip install git+https://github.com/deep-mi/fsqc.git@dev
+```
 
 ### Download from GitHub
 
