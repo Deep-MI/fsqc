@@ -2,7 +2,7 @@
 fsqc CLI
 """
 
-from ..fsqc.fsqcMain import _parse_arguments, run_fsqc
+from ..fsqcMain import _parse_arguments, run_fsqc
 
 def main():
 
