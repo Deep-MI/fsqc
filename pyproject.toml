@@ -62,8 +62,8 @@ documentation = 'https://github.com/Deep-MI/fsqc'
 source = 'https://github.com/Deep-MI/fsqc'
 tracker = 'https://github.com/Deep-MI/fsqc/issues'
 
-#[project.scripts]
-#fsqc = 'fsqc.cli:main'
+[project.scripts]
+fsqc = 'fsqc.cli:main'
 
 #[tool.setuptools] ### probably not needed
 #include-package-data = false
