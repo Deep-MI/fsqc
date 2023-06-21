@@ -164,7 +164,7 @@ def get_help(print_help=True, return_help=False):
     Usage:
     ======
 
-        fsqc --subjects_dir <directory> --output_dir <directory>
+        run_fsqc --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
                                   [--subjects-file <file>]
                                   [--screenshots] [--screenshots-html]
@@ -274,7 +274,7 @@ def get_help(print_help=True, return_help=False):
     fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')
     ```
 
-    See `help(fsqc)` for further usage info and additional options.
+    See `fsqc.get_help()` for further usage info and additional options.
 
 
     =============

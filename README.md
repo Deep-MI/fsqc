@@ -212,7 +212,7 @@ ___
 ### As a command line tool
 
 ```
-fsqc --subjects_dir <directory> --output_dir <directory>
+run_fsqc --subjects_dir <directory> --output_dir <directory>
     [--subjects SubjectID [SubjectID ...]]
     [--subjects-file <file>] [--screenshots]
     [--screenshots-html] [--surfaces] [--surfaces-html]
@@ -310,37 +310,37 @@ expert options:
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
 - Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory` after full FastSurfer processing:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
 
 - Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
 - Run the QC pipeline plus the shape analysis pipeline for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
 - Run the QC pipeline plus the outlier detection module for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
 
 - Run the QC pipeline plus the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
 
-    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+    `run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
 
-- Note that `fsqc` is shorthand for `python3 /my/fsqc/directory/fsqc.py`.
+- Note that `run_fsqc` is shorthand for `python3 /my/fsqc/directory/fsqc.py`.
 
 - Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
 
@@ -358,7 +358,7 @@ import fsqc
 fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')
 ```
 
-See `help(fsqc)` for further usage info and additional options.
+See `fsqc.get_help()` for further usage info and additional options.
 
 ### As a Docker image
 
@@ -403,7 +403,7 @@ source /path/to/my/virtual/environment/bin/activate
 Use the following code to download, build and install the fsqc package from its
 GitHub repository into your local Python package directory:
 
-`pip install git+https://github.com/deep-mi/fsqc.git@dev`
+`pip install git+https://github.com/deep-mi/fsqc.git`
 
 This can be useful if you want to install a particular branch - such as the `dev`
 branch in the following example:
@@ -415,7 +415,7 @@ branch in the following example:
 This software can also be downloaded from its GitHub repository at `https://github.com/Deep-MI/fsqc`,
 or cloned directly via `git clone https://github.com/Deep-MI/fsqc`.
 
-The `fsqc.py` script will then be executable from the command line, as
+The `run_fsqc` script will then be executable from the command line, as
 detailed above. Note, however, that the required dependencies will have to be
 installed manually. See the [requirements](#requirements) section for
 instructions.

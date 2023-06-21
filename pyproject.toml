@@ -63,11 +63,11 @@ source = 'https://github.com/Deep-MI/fsqc'
 tracker = 'https://github.com/Deep-MI/fsqc/issues'
 
 [project.scripts]
-fsqc = 'fsqc.cli:main'
+run_fsqc = 'fsqc.cli:main'
 
 #[tool.setuptools] ### probably not needed
 #include-package-data = false
 
 [tool.setuptools.packages.find]
-include = ['fsqc']
+include = ['fsqc', 'fsqc.cli']
 exclude = ['docker', 'singularity']
