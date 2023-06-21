@@ -1,4 +1,4 @@
-# qatools-python
+# fsqc
 
 ## Contents
 
@@ -9,11 +9,12 @@
   - [Roadmap](#roadmap)
 - [Usage](#usage)
   - [As a command line tool](#as-a-command-line-tool)
-  - [As a python package](#as-a-python-package)
-  - [As a docker image](#as-a-docker-image)
+  - [As a Python package](#as-a-python-package)
+  - [As a Docker image](#as-a-docker-image)
 - [Installation](#installation)
+   - [Installation as a Python package](#installation-as-a-python-package)
+   - [Installation from GitHub](#installation-from-github)
    - [Download from GitHub](#download-from-github)
-   - [Installation as a python package](#installation-as-a-python-package)
 - [Requirements](#requirements)
 - [Known issues](#known-issues)
 - [Authors](#authors)
@@ -28,9 +29,9 @@ This is a set of quality assurance / quality control scripts for Fastsurfer- or
 Freesurfer-processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
-[Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has 
-been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc and https://osf.io/haf97), 
-and with code derived from the [lapy](https://github.com/Deep-MI/lapy) and 
+[Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has
+been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc and https://osf.io/haf97),
+and with code derived from the [lapy](https://github.com/Deep-MI/lapy) and
 [brainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
 The core functionality of this toolbox is to compute the following features:
@@ -163,10 +164,17 @@ ___
 
 ### Recent changes
 
-A list of changes is available [here](CHANGES.md). The current version of this
-toolbox is v2.0; recent changes include the addition of the skullstrip,
-hipopcampus and hypothalamus modules as well as the addition of a surface
-visualization module.
+We are happy to announce the release of version 2.0 of the fsqc toolbox. With
+this release comes a change of the project name from `qatools` to `fsqc`, to
+reflect increased independence from the original FreeSurfer QA tools, and
+applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
+
+The current version of this toolbox is v2.0; recent changes include the addition
+of the skullstrip, hipopcampus and hypothalamus modules as well as the addition
+of a surface visualization module. Technical changes include how the package is
+installed, imported, and run, see below for details.
+
+A list of changes is available [here](CHANGES.md).
 
 ### Main and development branches
 
@@ -175,18 +183,18 @@ development of the toolbox. The two primary branches are the main branch
 (`stable`) and the development branch (`dev`). New features will first be added
 to the development branch, and eventually be merged with the main branch. You
 are currently on the development branch. To go to the main branch, select it
-from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/stable).
+from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/stable).
 
 ### Roadmap
 
-The goal of the `qatools-python` project is to create a modular and extensible
+The goal of the `fsqc` project is to create a modular and extensible
 software package that provides quantitative metrics and visual information for
 the quality control of FreeSurfer- or Fastsurfer-processed MR images. The
 package is currently under development, and new features are continuously
 added.
 
-New features will initially be available in the [development branch](https://github.com/Deep-MI/qatools-python/tree/dev)
-of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/qatools-python/tree/stable)
+New features will initially be available in the [development branch](https://github.com/Deep-MI/fsqc/tree/dev)
+of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/fsqc/tree/stable)
 after a period of testing and evaluation. Unless explicitly announced, all new
 features will preserve compatibility with earlier versions.
 
@@ -195,7 +203,7 @@ brainstem and thalamic segmentations. Another planned extension is support for
 parallel processing of many cases.
 
 Feedback, suggestions, and contributions are always welcome, preferably via
-issues and pull requests.
+[issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests]((https://github.com/Deep-MI/fsqc/pulls).
 
 ___
 
@@ -204,16 +212,16 @@ ___
 ### As a command line tool
 
 ```
-python3 qatools.py --subjects_dir <directory> --output_dir <directory>
-                          [--subjects SubjectID [SubjectID ...]]
-                          [--subjects-file <file>] [--screenshots]
-                          [--screenshots-html] [--surfaces] [--surfaces-html]
-                          [--skullstrip] [--skullstrip-html]
-                          [--fornix] [--fornix-html] [--hippocampus]
-                          [--hippocampus-html] [--hippocampus-label ... ]
-                          [--hypothalamus] [--hypothalamus-html] [--shape]
-                          [--outlier] [--fastsurfer] [-h] [--more-help]
-                          [...]
+fsqc --subjects_dir <directory> --output_dir <directory>
+    [--subjects SubjectID [SubjectID ...]]
+    [--subjects-file <file>] [--screenshots]
+    [--screenshots-html] [--surfaces] [--surfaces-html]
+    [--skullstrip] [--skullstrip-html]
+    [--fornix] [--fornix-html] [--hippocampus]
+    [--hippocampus-html] [--hippocampus-label ... ]
+    [--hypothalamus] [--hypothalamus-html] [--shape]
+    [--outlier] [--fastsurfer] [-h] [--more-help]
+    [...]
 
 
 required arguments:
@@ -302,101 +310,116 @@ expert options:
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory`
 
 - Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2`
 
 - Run the QC pipeline for all subjects found in `/my/subjects/directory` after full FastSurfer processing:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fastsurfer`
 
 - Run the QC pipeline plus the screenshots module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --screenshots`
 
 - Run the QC pipeline plus the fornix pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --fornix`
 
 - Run the QC pipeline plus the shape analysis pipeline for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --shape`
 
 - Run the QC pipeline plus the outlier detection module for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier`
 
 - Run the QC pipeline plus the outlier detection module with a user-specific table of normative values for all subjects found in `/my/subjects/directory`:
 
-    `python3 /my/scripts/directory/qatools.py --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+    `fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv`
+
+- Note that `fsqc` is shorthand for `python3 /my/fsqc/directory/fsqc.py`.
 
 - Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
 
-### As a python package
+### As a Python package
 
-As an alternative to their command-line usage, the qatools-python scripts can
-also be run within a pure python environment, i.e. installed and imported as a
-python package.
+As an alternative to their command-line usage, the fsqc scripts can also be run
+within a pure Python environment, i.e. installed and imported as a Python package.
 
-Use `import qatoolspython` (or sth. equivalent) to import the package within a
-python environment.
+Use `import fsqc` (or sth. equivalent) to import the package within a
+Python environment, and use the `run_fsqc` function from the `fsqc` module to
+run an analysis:
 
-Use the `run_qatools` function from the `qatoolspython` module to run an
-analysis:
+```python
+import fsqc
+fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')
+```
 
-`from qatoolspython import qatoolspython`
+See `help(fsqc)` for further usage info and additional options.
 
-`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
+### As a Docker image
 
-See `help(qatoolspython)` for further usage info and additional options.
-
-### As a docker image
-
-We provide a configuration files that can be used to create a Docker or Singularity
-image for the qatools-python scripts. Documentation is provided on the [Docker](docker/Docker.md)
-and [Singularity](docker/Singularity.md) pages.
+We provide a configuration files that can be used to create a Docker or
+Singularity image for the fsqc scripts. Documentation can be found on the
+[Docker](docker/Docker.md) and [Singularity](docker/Singularity.md) pages.
 
 ___
 
 ## Main branch and development branch
 
-There are two branches in this repository, the main brach (`stable`) and the development branch (`dev`). New features will first be added to the development branch, and eventually be merged with the main branch. You are currently on the development branch. To go to the main branch, select it from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/qatools-python/tree/stable).
+There are two branches in this repository, the main brach (`stable`) and the
+development branch (`dev`). New features will first be added to the development
+branch, and eventually be merged with the main branch. You are currently on the
+development branch. To go to the main branch, select it from the drop-down menu
+on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/stable).
 
 ___
 
 ## Installation
 
+### Installation as a Python package
+
+Use:
+
+```bash
+pip install fsqc
+```
+
+to install the fsqc package and all of its dependencies. This is the recommended
+way of installing the package, and allows for both command-line execution and
+execution as a Python function. We also recommend to do this installation within
+a Python virtual environment, which can be created and activated as follows:
+
+```bash
+virtualenv /path/to/my/virtual/environment
+source /path/to/my/virtual/environment/bin/activate
+```
+
+### Installation from GitHub
+
+Use the following code to download, build and install the fsqc package from its
+GitHub repository into your local Python package directory:
+
+`pip install git+https://github.com/deep-mi/fsqc.git@dev`
+
+This can be useful if you want to install a particular branch - such as the `dev`
+branch in the following example:
+
+`pip install git+https://github.com/deep-mi/fsqc.git@dev`
+
 ### Download from GitHub
 
-This software can be downloaded from its github repository at `https://github.com/Deep-MI/qatools-python`.
+This software can also be downloaded from its GitHub repository at `https://github.com/Deep-MI/fsqc`,
+or cloned directly via `git clone https://github.com/Deep-MI/fsqc`.
 
-Alternatively, it can be cloned directly from its repository via `git clone https://github.com/Deep-MI/qatools-python`.
-
-The `qatools.py` script will then be executable from the command line, as
+The `fsqc.py` script will then be executable from the command line, as
 detailed above. Note, however, that the required dependencies will have to be
 installed manually. See the [requirements](#requirements) section for
 instructions.
 
-### Installation as a python package
-
-Use the following code to download, build and install a package from its github
-repository into your local python package directory:
-
-`pip3 install git+https://github.com/deep-mi/qatools-python.git@dev`
-
-Use `import qatoolspython` (or sth. equivalent) to import the package within a
-python environment.
-
-Use the `run_qatools` function from the `qatoolspython` module to run an
-analysis:
-
-`from qatoolspython import qatoolspython`
-
-`qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
-
-See `help(qatoolspython)` for further usage info and additional options.
 
 ___
 
@@ -410,10 +433,10 @@ ___
 - Required packages include (among others) the nibabel and skimage package for
   the core functionality, plus the matplotlib, pandas, and transform3d
   packages for some optional functions and modules. See the `requirements.txt`
-  file for a complete list. Use `pip3 install -r requirements.txt` to install
+  file for a complete list. Use `pip install -r requirements.txt` to install
   these packages.
 
-- If installing the toolbox as a python package or if using the docker image,
+- If installing the toolbox as a Python package or if using the Docker image,
   all required packages will be installed automatically and manual installation
   as detailed above will not be necessary.
 
@@ -437,10 +460,10 @@ ___
 
 ## Authors
 
-- qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
+- fsqc toolbox: Kersten Diers, Tobias Wolff, and Martin Reuter.
 - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu,
   and Louis Vinke.
-- shapeDNA and brainPrint toolboxes: Martin Reuter.
+- lapy and brainprint toolboxes: Martin Reuter.
 
 ___
 
