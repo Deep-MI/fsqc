@@ -64,7 +64,7 @@ def createScreenshots(
 
     from matplotlib import pyplot as plt
 
-    from qatoolspython.qatoolspythonUtils import levelsetsTria, returnFreeSurferColorLUT
+    from fsqc.fsqcUtils import levelsetsTria, returnFreeSurferColorLUT
  
     # -----------------------------------------------------------------------------
     # settings

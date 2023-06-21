@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from qatoolspython.qatools_cmd import _qatools
+from fsqc.fsqc_cmd import _fsqc
 
 if __name__ == "__main__":
-    _qatools()
+    _fsqc()

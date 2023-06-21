@@ -1,17 +1,17 @@
-def _qatools():
+def _fsqc():
     # say hello
     print("")
     print("-----------------------------")
-    print("qatools-python")
+    print("fsqc")
     print("-----------------------------")
     print("")
 
     # imports
-    from qatoolspython import qatoolspython
+    from fsqc import fsqc
 
     # parse arguments
-    argsDict = qatoolspython._parse_arguments()
+    argsDict = fsqc._parse_arguments()
 
-    # run qatools
+    # run fsqc
     if argsDict is not None:
-        qatoolspython.run_qatools(subjects_dir=None, output_dir=None, argsDict=argsDict)
+        fsqc.run_fsqc(subjects_dir=None, output_dir=None, argsDict=argsDict)

@@ -1,5 +1,5 @@
 """
-This module provides the main functionality of the qatoolspython package.
+This module provides the main functionality of the fsqc package.
 
 """
 
@@ -27,7 +27,7 @@ def get_help(print_help=True, return_help=False):
 
     HELPTEXT = """
 
-    qatools-python
+    fsqc
 
 
     ============
@@ -164,7 +164,7 @@ def get_help(print_help=True, return_help=False):
     Usage:
     ======
 
-        python3 qatools.py --subjects_dir <directory> --output_dir <directory>
+        fsqc --subjects_dir <directory> --output_dir <directory>
                                   [--subjects SubjectID [SubjectID ...]]
                                   [--subjects-file <file>]
                                   [--screenshots] [--screenshots-html]
@@ -262,20 +262,19 @@ def get_help(print_help=True, return_help=False):
     Use as a python package:
     ========================
 
-    As an alternative to their command-line usage, the qc scripts can also be run
-    within a pure python environment, i.e. installed and imported as a python
-    package.
+    As an alternative to their command-line usage, the fsqc scripts can also be run
+    within a pure Python environment, i.e. installed and imported as a Python package.
 
-    Use `import qatoolspython` (or sth. equivalent) to import the package within a
-    python environment.
+    Use `import fsqc` (or sth. equivalent) to import the package within a
+    Python environment, and use the `run_fsqc` function from the `fsqc` module to
+    run an analysis:
 
-    Use the `run_qatools` function from the `qatoolspython` module to run an analysis:
+    ```python
+    import fsqc
+    fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')
+    ```
 
-    `from qatoolspython import qatoolspython`
-
-    `qatoolspython.run_qatools(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')`
-
-    See `help(qatoolspython)` for further usage info and options.
+    See `help(fsqc)` for further usage info and additional options.
 
 
     =============
@@ -315,7 +314,7 @@ def get_help(print_help=True, return_help=False):
     Authors:
     ========
 
-    - qatools-python: Kersten Diers, Tobias Wolff, and Martin Reuter.
+    - fsqc: Kersten Diers, Tobias Wolff, and Martin Reuter.
     - Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu,
       and Louis Vinke.
     - shapeDNA and brainPrint toolboxes: Martin Reuter
@@ -1136,12 +1135,12 @@ def _check_packages():
 
 
 # ------------------------------------------------------------------------------
-# do qatools
+# do fsqc
 
 
-def _do_qatools(argsDict):
+def _do_fsqc(argsDict):
     """
-    an internal function to run the qatools submodules
+    an internal function to run the fsqc submodules
 
     """
 
@@ -1155,17 +1154,17 @@ def _do_qatools(argsDict):
 
     import numpy as np
 
-    from qatoolspython.checkCCSize import checkCCSize
-    from qatoolspython.checkContrast import checkContrast
-    from qatoolspython.checkRotation import checkRotation
-    from qatoolspython.checkSNR import checkSNR
-    from qatoolspython.checkTopology import checkTopology
-    from qatoolspython.createScreenshots import createScreenshots
-    from qatoolspython.createSurfacePlots import createSurfacePlots
-    from qatoolspython.evaluateFornixSegmentation import evaluateFornixSegmentation
-    from qatoolspython.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
-    from qatoolspython.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
-    from qatoolspython.outlierDetection import outlierDetection, outlierTable
+    from fsqc.checkCCSize import checkCCSize
+    from fsqc.checkContrast import checkContrast
+    from fsqc.checkRotation import checkRotation
+    from fsqc.checkSNR import checkSNR
+    from fsqc.checkTopology import checkTopology
+    from fsqc.createScreenshots import createScreenshots
+    from fsqc.createSurfacePlots import createSurfacePlots
+    from fsqc.evaluateFornixSegmentation import evaluateFornixSegmentation
+    from fsqc.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
+    from fsqc.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
+    from fsqc.outlierDetection import outlierDetection, outlierTable
 
     # ------------------------------------------------------------------------------
     # internal settings (might be turned into command-line arguments in the future)
@@ -1211,7 +1210,7 @@ def _do_qatools(argsDict):
     for subject in argsDict["subjects"]:
         #
         logging.info(
-            "Starting qatools-python for subject " +
+            "Starting fsqc for subject " +
             subject +
             " at " +
             time.strftime("%Y-%m-%d %H:%M %Z", time.localtime(time.time())),
@@ -1910,8 +1909,8 @@ def _do_qatools(argsDict):
         metricsFieldnames.extend(sorted(outlierKeys))
 
     # determine output file names
-    path_data_file = os.path.join(argsDict["output_dir"], "qatools-results.csv")
-    path_html_file = os.path.join(argsDict["output_dir"], "qatools-results.html")
+    path_data_file = os.path.join(argsDict["output_dir"], "fsqc-results.csv")
+    path_html_file = os.path.join(argsDict["output_dir"], "fsqc-results.html")
 
     # write csv
     with open(path_data_file, "w") as datafile:
@@ -2277,10 +2276,10 @@ def _start_logging(argsDict):
 
 
 # ------------------------------------------------------------------------------
-# run qatools
+# run fsqc
 
 
-def run_qatools(
+def run_fsqc(
     subjects_dir,
     output_dir,
     argsDict=None,
@@ -2314,7 +2313,7 @@ def run_qatools(
     logfile=None,
 ):
     """
-    a function to run the qatools submodules
+    a function to run the fsqc submodules
 
     """
 
@@ -2373,6 +2372,6 @@ def run_qatools(
     # check packages
     _check_packages()
 
-    # run qatools
-    _do_qatools(argsDict)
+    # run fsqc
+    _do_fsqc(argsDict)
 

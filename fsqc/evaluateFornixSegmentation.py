@@ -60,8 +60,8 @@ def evaluateFornixSegmentation(
     import warnings
     import numpy as np
 
-    from qatoolspython.createScreenshots import createScreenshots
-    from qatoolspython.qatoolspythonUtils import applyTransform, binarizeImage
+    from fsqc.createScreenshots import createScreenshots
+    from fsqc.fsqcUtils import applyTransform, binarizeImage
 
     # --------------------------------------------------------------------------
     # check files

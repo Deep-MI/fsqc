@@ -50,8 +50,8 @@ def evaluateHypothalamicSegmentation(
     import numpy as np
     from scipy import ndimage
 
-    from qatoolspython.createScreenshots import createScreenshots
-    from qatoolspython.qatoolspythonUtils import binarizeImage
+    from fsqc.createScreenshots import createScreenshots
+    from fsqc.fsqcUtils import binarizeImage
 
     # --------------------------------------------------------------------------
     # check files

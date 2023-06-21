@@ -33,7 +33,7 @@ def checkContrast(subjects_dir, subject):
     import numpy
     import warnings
 
-    from qatoolspython.qatoolspythonUtils import importMGH
+    from fsqc.fsqcUtils import importMGH
 
     # Setttings
     logging.captureWarnings(True)
