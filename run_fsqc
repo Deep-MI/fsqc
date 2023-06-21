@@ -1,7 +1,22 @@
 #!/usr/bin/env python3
 
 
-from fsqc.fsqc_cmd import _fsqc
+import fsqc
+
+from fsqc.fsqcMain import _parse_arguments
 
 if __name__ == "__main__":
-    _fsqc()
+
+    # say hello
+    print("")
+    print("-----------------------------")
+    print("fsqc")
+    print("-----------------------------")
+    print("")
+
+    # parse arguments
+    argsDict = _parse_arguments()
+
+    # run fsqc
+    if argsDict is not None:
+        fsqc.run_fsqc(subjects_dir=None, output_dir=None, argsDict=argsDict)
