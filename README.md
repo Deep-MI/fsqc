@@ -28,12 +28,10 @@ This is a set of quality assurance / quality control scripts for Fastsurfer- or
 Freesurfer-processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
-Freesurfer QA Tools that are provided at https://surfer.nmr.mgh.harvard.edu/fswiki/QATools
-
-It has been augmented by additional functions from the MRIQC toolbox, available
-at https://github.com/poldracklab/mriqc and https://osf.io/haf97, and with code
-derived from the shapeDNA and brainPrint toolboxes, available at
-https://reuter.mit.edu.
+[Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has 
+been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc and https://osf.io/haf97), 
+and with code derived from the [lapy](https://github.com/Deep-MI/lapy) and 
+[brainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
 The core functionality of this toolbox is to compute the following features:
 
@@ -234,7 +232,7 @@ optional arguments:
                          html summary page
   --surfaces             create screenshots of individual brain surfaces
   --surfaces-html        create screenshots of individual brain surfaces
-                         and html summary page  
+                         and html summary page
   --skullstrip           create screenshots of individual brainmasks
   --skullstrip-html      create screenshots of individual brainmasks and
                          html summary page
@@ -255,9 +253,9 @@ optional arguments:
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
-  --exit-on-error        terminate the program when encountering an error; 
-                         otherwise, try to continue with the next module or 
-                         case  
+  --exit-on-error        terminate the program when encountering an error;
+                         otherwise, try to continue with the next module or
+                         case
 
 getting help:
   -h, --help            display this help message and exit
@@ -356,8 +354,10 @@ See `help(qatoolspython)` for further usage info and additional options.
 
 ### As a docker image
 
-We provide a `Dockerfile` that can be used to create a Docker image for the
-qatools-python scripts. Documentation is provided on the [Docker page](docker/Docker.md).
+We provide a configuration files that can be used to create a Docker or Singularity
+image for the qatools-python scripts. Documentation is provided on the [Docker](docker/Docker.md)
+and [Singularity](docker/Singularity.md) pages.
+
 ___
 
 ## Main branch and development branch
