@@ -30,7 +30,7 @@ Freesurfer-processed structural MRI data.
 
 It is a revision, extension, and translation to the Python language of the
 [Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has
-been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc and https://osf.io/haf97),
+been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc),
 and with code derived from the [lapy](https://github.com/Deep-MI/lapy) and
 [brainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
@@ -380,7 +380,7 @@ See `fsqc.get_help()` for further usage info and additional options.
 
 We provide a configuration files that can be used to create a Docker or
 Singularity image for the fsqc scripts. Documentation can be found on the
-[Docker](docker/Docker.md) and [Singularity](docker/Singularity.md) pages.
+[Docker](docker/Docker.md) and [Singularity](singularity/Singularity.md) pages.
 
 ___
 
