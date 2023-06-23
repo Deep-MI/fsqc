@@ -11,9 +11,16 @@ This module provides the main functionality of the fsqc package.
 
 def get_version():
 
-    VERSION = "v1.8.0"
+    from importlib import metadata
 
-    return VERSION
+    try:
+        # requires existing installation
+        version = metadata.version('fsqc')
+    except Exception as e:
+        # fall-back if package is not installed, but run directly
+        version = "unknown"
+
+    return version
 
 # ------------------------------------------------------------------------------
 # get_help()
@@ -2234,6 +2241,11 @@ def _start_logging(argsDict):
         logging.error('Status: program exited with errors')
     sys.excepthook = foo
 
+    # set up logging
+    logfile_format = "[%(levelname)s: %(filename)s: %(lineno)4d]: %(message)s"
+    logfile_handlers = [logging.StreamHandler(sys.stdout)]
+    logging.basicConfig(level=logging.INFO, format=logfile_format, handlers=logfile_handlers)
+
     # check if output directory exists or can be created
     if os.path.isdir(argsDict["output_dir"]):
         logging.info("Found output directory " + argsDict["output_dir"])
@@ -2254,10 +2266,9 @@ def _start_logging(argsDict):
         logging.error("Reason: " + str(e))
         raise
 
-    # start logging
+    #
     logfile =  os.path.join(argsDict["output_dir"], 'logfile.txt')
-    logging.basicConfig(filename=logfile, filemode='w', level=logging.INFO)
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout)) # this adds output to stdout
+    logging.getLogger().addHandler(logging.FileHandler(filename=logfile, mode="w"))
 
     # intial messages
     logging.info("Starting logging for fsqctools ...")
