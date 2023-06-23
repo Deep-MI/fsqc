@@ -70,5 +70,5 @@ dependencies = {file = 'requirements.txt'}
 #include-package-data = false
 
 [tool.setuptools.packages.find]
-where = ['fsqc']
+include = ['fsqc', 'fsqc.cli']
 exclude = ['docker', 'singularity']
