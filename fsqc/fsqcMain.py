@@ -949,46 +949,46 @@ def _check_arguments(argsDict):
         # -files: stats/aseg.stats
         path_check = os.path.join(argsDict["subjects_dir"], subject, "stats", "aseg.stats")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         # -files: surf/[lr]h.w-g.pct.mgh, label/[lr]h.cortex.label
         path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.w-g.pct.mgh")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.cortex.label")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.cortex.label")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/transforms/talairach.lta
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "talairach.lta")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc.DKTatlas+aseg.deep.mgz for FastSurfer
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aseg.mgz")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         if argsDict["fastsurfer"] is True:
@@ -996,13 +996,13 @@ def _check_arguments(argsDict):
         else:
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         # -files: scripts/recon-all.log
         path_check = os.path.join(argsDict["subjects_dir"], subject, "scripts", "recon-all.log")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find", path_check, "for subject", subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject)
             subjects_to_remove.extend([subject])
 
         # check screenshots
@@ -1012,22 +1012,22 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.white")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.white")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
         # check surfaces
@@ -1035,32 +1035,32 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.inflated")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.inflated")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.pial")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "rh.pial")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.annot")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.annot")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
         if len(argsDict["surfaces_views"]) > 0:
@@ -1075,12 +1075,12 @@ def _check_arguments(argsDict):
             # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "brainmask.mgz")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
         # check fornix
@@ -1088,7 +1088,7 @@ def _check_arguments(argsDict):
             # -files: mri/transforms/cc_up.lta
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "transforms", "cc_up.lta")
             if not os.path.isfile(path_check):
-                warnings.warn("Could not find", path_check, "for subject", subject)
+                warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
     # remove subjects with missing files after creating unique list
