@@ -6,7 +6,7 @@ This module provides a function to create surface plots
 # -----------------------------------------------------------------------------
 
 
-def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
+def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS, FASTSURFER):
     """
     function createSurfacePlots
 
@@ -55,12 +55,20 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS):
     triaInflL = lp.TriaMesh(triaInflL[0], triaInflL[1])
     triaInflR = lp.TriaMesh(triaInflR[0], triaInflR[1])
 
-    annotL = nb.freesurfer.read_annot(
-        os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.annot"), orig_ids=False
-    )
-    annotR = nb.freesurfer.read_annot(
-        os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.annot"), orig_ids=False
-    )
+    if FASTSURFER is True:
+        annotL = nb.freesurfer.read_annot(
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.DKTatlas.annot"), orig_ids=False
+        )
+        annotR = nb.freesurfer.read_annot(
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.DKTatlas.annot"), orig_ids=False
+        )
+    else:
+        annotL = nb.freesurfer.read_annot(
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.annot"), orig_ids=False
+        )
+        annotR = nb.freesurfer.read_annot(
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.annot"), orig_ids=False
+        )
 
     # -----------------------------------------------------------------------------
     # plots

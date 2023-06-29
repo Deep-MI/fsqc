@@ -1532,6 +1532,7 @@ def _do_fsqc(argsDict):
                     SUBJECTS_DIR=argsDict["subjects_dir"],
                     SURFACES_OUTDIR=surfaces_outdir,
                     VIEWS=argsDict["surfaces_views"],
+                    FASTSURFER=argsDict["fastsurfer"]
                 )
                 # return
                 surfaces_ok = True
