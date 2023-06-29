@@ -299,8 +299,12 @@ def get_help(print_help=True, return_help=False):
     file for a complete list. Use `pip3 install -r requirements.txt` to install
     these packages.
 
-    This software has been tested on Ubuntu 22.04, CentOS7, and MacOS 10.14.
+    This software has been tested on Ubuntu 20.04.
 
+    A working [FreeSurfer](https://freesurfer.net) installation (version 6 or
+    newer) is required for running the 'shape' module of this toolbox. Also make
+    sure that FreeSurfer is sourced (i.e., `FREESURFER_HOME` is set as an
+    environment variable) before running an analysis.
 
     =============
     Known Issues:
@@ -992,7 +996,7 @@ def _check_arguments(argsDict):
             subjects_to_remove.extend([subject])
 
         if argsDict["fastsurfer"] is True:
-            path_check = os.path.join(subjects_dir, subject, "mri", "aparc.DKTatlas+aseg.deep.mgz")
+            path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc.DKTatlas+aseg.deep.mgz")
         else:
             path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz")
         if not os.path.isfile(path_check):
@@ -1368,13 +1372,13 @@ def _do_fsqc(argsDict):
                 from pathlib import Path
 
                 # compute brainprint (will also compute shapeDNA)
-                from brainprint import Brainprint
+                import brainprint
 
                 # check / create subject-specific brainprint_outdir
                 brainprint_outdir = Path(os.path.join(argsDict["output_dir"], 'brainprint', subject))
 
                 # run brainPrint
-                evMat, evecMat, dstMat = brainprint.run_brainprint(subjects_dir=argsDict["subjects_dir"], subject_id=subject, destination=brainprint_outdir, keep_eigenvectors=SHAPE_EVEC, skip_cortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
+                evMat, evecMat, dstMat = brainprint.brainprint.run_brainprint(subjects_dir=argsDict["subjects_dir"], subject_id=subject, destination=brainprint_outdir, keep_eigenvectors=SHAPE_EVEC, skip_cortex=SHAPE_SKIPCORTEX, num=SHAPE_NUM, norm=SHAPE_NORM, reweight=SHAPE_REWEIGHT, asymmetry=SHAPE_ASYMMETRY)
 
                 # get a subset of the brainprint results
                 distDict = {subject: dstMat}

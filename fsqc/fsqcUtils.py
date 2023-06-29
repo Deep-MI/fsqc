@@ -65,7 +65,7 @@ def importMGH(filename):
         struct.unpack(">b", fp.read(charsize))[0]
 
     nv = ndim1 * ndim2 * ndim3 * nframes
-    vol = numpy.fromstring(fp.read(floatsize * nv), dtype=numpy.float32).byteswap()
+    vol = numpy.frombuffer(fp.read(floatsize * nv), dtype=numpy.float32).byteswap()
 
     nvert = max([ndim1, ndim2, ndim3])
     vol = numpy.reshape(vol, (ndim1, ndim2, ndim3, nframes), order="F")
