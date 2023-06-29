@@ -1036,7 +1036,8 @@ def _check_arguments(argsDict):
 
         # check surfaces
         if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
-            # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional)
+            # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.annot (optional) for freesurfer
+            # -files: surf/[lr]h.white (optional), surf/[lr]h.inflated (optional), label/[lr]h.aparc.DKTatlas.annot (optional) for fastsurfer
             path_check = os.path.join(argsDict["subjects_dir"], subject, "surf", "lh.inflated")
             if not os.path.isfile(path_check):
                 warnings.warn("Could not find " + path_check + " for subject " + subject)
@@ -1057,12 +1058,18 @@ def _check_arguments(argsDict):
                 warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
-            path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.annot")
+            if argsDict["fastsurfer"] is True:
+                path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.DKTatlas.annot")
+            else:
+                path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "lh.aparc.annot")
             if not os.path.isfile(path_check):
                 warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
 
-            path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.annot")
+            if argsDict["fastsurfer"] is True:
+                path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.DKT.atlas.annot")
+            else:
+                path_check = os.path.join(argsDict["subjects_dir"], subject, "label", "rh.aparc.annot")
             if not os.path.isfile(path_check):
                 warnings.warn("Could not find " + path_check + " for subject " + subject)
                 subjects_to_remove.extend([subject])
