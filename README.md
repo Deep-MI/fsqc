@@ -356,8 +356,6 @@ run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv
 ```
 
-- Note that `run_fsqc` is shorthand for `python3 /my/fsqc/directory/fsqc.py`.
-
 - Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
 
 ### As a Python package
@@ -367,14 +365,31 @@ within a pure Python environment, i.e. installed and imported as a Python packag
 
 Use `import fsqc` (or sth. equivalent) to import the package within a
 Python environment, and use the `run_fsqc` function from the `fsqc` module to
-run an analysis:
+run an analysis.
+
+In its most basic form:
 
 ```python
 import fsqc
 fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir')
 ```
 
-See `fsqc.get_help()` for further usage info and additional options.
+Specify subjects as a list:
+
+```python
+import fsqc
+fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir', subjects=['subject1', 'subject2', 'subject3'])
+```
+
+And as a more elaborate example:
+
+```python
+import fsqc
+fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir', subject_file='/my/subjects/file.txt', screenshots_html=True, surfaces_html=True, skullstrip_html=True, fornix_html=True, hypothalamus_html=True, hippocampus_html=True, hippocampus_label="T1.v21", shape=True, outlier=True)
+```
+
+
+Call `help(fsqc.run_fsqc)` for further usage info and additional options.
 
 ### As a Docker image
 
