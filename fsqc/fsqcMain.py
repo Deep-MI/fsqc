@@ -2386,3 +2386,7 @@ def run_fsqc(
     # run fsqc
     _do_fsqc(argsDict)
 
+    # return
+    return argsDict
+
+
