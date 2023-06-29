@@ -9,5 +9,9 @@ This is a document summarizing the changes that are associated with (major) upda
 - Interface changes: importing and running the scripts as a python package has changed. See [here](https://github.com/Deep-MI/fsqc) for details. In particular, 'run_fsqc' is now an executable file and replaces the 'qatools' or 'qatools.py' command.
 - New names for main and dev branches: the main (default) branch is now called `stable` (was: `freesurfer-module-releases`), and the dev branch is now called `dev` (was: `freesurfer-module-dev`). The old branches will still be kept for a while in a deprecation state, but will not recieve further updates or support. 
 - Screenshots are now in radiological orientation (left is right). Before version 2.0, screenshots were in neurological orientation (left is left).
-- Addition of skullstrip, hipopcampus and hypothalamus modules.
+- Addition of skullstrip, hippocampus and hypothalamus modules.
+- Improved logging, error handling, and testing frameworks.
+- Enhanced containerization support (docker, singularity, dockerhub).
+- Updated requirements, easier installation of lapy and brainprint dependencies.
+- FreeSurfer is no longer required as a dependency (except for the optional 'shape analysis' module, which relies on the brainprint package).
 - We do not preserve compatibility with earlier versions.
