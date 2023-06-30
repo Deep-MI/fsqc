@@ -7,9 +7,9 @@ this release comes a change of the project name from `qatools` to `fsqc`, to
 reflect increased independence from the original FreeSurfer QA tools, and
 applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
 
-The current version of this toolbox is v2.0.0; recent changes include the 
-addition of the skullstrip, hipopcampus and hypothalamus modules as well as the 
-addition of a surface visualization module. Technical changes include how the 
+The current version of this toolbox is v2.0.0; recent changes include the
+addition of the skullstrip, hipopcampus and hypothalamus modules as well as the
+addition of a surface visualization module. Technical changes include how the
 package is installed, imported, and run, see below for details.
 
 A list of changes is available [here](CHANGES.md).
@@ -188,19 +188,18 @@ from the drop-down menu on the top left, or [click here](https://github.com/Deep
 
 ### Roadmap
 
-The goal of the `fsqc` project is to create a modular and extensible
-software package that provides quantitative metrics and visual information for
-the quality control of FreeSurfer- or Fastsurfer-processed MR images. The
-package is currently under development, and new features are continuously
-added.
+The goal of the `fsqc` project is to create a modular and extensible software
+package that provides quantitative metrics and visual information for the
+quality control of FreeSurfer- or Fastsurfer-processed MR images. The package
+is currently under development, and new features are continuously added.
 
 New features will initially be available in the [development branch](https://github.com/Deep-MI/fsqc/tree/dev)
 of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/fsqc/tree/stable)
 after a period of testing and evaluation. Unless explicitly announced, all new
 features will preserve compatibility with earlier versions.
 
-Feedback, suggestions, and contributions are always welcome, preferably via
-[issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests](https://github.com/Deep-MI/fsqc/pulls).
+Feedback, suggestions, and [contributions](CONTRIBUTINNG.md) are always welcome,
+preferably via [issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests](https://github.com/Deep-MI/fsqc/pulls).
 
 ___
 
@@ -474,9 +473,9 @@ ___
 
 - This software has been tested on Ubuntu 20.04.
 
-- A working [FreeSurfer](https://freesurfer.net) installation (version 6 or 
-  newer) is required for running the 'shape' module of this toolbox. Also make 
-  sure that FreeSurfer is sourced (i.e., `FREESURFER_HOME` is set as an 
+- A working [FreeSurfer](https://freesurfer.net) installation (version 6 or
+  newer) is required for running the 'shape' module of this toolbox. Also make
+  sure that FreeSurfer is sourced (i.e., `FREESURFER_HOME` is set as an
   environment variable) before running an analysis.
 
 ___
