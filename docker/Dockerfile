@@ -17,10 +17,9 @@ RUN apt-get install -y --no-install-recommends \
     python3-setuptools \
     python3-wheel
 
-# clone fsqc (TODO: remove dev, remove ARG, remove qatools-python, maybe change to pip install after deploying)
-ARG CHANGE_THIS_TO_RUN_FROM_HERE=12345678
+# clone fsqc
 #RUN git clone --branch dev --single-branch https://github.com/Deep-MI/fsqc.git /app/fsqc
-RUN git clone --branch dev --single-branch https://github.com/Deep-MI/qatools-python.git /app/fsqc
+RUN git clone https://github.com/Deep-MI/fsqc.git /app/fsqc
 
 # install additional python packages (TODO: not necessary if using pip install)
 RUN pip3 install -r /app/fsqc/requirements.txt
