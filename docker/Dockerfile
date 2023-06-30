@@ -17,21 +17,23 @@ RUN apt-get install -y --no-install-recommends \
     python3-setuptools \
     python3-wheel
 
-# clone fsqc (TODO: remove dev)
-ARG CHANGE_THIS_TO_RUN_FROM_HERE=1234
-RUN git clone --branch dev --single-branch https://github.com/Deep-MI/fsqc.git /app/fsqc
+# clone fsqc (TODO: remove dev, remove ARG, remove qatools-python, maybe change to pip install after deploying)
+ARG CHANGE_THIS_TO_RUN_FROM_HERE=12345678
+#RUN git clone --branch dev --single-branch https://github.com/Deep-MI/fsqc.git /app/fsqc
+RUN git clone --branch dev --single-branch https://github.com/Deep-MI/qatools-python.git /app/fsqc
 
-# install additional python packages
+# install additional python packages (TODO: not necessary if using pip install)
 RUN pip3 install -r /app/fsqc/requirements.txt
 
 # Add other environment variables
 ENV OMP_NUM_THREADS=1
+ENV MPLCONFIGDIR=/tmp/mplconfigdir
 
 # Set the working directory to /app
 WORKDIR /app
 
-## Set entrypoint (non-interactive mode)
-ENTRYPOINT ["python3", "/app/fsqc/fsqc.py"]
+# Set entrypoint (non-interactive mode)
+ENTRYPOINT ["python3", "/app/fsqc/run_fsqc"]
 
 ## Run app when the container launches (interactive mode)
 #CMD ["/bin/bash"] 
