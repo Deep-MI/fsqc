@@ -21,14 +21,6 @@
 - [Citations](#citations)
 - [License](#license)
 
-## PLEASE NOTE
-
-Despite its name, this branch is still experimental and not the default branch. 
-It is the candidate for the next major release, but under continuing development
-and may change frequently. Please use the [default branch](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-releases) 
-or the [dev branch](https://github.com/Deep-MI/qatools-python/tree/freesurfer-module-dev) 
-instead.
-
 ___
 
 ## Description
@@ -177,10 +169,10 @@ this release comes a change of the project name from `qatools` to `fsqc`, to
 reflect increased independence from the original FreeSurfer QA tools, and
 applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
 
-The current version of this toolbox is v2.0; recent changes include the addition
-of the skullstrip, hipopcampus and hypothalamus modules as well as the addition
-of a surface visualization module. Technical changes include how the package is
-installed, imported, and run, see below for details.
+The current version of this toolbox is v2.0.0; recent changes include the 
+addition of the skullstrip, hipopcampus and hypothalamus modules as well as the 
+addition of a surface visualization module. Technical changes include how the 
+package is installed, imported, and run, see below for details.
 
 A list of changes is available [here](CHANGES.md).
 
@@ -190,8 +182,8 @@ This repository contains multiple branches, reflecting the continued
 development of the toolbox. The two primary branches are the main branch
 (`stable`) and the development branch (`dev`). New features will first be added
 to the development branch, and eventually be merged with the main branch. You
-are currently on the development branch. To go to the main branch, select it
-from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/stable).
+are currently on the main branch. To go to the development branch, select it
+from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/dev).
 
 ### Roadmap
 
@@ -205,10 +197,6 @@ New features will initially be available in the [development branch](https://git
 of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/fsqc/tree/stable)
 after a period of testing and evaluation. Unless explicitly announced, all new
 features will preserve compatibility with earlier versions.
-
-Upcoming extensions include modules for the quality control of FreeSurfer's
-brainstem and thalamic segmentations. Another planned extension is support for
-parallel processing of many cases.
 
 Feedback, suggestions, and contributions are always welcome, preferably via
 [issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests](https://github.com/Deep-MI/fsqc/pulls).
