@@ -36,10 +36,15 @@ classifiers = [
 dynamic = ["version", "readme", "dependencies"]
 
 [project.optional-dependencies]
+build = [
+    'build',
+    'twine',
+]
 style = [
     'flake8',
 ]
 all = [
+    'fsqc[build]',
     'fsqc[style]',
 ]
 full = [
