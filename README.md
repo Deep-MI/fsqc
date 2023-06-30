@@ -14,6 +14,8 @@ package is installed, imported, and run, see below for details.
 
 A list of changes is available [here](CHANGES.md).
 
+___
+
 ## Contents
 
 - [Description](#description)
