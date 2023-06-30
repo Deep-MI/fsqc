@@ -213,7 +213,7 @@ def get_help(print_help=True, return_help=False):
           --hippocampus-html    check segmentation of hippocampus and amygdala
                                 and create html summary page
           --hippocampus-label   specify label for hippocampus segmentation files
-                                (default: T1.v21). The full filename is then
+                                (default: None). The full filename is then
                                 [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz
           --shape               run shape analysis
           --outlier             run outlier detection
@@ -2335,8 +2335,93 @@ def run_fsqc(
     exit_on_error=False,
     logfile=None,
 ):
-    """
-    a function to run the fsqc submodules
+    """Run the fsqc submodules.
+
+    This is the main function to run the fsqc submodules.
+
+    Parameters
+    ----------
+    subjects_dir : str
+        Subjects directory.
+    output_dir : str
+        Output directory.
+    argsDict : dict, default: None
+        Dictionary of input arguments.
+    subjects : list of str, default: None
+        List of subjects to process. If None, all valid cases in the input
+        directory will be processed. Cannot be used with `subjects_file`.
+    subjects_file : str, default: None
+        A text file that contains a list of subjects to be processed. Cannot
+        be used with `subjects`.
+    shape : bool, default: False
+        Conduct shape analysis using brainprint.
+    screenshots : bool, default: False
+        Create screenshots of MR image with optional overlays.
+    screenshots_html : bool, default: False
+        Create screenshots and html summary page.
+    screenshots_base : str, default: "default"
+        Filename for base image for screenshots.
+    screenshots_overlay : str, default: "default"
+        Filename for overlay image for screenshots.
+    screenshots_surf : list of str, default: "default"
+        List of filenames of surface files to include in screenshots.
+    screenshots_views : list of str, default: "default"
+        List of parameters to set the views of the screenshots.
+        Example: ['x=0', 'x=-10', 'x=10', 'y=20', 'z=0']
+    screenshots_layout : list of int, default: None
+        Layout describing rows and columns of the screenshots.
+        Example: [1, 4] (one row, four columns).
+    screenshots_orientation : list of str, default: ["radiological"]
+        Orientation of screenshots. Either "radiological" or "neurological".
+    surfaces : bool, default: False
+        Create screenshots of pial and inflated surfaces.
+    surfaces_html : bool, default: False
+        Create screenshots of pial and inflated surfaces and html summary page.
+    surfaces_views : list of str, default: ["left", "right", "superior", "inferior"]
+        List of parameters to set the views of the surface plots.
+    skullstrip : bool, default: False
+        Create screeenshot of MR image and skullstrip overlay.
+    skullstrip_html : bool, default: False
+        Create screeenshot of MR image and skullstrip overlay, and create html
+        summary page.
+    fornix : bool, default: False
+        Create screenshot of MR imge and corpus callosum overlay to identify
+        fornix oversegmentation.
+    fornix_html : bool, default: False
+        Create screenshot of MR imge and corpus callosum overlay with html
+        summary page.
+    hypothalamus : bool, default: False
+        Create screenhots of hypothalamic segmentation. Requires running
+        FreeSurfer's hypothalamus add-on module.
+    hypothalamus_html : bool, default: False
+        Create screenhots of hypothalamic segmentation with html summary page.
+        Requires running FreeSurfer's hypothalamus add-on module.
+    hippocampus : bool, default: False
+        Create screenhots of hippocampal segmentation. Requires running
+        FreeSurfer's hippocampus add-on module.
+    hippocampus_html : bool, default: False
+        Create screenhots of hippocampal segmentation with html summary page.
+        Requires running FreeSurfer's hippocampus add-on module.
+    hippocampus_label : str, default: None
+        Label used for the hippocampal segmentations. Example: "T1.v21". The
+        full filename would be [lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz.
+    outlier : bool, default: False
+        Conduct outlier analysis.
+    outlier_table : str, default: None
+        Specify custom norms table for outlier analysis.
+    fastsurfer : bool, default: False
+        Use FastSurfer instead of FreeSurfer input.
+    exit_on_error : bool, default: False
+        Exit on error. If False, a warning is thrown and the analysis
+        continues.
+    logfile : str, default: None
+        Specify a custom location for the logfile. Default location is the
+        output directory.
+
+    Returns
+    -------
+    dict
+        A dictionary of input arguments and processing directives
 
     """
 
