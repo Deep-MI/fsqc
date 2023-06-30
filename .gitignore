@@ -1,11 +1,16 @@
 #
-TODO.md
-NOTES.md
+misc
 deprecated
 testing
 
 # macOS
 .DS_Store
+
+#
+.flake8
+
+#
+.ipynb_checkpoints
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
