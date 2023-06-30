@@ -1,4 +1,4 @@
-# fsqc
+# fsqc toolbox
 
 ## News
 
@@ -8,9 +8,10 @@ reflect increased independence from the original FreeSurfer QA tools, and
 applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
 
 The current version of this toolbox is v2.0.0; recent changes include the
-addition of the skullstrip, hipopcampus and hypothalamus modules as well as the
-addition of a surface visualization module. Technical changes include how the
-package is installed, imported, and run, see below for details.
+addition of the hippocampus and hypothalamus modules as well as the addition of
+surface and skullstrip visualization modules. Technical changes include how the
+package is installed, imported, and run, see [below](https://github.com/Deep-MI/fsqc#usage)
+for details.
 
 A list of changes is available [here](CHANGES.md).
 
@@ -175,11 +176,11 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
-## Ongoing development
+## Development
 
 ### Main and development branches
 
-This repository contains multiple branches, reflecting the continued
+This repository contains multiple branches, reflecting the ongoing
 development of the toolbox. The two primary branches are the main branch
 (`stable`) and the development branch (`dev`). New features will first be added
 to the development branch, and eventually be merged with the main branch. You
