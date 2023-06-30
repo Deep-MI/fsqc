@@ -1,0 +1,74 @@
+[build-system]
+requires = ['setuptools >= 61.0.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'fsqc'
+description = 'A set of quality control scripts for Freesurfer- and Fastsurfer-processed structural MRI data'
+license = {file = 'LICENSE'}
+requires-python = '>=3.8'
+authors = [
+    {name = 'Kersten Diers', email = 'kersten.diers@dzne.de'},
+    {name = 'Martin Reuter', email = 'martin.reuter@dzne.de'}
+]
+maintainers = [
+    {name = 'Kersten Diers', email = 'kersten.diers@dzne.de'},
+    {name = 'Martin Reuter', email = 'martin.reuter@dzne.de'}
+]
+keywords = [
+    'Freesurfer',
+    'Fastsurfer',
+    'Quality control',
+    'Quality assurance'
+]
+classifiers = [
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Natural Language :: English',
+    'License :: OSI Approved :: MIT License',
+    'Intended Audience :: Science/Research',
+]
+dynamic = ["version", "readme", "dependencies"]
+
+[project.optional-dependencies]
+style = [
+    'flake8',
+]
+all = [
+    'fsqc[style]',
+]
+full = [
+    'fsqc[all]',
+]
+
+[project.urls]
+homepage = 'https://github.com/Deep-MI/fsqc'
+documentation = 'https://github.com/Deep-MI/fsqc'
+source = 'https://github.com/Deep-MI/fsqc'
+tracker = 'https://github.com/Deep-MI/fsqc/issues'
+
+[project.scripts]
+run_fsqc = 'fsqc.cli:main'
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.setuptools.dynamic]
+version = {file = 'VERSION'}
+readme = {file = ["README.md", "CHANGES.md"]}
+dependencies = {file = 'requirements.txt'}
+
+
+#[tool.setuptools] ### probably not needed
+#include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ['fsqc', 'fsqc.cli']
+exclude = ['docker', 'singularity']
