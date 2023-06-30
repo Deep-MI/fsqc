@@ -602,7 +602,7 @@ def _parse_arguments():
         help="view specification for screenshots",
         default=["x=-10", "x=10", "y=0", "z=0"],
         nargs="+",
-        metavar="<dimension=coordinate [dimension=coordinate]>",
+        metavar="<dimension=coordinate>",
         required=False,
     )
     expert.add_argument(
