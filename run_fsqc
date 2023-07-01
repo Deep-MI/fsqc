@@ -2,7 +2,6 @@
 
 
 import fsqc
-
 from fsqc.fsqcMain import _parse_arguments
 
 if __name__ == "__main__":

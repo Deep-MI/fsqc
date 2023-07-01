@@ -21,11 +21,12 @@ def importMGH(filename):
 
     """
 
-    import os
     import logging
-    import numpy
+    import os
     import struct
     import warnings
+
+    import numpy
 
     logging.captureWarnings(True)
 

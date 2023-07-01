@@ -51,9 +51,10 @@ def createScreenshots(
     # -----------------------------------------------------------------------------
     # imports
 
-    import os
     import logging
+    import os
     import warnings
+
     import matplotlib
     import nibabel as nb
     import numpy as np
@@ -65,7 +66,7 @@ def createScreenshots(
     from matplotlib import pyplot as plt
 
     from fsqc.fsqcUtils import levelsetsTria, returnFreeSurferColorLUT
- 
+
     # -----------------------------------------------------------------------------
     # settings
 

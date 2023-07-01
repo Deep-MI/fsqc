@@ -4,6 +4,7 @@ fsqc CLI
 
 from ..fsqcMain import _parse_arguments, run_fsqc
 
+
 def main():
 
     # say hello

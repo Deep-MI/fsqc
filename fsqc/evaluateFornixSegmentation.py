@@ -55,9 +55,10 @@ def evaluateFornixSegmentation(
     # --------------------------------------------------------------------------
     # imports
 
-    import os
     import logging
+    import os
     import warnings
+
     import numpy as np
 
     from fsqc.createScreenshots import createScreenshots

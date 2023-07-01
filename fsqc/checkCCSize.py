@@ -27,8 +27,9 @@ def checkCCSize(subjects_dir, subject):
     """
 
     # Imports
-    import os
     import logging
+    import os
+
     import numpy as np
 
     # Message

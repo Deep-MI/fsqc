@@ -27,8 +27,8 @@ def checkTopology(subjects_dir, subject):
 
     # Imports
 
-    import os
     import logging
+    import os
     import warnings
 
     import numpy as np

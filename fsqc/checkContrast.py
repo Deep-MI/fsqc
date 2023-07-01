@@ -27,11 +27,12 @@ def checkContrast(subjects_dir, subject):
     """
 
     # Imports
-    import os
     import logging
+    import os
+    import warnings
+
     import nibabel
     import numpy
-    import warnings
 
     from fsqc.fsqcUtils import importMGH
 

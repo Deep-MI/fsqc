@@ -46,9 +46,10 @@ def checkSNR(
 
     # Imports
 
-    import os
     import logging
+    import os
     import warnings
+
     import nibabel as nib
     import numpy as np
     from skimage.morphology import binary_erosion

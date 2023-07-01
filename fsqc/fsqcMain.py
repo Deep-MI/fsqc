@@ -698,9 +698,9 @@ def _check_arguments(argsDict):
     # --------------------------------------------------------------------------
     # imports
 
+    import logging
     import os
     import tempfile
-    import logging
     import warnings
 
     logging.captureWarnings(True)
@@ -1124,8 +1124,9 @@ def _check_packages():
     """
 
     import importlib.util
-    import packaging.version
     import sys
+
+    import packaging.version
 
     if sys.version_info <= (3, 8):
         raise RuntimeError("ERROR: Python version must be 3.8 or greater\n")
@@ -1166,9 +1167,9 @@ def _do_fsqc(argsDict):
     # imports
 
     import csv
+    import logging
     import os
     import time
-    import logging
 
     import numpy as np
 
@@ -1180,8 +1181,10 @@ def _do_fsqc(argsDict):
     from fsqc.createScreenshots import createScreenshots
     from fsqc.createSurfacePlots import createSurfacePlots
     from fsqc.evaluateFornixSegmentation import evaluateFornixSegmentation
-    from fsqc.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
-    from fsqc.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
+    from fsqc.evaluateHippocampalSegmentation import \
+        evaluateHippocampalSegmentation
+    from fsqc.evaluateHypothalamicSegmentation import \
+        evaluateHypothalamicSegmentation
     from fsqc.outlierDetection import outlierDetection, outlierTable
 
     # ------------------------------------------------------------------------------
@@ -2233,13 +2236,13 @@ def _start_logging(argsDict):
     """
 
     # imports
+    import logging
     import os
     import sys
-    import uuid
-    import time
-    import logging
     import tempfile
+    import time
     import traceback
+    import uuid
 
     # setup function to log uncaught exceptions
     def foo(exctype, value, tb):
