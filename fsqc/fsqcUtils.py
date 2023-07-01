@@ -40,15 +40,15 @@ def importMGH(filename):
     floatsize = struct.calcsize(">f")
     charsize = struct.calcsize(">b")
 
-    #v = struct.unpack(">i", fp.read(intsize))[0]
+    # v = struct.unpack(">i", fp.read(intsize))[0]
     fp.read(intsize)
     ndim1 = struct.unpack(">i", fp.read(intsize))[0]
     ndim2 = struct.unpack(">i", fp.read(intsize))[0]
     ndim3 = struct.unpack(">i", fp.read(intsize))[0]
     nframes = struct.unpack(">i", fp.read(intsize))[0]
-    #vtype = struct.unpack(">i", fp.read(intsize))[0]
-    #dof = struct.unpack(">i", fp.read(intsize))[0]
-    fp.read(intsize*2)
+    # vtype = struct.unpack(">i", fp.read(intsize))[0]
+    # dof = struct.unpack(">i", fp.read(intsize))[0]
+    fp.read(intsize * 2)
 
     UNUSED_SPACE_SIZE = 256
     USED_SPACE_SIZE = (3 * 4) + (4 * 3 * 4)  # space for ras transform
@@ -58,9 +58,9 @@ def importMGH(filename):
     if ras_good_flag:
         # We read these in but don't process them
         # as we just want to move to the volume data
-        #delta = struct.unpack(">fff", fp.read(floatsize * 3))
-        #Mdc = struct.unpack(">fffffffff", fp.read(floatsize * 9))
-        #Pxyz_c = struct.unpack(">fff", fp.read(floatsize * 3))
+        # delta = struct.unpack(">fff", fp.read(floatsize * 3))
+        # Mdc = struct.unpack(">fffffffff", fp.read(floatsize * 9))
+        # Pxyz_c = struct.unpack(">fff", fp.read(floatsize * 3))
         fp.read(floatsize * 15)
 
     unused_space_size = unused_space_size - USED_SPACE_SIZE
@@ -71,7 +71,7 @@ def importMGH(filename):
     nv = ndim1 * ndim2 * ndim3 * nframes
     vol = numpy.frombuffer(fp.read(floatsize * nv), dtype=numpy.float32).byteswap()
 
-    #nvert = max([ndim1, ndim2, ndim3])
+    # nvert = max([ndim1, ndim2, ndim3])
     vol = numpy.reshape(vol, (ndim1, ndim2, ndim3, nframes), order="F")
     vol = numpy.squeeze(vol)
     fp.close()

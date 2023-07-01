@@ -2258,7 +2258,7 @@ def _do_fsqc(argsDict):
                 )
 
             # return
-            #outlier_ok = True
+            # outlier_ok = True
 
         #
         except Exception as e:
