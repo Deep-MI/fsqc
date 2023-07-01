@@ -57,14 +57,18 @@ def checkContrast(subjects_dir, subject):
         subjects_dir, subject, "label", "lh.cortex.label"
     )
     if not os.path.exists(path_label_cortex_lh):
-        warnings.warn("WARNING: could not find " + path_label_cortex_lh + ", returning NaNs")
+        warnings.warn(
+            "WARNING: could not find " + path_label_cortex_lh + ", returning NaNs"
+        )
         return numpy.nan
 
     path_label_cortex_rh = os.path.join(
         subjects_dir, subject, "label", "rh.cortex.label"
     )
     if not os.path.exists(path_label_cortex_rh):
-        warnings.warn("WARNING: could not find " + path_label_cortex_rh + ", returning NaNs")
+        warnings.warn(
+            "WARNING: could not find " + path_label_cortex_rh + ", returning NaNs"
+        )
         return numpy.nan
 
     # Get the data from the mgh files
@@ -82,12 +86,16 @@ def checkContrast(subjects_dir, subject):
     con_lh_mean = numpy.mean(con_lh)
     con_lh_std = numpy.std(con_lh)
     con_lh_snr = con_lh_mean / con_lh_std
-    logging.info("WM/GM contrast SNR for the left hemisphere: " + "{:.4}".format(con_lh_snr))
+    logging.info(
+        "WM/GM contrast SNR for the left hemisphere: " + "{:.4}".format(con_lh_snr)
+    )
 
     con_rh_mean = numpy.mean(con_rh)
     con_rh_std = numpy.std(con_rh)
     con_rh_snr = con_rh_mean / con_rh_std
-    logging.info("WM/GM contrast SNR for the right hemisphere: " + "{:.4}".format(con_rh_snr))
+    logging.info(
+        "WM/GM contrast SNR for the right hemisphere: " + "{:.4}".format(con_rh_snr)
+    )
 
     # Return
     return con_lh_snr, con_rh_snr

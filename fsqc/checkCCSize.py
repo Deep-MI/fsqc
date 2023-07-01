@@ -39,7 +39,7 @@ def checkCCSize(subjects_dir, subject):
     path_stats_file = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
 
     with open(path_stats_file) as stats_file:
-            aseg_stats = stats_file.read().splitlines()
+        aseg_stats = stats_file.read().splitlines()
 
     # Initialize
     cc_elements = [
@@ -66,7 +66,9 @@ def checkCCSize(subjects_dir, subject):
 
     relative_cc = sum_cc / intracranial_volume
 
-    logging.info("Relative size of the corpus callosum is " + "{:.4}".format(relative_cc))
+    logging.info(
+        "Relative size of the corpus callosum is " + "{:.4}".format(relative_cc)
+    )
 
     # Return
     return relative_cc

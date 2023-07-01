@@ -69,7 +69,9 @@ def checkSNR(
         norm = nib.load(path_reference_image)
         norm_data = norm.get_fdata()
     else:
-        warnings.warn("WARNING: could not open " + path_reference_image + ", returning NaNs.")
+        warnings.warn(
+            "WARNING: could not open " + path_reference_image + ", returning NaNs."
+        )
         return np.nan, np.nan
 
     path_aseg = os.path.join(subjects_dir, subject, "mri", "aseg.mgz")
@@ -85,7 +87,9 @@ def checkSNR(
         inseg = nib.load(path_aparc_aseg)
         data_aparc_aseg = inseg.get_fdata()
     else:
-        warnings.warn("WARNING: could not open " + path_aparc_aseg + ", returning NaNs.")
+        warnings.warn(
+            "WARNING: could not open " + path_aparc_aseg + ", returning NaNs."
+        )
         return np.nan, np.nan
 
     # Process white matter image

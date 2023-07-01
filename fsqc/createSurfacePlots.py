@@ -33,7 +33,7 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS, FASTSURFER
         ("inferior", 0, 0, -2),
     ]
     scale_png = 0.8
-    
+
     # -----------------------------------------------------------------------------
     # import surfaces and overlays
 
@@ -57,17 +57,21 @@ def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS, FASTSURFER
 
     if FASTSURFER is True:
         annotL = nb.freesurfer.read_annot(
-            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.DKTatlas.annot"), orig_ids=False
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.DKTatlas.annot"),
+            orig_ids=False,
         )
         annotR = nb.freesurfer.read_annot(
-            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.DKTatlas.annot"), orig_ids=False
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.DKTatlas.annot"),
+            orig_ids=False,
         )
     else:
         annotL = nb.freesurfer.read_annot(
-            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.annot"), orig_ids=False
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "lh.aparc.annot"),
+            orig_ids=False,
         )
         annotR = nb.freesurfer.read_annot(
-            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.annot"), orig_ids=False
+            os.path.join(SUBJECTS_DIR, SUBJECT, "label", "rh.aparc.annot"),
+            orig_ids=False,
         )
 
     # -----------------------------------------------------------------------------

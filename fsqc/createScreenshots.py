@@ -314,9 +314,9 @@ def createScreenshots(
         normValsRAS.append(
             np.squeeze(
                 normVals[
-                    np.min(sel[:, 0]):np.max(sel[:, 0]) + 1,
-                    np.min(sel[:, 1]):np.max(sel[:, 1]) + 1,
-                    np.min(sel[:, 2]):np.max(sel[:, 2]) + 1,
+                    np.min(sel[:, 0]) : np.max(sel[:, 0]) + 1,
+                    np.min(sel[:, 1]) : np.max(sel[:, 1]) + 1,
+                    np.min(sel[:, 2]) : np.max(sel[:, 2]) + 1,
                 ]
             )
         )
@@ -324,9 +324,9 @@ def createScreenshots(
             asegValsRAS.append(
                 np.squeeze(
                     asegVals[
-                        np.min(sel[:, 0]):np.max(sel[:, 0]) + 1,
-                        np.min(sel[:, 1]):np.max(sel[:, 1]) + 1,
-                        np.min(sel[:, 2]):np.max(sel[:, 2]) + 1,
+                        np.min(sel[:, 0]) : np.max(sel[:, 0]) + 1,
+                        np.min(sel[:, 1]) : np.max(sel[:, 1]) + 1,
+                        np.min(sel[:, 2]) : np.max(sel[:, 2]) + 1,
                     ]
                 )
             )
@@ -645,7 +645,9 @@ def createScreenshots(
                             )
                         sortIdx = np.delete(sortIdx, findIdx[0, 0])
                     elif findIdx.shape[0] > 1:
-                        warnings.warn("WARNING: a problem occurred with the surface overlays")
+                        warnings.warn(
+                            "WARNING: a problem occurred with the surface overlays"
+                        )
                 # now final plot
                 axs[axsx, axsy].plot(
                     tmpxSort,
