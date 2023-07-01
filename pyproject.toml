@@ -119,7 +119,7 @@ extend-exclude = [
     "doc",
     "setup.py",
 ]
-ignore = ["F501"] # line too long (black will do that)
+ignore = ["E501"] # line too long (black will do that)
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
