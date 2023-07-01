@@ -1,5 +1,5 @@
 """
-This module provides a function to determine the rotation angles of the Talairach transform
+This module provides a function to determine rotation angles of the Talairach transform
 
 """
 
@@ -51,7 +51,7 @@ def checkRotation(subjects_dir, subject):
 
     if importlib.util.find_spec("transforms3d") is None:
         warnings.warn(
-            "WARNING: the 'transforms3d' package is required for running this script, returning NaNs."
+            "WARNING: 'transforms3d' package required for running this script, returning NaNs."
         )
         return np.nan, np.nan, np.nan
     else:
