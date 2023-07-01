@@ -58,7 +58,6 @@ def createScreenshots(
     import matplotlib
     import nibabel as nb
     import numpy as np
-    import pandas as pd
 
     if not INTERACTIVE:
         matplotlib.use("Agg")

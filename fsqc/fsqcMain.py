@@ -16,7 +16,7 @@ def get_version():
     try:
         # requires existing installation
         version = metadata.version("fsqc")
-    except Exception as e:
+    except Exception:
         # fall-back if package is not installed, but run directly
         version = "unknown"
 
@@ -2277,7 +2277,6 @@ def _do_fsqc(argsDict):
 
             logging.error("ERROR: outlier module failed")
             logging.error("Reason: " + str(e))
-            outlier_ok = False
             if argsDict["exit_on_error"] is True:
                 raise
 
@@ -2782,7 +2781,6 @@ def _start_logging(argsDict):
     import tempfile
     import time
     import traceback
-    import uuid
 
     # setup function to log uncaught exceptions
     def foo(exctype, value, tb):
@@ -2977,7 +2975,6 @@ def run_fsqc(
     #
 
     #
-    import sys
 
     # create argsDict
     if argsDict is None and (subjects_dir is None or output_dir is None):
