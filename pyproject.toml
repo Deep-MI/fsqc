@@ -70,11 +70,6 @@ tracker = 'https://github.com/Deep-MI/fsqc/issues'
 [project.scripts]
 run_fsqc = 'fsqc.cli:main'
 
-[tool.pytest.ini_options]
-addopts = [
-    "--import-mode=importlib",
-]
-
 [tool.setuptools.dynamic]
 version = {file = 'VERSION'}
 readme = {file = ["README.md", "CHANGES.md"]}
@@ -130,8 +125,11 @@ extend-exclude = [
 
 [tool.pytest.ini_options]
 minversion = '6.0'
-addopts = '--durations 20 --junit-xml=junit-results.xml --verbose'
 filterwarnings = []
+addopts = [
+    "--import-mode=importlib",
+    "--durations 20 --junit-xml=junit-results.xml --verbose",
+]
 
 [tool.coverage.run]
 branch = true
