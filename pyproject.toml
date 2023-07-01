@@ -16,10 +16,10 @@ maintainers = [
     {name = 'Martin Reuter', email = 'martin.reuter@dzne.de'}
 ]
 keywords = [
-    'Freesurfer',
-    'Fastsurfer',
+    'FastSurfer',
+    'FreeSurfer',
     'Quality control',
-    'Quality assurance'
+    'Quality assurance',
 ]
 classifiers = [
     'Operating System :: Unix',
@@ -41,7 +41,17 @@ build = [
     'twine',
 ]
 style = [
-    'flake8',
+    'bibclean',
+    'black',
+    'codespell',
+    'isort',
+    'pydocstyle[toml]',
+    'ruff',
+]
+test = [
+    'pytest',
+    'pytest-cov',
+    'pytest-timeout',
 ]
 all = [
     'fsqc[build]',
@@ -77,3 +87,65 @@ dependencies = {file = 'requirements.txt'}
 [tool.setuptools.packages.find]
 include = ['fsqc', 'fsqc.cli']
 exclude = ['docker', 'singularity']
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+(
+      __pycache__
+    | \.github
+    | setup.py
+)
+'''
+
+[tool.isort]
+profile = 'black'
+multi_line_output = 3
+line_length = 88
+py_version = 38
+extend_skip_glob = [
+    'setup.py',
+    'data/*',
+    'examples/*',
+]
+
+[tool.pydocstyle]
+convention = 'numpy'
+ignore-decorators = '(copy_doc|property|.*setter|.*getter|pyqtSlot|Slot)'
+match = '^(?!setup|__init__|test_).*\.py'
+match-dir = '^fsqc.*'
+add_ignore = 'D100,D104,D107'
+
+[tool.ruff]
+line-length = 88
+extend-exclude = [
+    "doc",
+    "setup.py",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+minversion = '6.0'
+addopts = '--durations 20 --junit-xml=junit-results.xml --verbose'
+filterwarnings = []
+
+[tool.coverage.run]
+branch = true
+cover_pylib = false
+omit = [
+    '**/__init__.py',
+    '**/fsqc/_version.py',
+    '**/fsqc/commands/*',
+    '**/tests/**',
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    'pragma: no cover',
+    'if __name__ == .__main__.:',
+]
+precision = 2
