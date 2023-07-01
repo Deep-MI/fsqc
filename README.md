@@ -398,7 +398,7 @@ ___
 
 ## Main branch and development branch
 
-There are two branches in this repository, the main brach (`stable`) and the
+There are two branches in this repository, the main branch (`stable`) and the
 development branch (`dev`). New features will first be added to the development
 branch, and eventually be merged with the main branch. You are currently on the
 development branch. To go to the main branch, select it from the drop-down menu

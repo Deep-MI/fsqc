@@ -36,7 +36,7 @@ def checkContrast(subjects_dir, subject):
 
     from fsqc.fsqcUtils import importMGH
 
-    # Setttings
+    # Settings
     logging.captureWarnings(True)
 
     # Message

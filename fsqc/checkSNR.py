@@ -54,7 +54,7 @@ def checkSNR(
     import numpy as np
     from skimage.morphology import binary_erosion
 
-    # Setttings
+    # Settings
 
     logging.captureWarnings(True)
 

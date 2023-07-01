@@ -33,7 +33,7 @@ def checkTopology(subjects_dir, subject):
 
     import numpy as np
 
-    # Setttings
+    # Settings
 
     logging.captureWarnings(True)
 

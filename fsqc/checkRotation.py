@@ -39,7 +39,7 @@ def checkRotation(subjects_dir, subject):
 
     import numpy as np
 
-    # setttings
+    # settings
 
     logging.captureWarnings(True)
 
