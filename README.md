@@ -1,27 +1,23 @@
 # fsqc toolbox
 
-## News
+## Description
 
-We are happy to announce the release of version 2.0 of the fsqc toolbox. With
-this release comes a change of the project name from `qatools` to `fsqc`, to
-reflect increased independence from the original FreeSurfer QA tools, and
-applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
+This package provides quality assurance / quality control scripts for FastSurfer- or
+FreeSurfer-processed structural MRI data.
 
-The current version of this toolbox is v2.0.0; recent changes include the
-addition of the hippocampus and hypothalamus modules as well as the addition of
-surface and skullstrip visualization modules. Technical changes include how the
-package is installed, imported, and run, see [below](https://github.com/Deep-MI/fsqc#usage)
-for details.
-
-A list of changes is available [here](CHANGES.md) (the installation via pypi.org 
-and dockerhub will be available soon).
+It is a revision, extension, and translation to the Python language of the
+[Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has
+been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc),
+and with code derived from the [LaPy](https://github.com/Deep-MI/lapy) and
+[BrainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
 ___
 
 ## Contents
 
-- [Description](#description)
-- [Ongoing development](#ongoing-development)
+- [Funtionality](#functionality)
+- [Development](#development)
+  - [News](#news)
   - [Main and development branches](#main-and-development-branches)
   - [Roadmap](#roadmap)
 - [Usage](#usage)
@@ -40,16 +36,7 @@ ___
 
 ___
 
-## Description
-
-This is a set of quality assurance / quality control scripts for Fastsurfer- or
-Freesurfer-processed structural MRI data.
-
-It is a revision, extension, and translation to the Python language of the
-[Freesurfer QA Tools](https://surfer.nmr.mgh.harvard.edu/fswiki/QATools). It has
-been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc),
-and with code derived from the [lapy](https://github.com/Deep-MI/lapy) and
-[brainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
+## Functionality
 
 The core functionality of this toolbox is to compute the following features:
 
@@ -177,7 +164,24 @@ n_outliers_norms         | number of structures exceeding the upper and lower bo
 
 ___
 
+
 ## Development
+
+### News
+
+We are happy to announce the release of version 2.0 of the fsqc toolbox. With
+this release comes a change of the project name from `qatools` to `fsqc`, to
+reflect increased independence from the original FreeSurfer QA tools, and
+applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
+
+Recent changes include the
+addition of the hippocampus and hypothalamus modules as well as the addition of
+surface and skullstrip visualization modules. Technical changes include how the
+package is installed, imported, and run, see [below](https://github.com/Deep-MI/fsqc#usage)
+for details.
+
+A list of changes is available [here](CHANGES.md).
+
 
 ### Main and development branches
 
