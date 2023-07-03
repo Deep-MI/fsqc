@@ -27,13 +27,13 @@ def checkTopology(subjects_dir, subject):
 
     # Imports
 
-    import os
     import logging
+    import os
     import warnings
 
     import numpy as np
 
-    # Setttings
+    # Settings
 
     logging.captureWarnings(True)
 
@@ -85,19 +85,25 @@ def checkTopology(subjects_dir, subject):
         elif "defects found" in line_log_file and foundDefectsLH is True:
             rh_defects = line_log_file.split()[0]
             rh_defects = int(rh_defects)
-            logging.info("Number of defects in the right hemisphere: " + str(rh_defects))
+            logging.info(
+                "Number of defects in the right hemisphere: " + str(rh_defects)
+            )
 
         # Look for the topological fixing time in the log file
         if "topology fixing took" in line_log_file and foundTopoLH is False:
             topo_time_lh = line_log_file.split()[3]
             logging.info(
-                "Topological fixing time for the left hemisphere: " + str(topo_time_lh) + " min"
+                "Topological fixing time for the left hemisphere: "
+                + str(topo_time_lh)
+                + " min"
             )
             foundTopoLH = True
         elif "topology fixing took" in line_log_file and foundTopoLH is True:
             topo_time_rh = line_log_file.split()[3]
             logging.info(
-                "Topological fixing time for the right hemisphere: " + str(topo_time_rh) + " min"
+                "Topological fixing time for the right hemisphere: "
+                + str(topo_time_rh)
+                + " min"
             )
 
     # Return

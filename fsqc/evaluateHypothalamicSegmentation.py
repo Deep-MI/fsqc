@@ -43,8 +43,8 @@ def evaluateHypothalamicSegmentation(
     # --------------------------------------------------------------------------
     # imports
 
-    import os
     import logging
+    import os
 
     import nibabel as nb
     import numpy as np

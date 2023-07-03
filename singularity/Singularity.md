@@ -42,5 +42,5 @@ singularity exec \
 
 * The first two `-B` arguments mount your data directory and output directories into the singularity image (note that full, not relative, pathnames should be given). Inside the image, they are visible under the name following the colon (in this case `/path_to_filename_inside_container` and `/path_to_output_directory_inside_container`, but these can be different). From within the singularity image / container, there will be read and write access to the directories that are mounted into the image (unless specified otherwise).
 * The next part of the command is the name of the Singularity image, which is `fsqc.sif`. In this example it is located in `/home/user/my_singularity_images`, but the specific path will likely be different on your local system.
-* For the Singularity image, we also have to excplicitly specify the command that we want run, i.e. `python3 /app/fsqc/fsqc.py`.
+* For the Singularity image, we also have to explicitly specify the command that we want run, i.e. `python3 /app/fsqc/fsqc.py`.
 * After that, all other flags are identical to the ones that are used for the `fsqc.py` program (which are explained on the main page and the help message of the program). Note that file- and pathnames need to correspond to the targets of the file / directory mappings within the singularity image, not to the local system.

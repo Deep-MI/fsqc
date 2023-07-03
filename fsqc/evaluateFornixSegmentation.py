@@ -55,9 +55,10 @@ def evaluateFornixSegmentation(
     # --------------------------------------------------------------------------
     # imports
 
-    import os
     import logging
+    import os
     import warnings
+
     import numpy as np
 
     from fsqc.createScreenshots import createScreenshots
@@ -169,8 +170,8 @@ def evaluateFornixSegmentation(
 
         evDict = shapedna.compute_shapedna(TriaMesh(v=surf[0], t=surf[1]), k=N_EIGEN)
 
-        ev = evDict['Eigenvalues']
-        evec = evDict['Eigenvectors']
+        ev = evDict["Eigenvalues"]
+        evec = evDict["Eigenvectors"]
 
         d = dict()
         d["Refine"] = 0

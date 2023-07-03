@@ -1,5 +1,5 @@
 """
-This module provides a function to determine the rotation angles of the Talairach transform
+This module provides a function to determine rotation angles of the Talairach transform
 
 """
 
@@ -31,15 +31,15 @@ def checkRotation(subjects_dir, subject):
 
     #
 
+    import importlib.util
+    import logging
     import os
     import re
-    import logging
     import warnings
-    import importlib.util
 
     import numpy as np
 
-    # setttings
+    # settings
 
     logging.captureWarnings(True)
 
@@ -50,7 +50,9 @@ def checkRotation(subjects_dir, subject):
     #
 
     if importlib.util.find_spec("transforms3d") is None:
-        warnings.warn("WARNING: the 'transforms3d' package is required for running this script, returning NaNs.")
+        warnings.warn(
+            "WARNING: 'transforms3d' package required for running this script, returning NaNs."
+        )
         return np.nan, np.nan, np.nan
     else:
         import transforms3d as tr
@@ -100,13 +102,13 @@ def checkRotation(subjects_dir, subject):
     rot_x, rot_y, rot_z = tr.euler.mat2euler(R)
 
     logging.info(
-        "Found Talairach rotation angles: x = " +
-        "{:.3}".format(rot_x) +
-        ", y = " +
-        "{:.3}".format(rot_y) +
-        ", z = " +
-        "{:.3}".format(rot_z) +
-        " radians.",
+        "Found Talairach rotation angles: x = "
+        + "{:.3}".format(rot_x)
+        + ", y = "
+        + "{:.3}".format(rot_y)
+        + ", z = "
+        + "{:.3}".format(rot_z)
+        + " radians.",
     )
 
     return rot_x, rot_y, rot_z

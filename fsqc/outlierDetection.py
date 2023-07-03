@@ -66,7 +66,9 @@ def readAsegStats(path_aseg_stats):
         elif "# Measure SurfaceHoles," in line:
             aseg.update({"aseg.SurfaceHoles": float(line.split(",")[3])})
         elif "# Measure EstimatedTotalIntraCranialVol," in line:
-            aseg.update({"aseg.EstimatedTotalIntraCranialVol": float(line.split(",")[3])})
+            aseg.update(
+                {"aseg.EstimatedTotalIntraCranialVol": float(line.split(",")[3])}
+            )
         elif "Left-Lateral-Ventricle" in line:
             aseg.update({"aseg.Left-Lateral-Ventricle": float(line.split()[3])})
         elif "Left-Inf-Lat-Vent" in line:
@@ -176,26 +178,94 @@ def readAparcStats(path_aparc_stats, hemi):
     header = dict()
     for line in aparc_stats:
         if "# Measure Cortex, NumVert, " in line:
-            header.update({"aparc" + "." + hemi + "." + "CortexNumVert": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "CortexNumVert": float(line.split(",")[3])
+                }
+            )
         elif "# Measure Cortex, WhiteSurfArea," in line:
-            header.update({"aparc" + "." + hemi + "." + "CortexWhiteSurfArea": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "CortexWhiteSurfArea": float(line.split(",")[3])
+                }
+            )
         elif "# Measure Cortex, MeanThickness," in line:
-            header.update({"aparc" + "." + hemi + "." + "CortexMeanThickness": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "CortexMeanThickness": float(line.split(",")[3])
+                }
+            )
         elif "# Measure BrainSeg," in line:
-            header.update({"aparc" + "." + hemi + "." + "BrainSeg": float(line.split(",")[3])})
+            header.update(
+                {"aparc" + "." + hemi + "." + "BrainSeg": float(line.split(",")[3])}
+            )
         elif "# Measure BrainSegNotVent," in line:
-            header.update({"aparc" + "." + hemi + "." + "BrainSegNotVent": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "BrainSegNotVent": float(line.split(",")[3])
+                }
+            )
         elif "# Measure BrainSegNotVentSurf," in line:
-            header.update({"aparc" + "." + hemi + "." + "BrainSegNotVentSurf": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "BrainSegNotVentSurf": float(line.split(",")[3])
+                }
+            )
         elif "# Measure Cortex, CortexVol Total cortical gray matter volume," in line:
             # missing comma in fs60 and fs71, hence [2]
-            header.update({"aparc" + "." + hemi + "." + "Cortex": float(line.split(",")[2])})
+            header.update(
+                {"aparc" + "." + hemi + "." + "Cortex": float(line.split(",")[2])}
+            )
         elif "# Measure SupraTentorial," in line:
-            header.update({"aparc" + "." + hemi + "." + "SupraTentorial": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "SupraTentorial": float(line.split(",")[3])
+                }
+            )
         elif "# Measure SupraTentorialNotVent," in line:
-            header.update({"aparc" + "." + hemi + "." + "SupraTentorialNotVent": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "SupraTentorialNotVent": float(line.split(",")[3])
+                }
+            )
         elif "# Measure EstimatedTotalIntraCranialVol," in line:
-            header.update({"aparc" + "." + hemi + "." + "EstimatedTotalIntraCranialVol": float(line.split(",")[3])})
+            header.update(
+                {
+                    "aparc"
+                    + "."
+                    + hemi
+                    + "."
+                    + "EstimatedTotalIntraCranialVol": float(line.split(",")[3])
+                }
+            )
 
     # get column headers
     col_headers = None
@@ -214,7 +284,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "bankssts": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "bankssts": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "caudalanteriorcingulate" in line:
@@ -224,7 +296,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "caudalanteriorcingulate": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "caudalanteriorcingulate": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "caudalmiddlefrontal" in line:
@@ -234,7 +308,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "caudalmiddlefrontal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "caudalmiddlefrontal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "cuneus" in line:
@@ -244,7 +320,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "cuneus": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "cuneus": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "entorhinal" in line:
@@ -254,7 +332,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "entorhinal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "entorhinal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "fusiform" in line:
@@ -264,7 +344,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "fusiform": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "fusiform": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "inferiorparietal" in line:
@@ -274,7 +356,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "inferiorparietal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "inferiorparietal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "inferiortemporal" in line:
@@ -284,7 +368,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "inferiortemporal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "inferiortemporal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "isthmuscingulate" in line:
@@ -294,7 +380,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "isthmuscingulate": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "isthmuscingulate": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "lateraloccipital" in line:
@@ -304,7 +392,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "lateraloccipital": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "lateraloccipital": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "lateralorbitofrontal" in line:
@@ -314,7 +404,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "lateralorbitofrontal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "lateralorbitofrontal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "lingual" in line:
@@ -324,7 +416,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "lingual": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "lingual": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "medialorbitofrontal" in line:
@@ -334,7 +428,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "medialorbitofrontal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "medialorbitofrontal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "middletemporal" in line:
@@ -344,7 +440,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "middletemporal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "middletemporal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "parahippocampal" in line:
@@ -354,7 +452,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "parahippocampal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "parahippocampal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "paracentral" in line:
@@ -364,7 +464,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "paracentral": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "paracentral": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "parsopercularis" in line:
@@ -374,7 +476,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "parsopercularis": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "parsopercularis": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "parsorbitalis" in line:
@@ -384,7 +488,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "parsorbitalis": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "parsorbitalis": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "parstriangularis" in line:
@@ -394,7 +500,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "parstriangularis": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "parstriangularis": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "pericalcarine" in line:
@@ -404,7 +512,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "pericalcarine": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "pericalcarine": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "postcentral" in line:
@@ -414,7 +524,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "postcentral": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "postcentral": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "posteriorcingulate" in line:
@@ -424,7 +536,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "posteriorcingulate": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "posteriorcingulate": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "precentral" in line:
@@ -434,7 +548,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "precentral": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "precentral": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "precuneus" in line:
@@ -444,7 +560,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "precuneus": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "precuneus": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "rostralanteriorcingulate" in line:
@@ -454,7 +572,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "rostralanteriorcingulate": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "rostralanteriorcingulate": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "rostralmiddlefrontal" in line:
@@ -464,7 +584,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "rostralmiddlefrontal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "rostralmiddlefrontal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "superiorfrontal" in line:
@@ -474,7 +596,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "superiorfrontal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "superiorfrontal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "superiorparietal" in line:
@@ -484,7 +608,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "superiorparietal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "superiorparietal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "superiortemporal" in line:
@@ -494,7 +620,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "superiortemporal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "superiortemporal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "supramarginal" in line:
@@ -504,7 +632,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "supramarginal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "supramarginal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "frontalpole" in line:
@@ -514,7 +644,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "frontalpole": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "frontalpole": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "temporalpole" in line:
@@ -524,7 +656,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "temporalpole": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "temporalpole": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "transversetemporal" in line:
@@ -534,7 +668,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "transversetemporal": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "transversetemporal": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
             elif "insula" in line:
@@ -544,7 +680,9 @@ def readAparcStats(path_aparc_stats, hemi):
                         + "."
                         + hemi
                         + "."
-                        + "insula": dict(zip(col_headers[1:], [float(x) for x in line.split()[1:]]))
+                        + "insula": dict(
+                            zip(col_headers[1:], [float(x) for x in line.split()[1:]])
+                        )
                     }
                 )
 
@@ -594,7 +732,9 @@ def readHippocampusStats(path_hippocampus_stats, hemi, prefix):
     import pandas as pd
 
     # read file
-    hippocampus_stats = pd.read_csv(path_hippocampus_stats, sep=" ", header=None, names=["volume"], index_col=0)
+    hippocampus_stats = pd.read_csv(
+        path_hippocampus_stats, sep=" ", header=None, names=["volume"], index_col=0
+    )
 
     #
     hippo = hippocampus_stats.transpose()
@@ -622,23 +762,74 @@ def outlierTable():
 
     outlierDict = dict(
         [
-            ("Left-Accumbens-area", dict([("lower", 210.87844594754), ("upper", 718.01022026916)])),
-            ("Right-Accumbens-area", dict([("lower", 304.86134907845), ("upper", 751.63838456345)])),
-            ("Left-Amygdala", dict([("lower", 1179.73655974083), ("upper", 1935.09415214717)])),
-            ("Right-Amygdala", dict([("lower", 1161.54746836742), ("upper", 2002.14187676668)])),
-            ("Brain-Stem", dict([("lower", 18048.54263155760), ("upper", 25300.51090318110)])),
-            ("Left-Caudate", dict([("lower", 2702.73311142764), ("upper", 4380.54479618196)])),
-            ("Right-Caudate", dict([("lower", 2569.61140834210), ("upper", 4412.61035536070)])),
-            ("Left-Hippocampus", dict([("lower", 3432.26483953083), ("upper", 4934.43236139507)])),
-            ("Right-Hippocampus", dict([("lower", 3580.74371035841), ("upper", 5067.49668145829)])),
-            ("Left-Pallidum", dict([("lower", 935.47686324176), ("upper", 1849.42861796994)])),
-            ("Right-Pallidum", dict([("lower", 1078.14975428593), ("upper", 1864.08951102817)])),
-            ("Left-Putamen", dict([("lower", 3956.23134409153), ("upper", 6561.97642872937)])),
-            ("Right-Putamen", dict([("lower", 3768.88684356957), ("upper", 6142.52870810603)])),
-            ("Left-Thalamus-Proper", dict([("lower", 6483.36121320953), ("upper", 9489.46749012527)])),
-            ("Right-Thalamus-Proper", dict([("lower", 6065.70220487045), ("upper", 8346.88382091555)])),
-            ("Left-VentralDC", dict([("lower", 3182.42264293449), ("upper", 4495.77412707751)])),
-            ("Right-VentralDC", dict([("lower", 3143.88280953869), ("upper", 4407.63641978371)])),
+            (
+                "Left-Accumbens-area",
+                dict([("lower", 210.87844594754), ("upper", 718.01022026916)]),
+            ),
+            (
+                "Right-Accumbens-area",
+                dict([("lower", 304.86134907845), ("upper", 751.63838456345)]),
+            ),
+            (
+                "Left-Amygdala",
+                dict([("lower", 1179.73655974083), ("upper", 1935.09415214717)]),
+            ),
+            (
+                "Right-Amygdala",
+                dict([("lower", 1161.54746836742), ("upper", 2002.14187676668)]),
+            ),
+            (
+                "Brain-Stem",
+                dict([("lower", 18048.54263155760), ("upper", 25300.51090318110)]),
+            ),
+            (
+                "Left-Caudate",
+                dict([("lower", 2702.73311142764), ("upper", 4380.54479618196)]),
+            ),
+            (
+                "Right-Caudate",
+                dict([("lower", 2569.61140834210), ("upper", 4412.61035536070)]),
+            ),
+            (
+                "Left-Hippocampus",
+                dict([("lower", 3432.26483953083), ("upper", 4934.43236139507)]),
+            ),
+            (
+                "Right-Hippocampus",
+                dict([("lower", 3580.74371035841), ("upper", 5067.49668145829)]),
+            ),
+            (
+                "Left-Pallidum",
+                dict([("lower", 935.47686324176), ("upper", 1849.42861796994)]),
+            ),
+            (
+                "Right-Pallidum",
+                dict([("lower", 1078.14975428593), ("upper", 1864.08951102817)]),
+            ),
+            (
+                "Left-Putamen",
+                dict([("lower", 3956.23134409153), ("upper", 6561.97642872937)]),
+            ),
+            (
+                "Right-Putamen",
+                dict([("lower", 3768.88684356957), ("upper", 6142.52870810603)]),
+            ),
+            (
+                "Left-Thalamus-Proper",
+                dict([("lower", 6483.36121320953), ("upper", 9489.46749012527)]),
+            ),
+            (
+                "Right-Thalamus-Proper",
+                dict([("lower", 6065.70220487045), ("upper", 8346.88382091555)]),
+            ),
+            (
+                "Left-VentralDC",
+                dict([("lower", 3182.42264293449), ("upper", 4495.77412707751)]),
+            ),
+            (
+                "Right-VentralDC",
+                dict([("lower", 3143.88280953869), ("upper", 4407.63641978371)]),
+            ),
         ]
     )
 
@@ -690,20 +881,30 @@ def outlierDetection(
 
         # aparc
 
-        path_aparc_stats = os.path.join(subjects_dir, subject, "stats", "lh.aparc.stats")
-        aparc_header, aparc_stats, aparc_thickness = readAparcStats(path_aparc_stats, hemi="lh")
+        path_aparc_stats = os.path.join(
+            subjects_dir, subject, "stats", "lh.aparc.stats"
+        )
+        aparc_header, aparc_stats, aparc_thickness = readAparcStats(
+            path_aparc_stats, hemi="lh"
+        )
         regions[subject].update(aparc_thickness)
         all_regions_keys.extend(list(aparc_thickness.keys()))
 
-        path_aparc_stats = os.path.join(subjects_dir, subject, "stats", "rh.aparc.stats")
-        aparc_header, aparc_stats, aparc_thickness = readAparcStats(path_aparc_stats, hemi="rh")
+        path_aparc_stats = os.path.join(
+            subjects_dir, subject, "stats", "rh.aparc.stats"
+        )
+        aparc_header, aparc_stats, aparc_thickness = readAparcStats(
+            path_aparc_stats, hemi="rh"
+        )
         regions[subject].update(aparc_thickness)
         all_regions_keys.extend(list(aparc_thickness.keys()))
 
         # hypothalamus
 
         if hypothalamus is True:
-            path_hypothalamus_stats = os.path.join(subjects_dir, subject, "mri", "hypothalamic_subunits_volumes.v1.csv")
+            path_hypothalamus_stats = os.path.join(
+                subjects_dir, subject, "mri", "hypothalamic_subunits_volumes.v1.csv"
+            )
             if os.path.exists(path_hypothalamus_stats):
                 hypothalamus_stats = readHypothalamusStats(path_hypothalamus_stats)
                 regions[subject].update(hypothalamus_stats)
@@ -713,34 +914,54 @@ def outlierDetection(
 
         if hippocampus is True and hippocampus_label is not None:
             path_hippocampus_stats = os.path.join(
-                subjects_dir, subject, "mri", "lh.hippoSfVolumes-" + hippocampus_label + ".txt"
+                subjects_dir,
+                subject,
+                "mri",
+                "lh.hippoSfVolumes-" + hippocampus_label + ".txt",
             )
             if os.path.exists(path_hippocampus_stats):
-                hippocampus_stats = readHippocampusStats(path_hippocampus_stats, hemi="lh", prefix="hippocampus")
+                hippocampus_stats = readHippocampusStats(
+                    path_hippocampus_stats, hemi="lh", prefix="hippocampus"
+                )
                 regions[subject].update(hippocampus_stats)
                 all_regions_keys.extend(list(hippocampus_stats.keys()))
 
             path_hippocampus_stats = os.path.join(
-                subjects_dir, subject, "mri", "rh.hippoSfVolumes-" + hippocampus_label + ".txt"
+                subjects_dir,
+                subject,
+                "mri",
+                "rh.hippoSfVolumes-" + hippocampus_label + ".txt",
             )
             if os.path.exists(path_hippocampus_stats):
-                hippocampus_stats = readHippocampusStats(path_hippocampus_stats, hemi="rh", prefix="hippocampus")
+                hippocampus_stats = readHippocampusStats(
+                    path_hippocampus_stats, hemi="rh", prefix="hippocampus"
+                )
                 regions[subject].update(hippocampus_stats)
                 all_regions_keys.extend(list(hippocampus_stats.keys()))
 
             path_hippocampus_stats = os.path.join(
-                subjects_dir, subject, "mri", "lh.amygNucVolumes-" + hippocampus_label + ".txt"
+                subjects_dir,
+                subject,
+                "mri",
+                "lh.amygNucVolumes-" + hippocampus_label + ".txt",
             )
             if os.path.exists(path_hippocampus_stats):
-                hippocampus_stats = readHippocampusStats(path_hippocampus_stats, hemi="lh", prefix="amygdala")
+                hippocampus_stats = readHippocampusStats(
+                    path_hippocampus_stats, hemi="lh", prefix="amygdala"
+                )
                 regions[subject].update(hippocampus_stats)
                 all_regions_keys.extend(list(hippocampus_stats.keys()))
 
             path_hippocampus_stats = os.path.join(
-                subjects_dir, subject, "mri", "rh.amygNucVolumes-" + hippocampus_label + ".txt"
+                subjects_dir,
+                subject,
+                "mri",
+                "rh.amygNucVolumes-" + hippocampus_label + ".txt",
             )
             if os.path.exists(path_hippocampus_stats):
-                hippocampus_stats = readHippocampusStats(path_hippocampus_stats, hemi="rh", prefix="amygdala")
+                hippocampus_stats = readHippocampusStats(
+                    path_hippocampus_stats, hemi="rh", prefix="amygdala"
+                )
                 regions[subject].update(hippocampus_stats)
                 all_regions_keys.extend(list(hippocampus_stats.keys()))
 
@@ -771,8 +992,12 @@ def outlierDetection(
 
         iqr = np.percentile(df, 75, axis=0) - np.percentile(df, 25, axis=0)
 
-        sample_nonpar_lower = dict(zip(df.columns, np.percentile(df, 25, axis=0) - 1.5 * iqr))
-        sample_nonpar_upper = dict(zip(df.columns, np.percentile(df, 75, axis=0) + 1.5 * iqr))
+        sample_nonpar_lower = dict(
+            zip(df.columns, np.percentile(df, 25, axis=0) - 1.5 * iqr)
+        )
+        sample_nonpar_upper = dict(
+            zip(df.columns, np.percentile(df, 75, axis=0) + 1.5 * iqr)
+        )
 
         sample_param_lower = dict(np.mean(df, axis=0) - 2 * np.std(df, axis=0))
         sample_param_upper = dict(np.mean(df, axis=0) + 2 * np.std(df, axis=0))
@@ -863,7 +1088,11 @@ def outlierDetection(
 
     with open(os.path.join(output_dir, "all.regions.stats"), "w") as datafile:
         csvwriter = csv.DictWriter(
-            datafile, fieldnames=regionsFieldnames, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            datafile,
+            fieldnames=regionsFieldnames,
+            delimiter=",",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
         )
         csvwriter.writeheader()
         for subject in sorted(list(regions.keys())):
@@ -871,9 +1100,15 @@ def outlierDetection(
             tmp.update({"subject": subject})
             csvwriter.writerow(tmp)
 
-    with open(os.path.join(output_dir, "all.outliers.sample.nonpar.stats"), "w") as datafile:
+    with open(
+        os.path.join(output_dir, "all.outliers.sample.nonpar.stats"), "w"
+    ) as datafile:
         csvwriter = csv.DictWriter(
-            datafile, fieldnames=regionsFieldnames, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            datafile,
+            fieldnames=regionsFieldnames,
+            delimiter=",",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
         )
         csvwriter.writeheader()
         for subject in sorted(list(outlierSampleNonpar.keys())):
@@ -881,9 +1116,15 @@ def outlierDetection(
             tmp.update({"subject": subject})
             csvwriter.writerow(tmp)
 
-    with open(os.path.join(output_dir, "all.outliers.sample.param.stats"), "w") as datafile:
+    with open(
+        os.path.join(output_dir, "all.outliers.sample.param.stats"), "w"
+    ) as datafile:
         csvwriter = csv.DictWriter(
-            datafile, fieldnames=regionsFieldnames, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            datafile,
+            fieldnames=regionsFieldnames,
+            delimiter=",",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
         )
         csvwriter.writeheader()
         for subject in sorted(list(outlierSampleParam.keys())):
@@ -893,7 +1134,11 @@ def outlierDetection(
 
     with open(os.path.join(output_dir, "all.outliers.norms.stats"), "w") as datafile:
         csvwriter = csv.DictWriter(
-            datafile, fieldnames=regionsFieldnames, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            datafile,
+            fieldnames=regionsFieldnames,
+            delimiter=",",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
         )
         csvwriter.writeheader()
         for subject in sorted(list(outlierNorms.keys())):
