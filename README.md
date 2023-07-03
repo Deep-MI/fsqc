@@ -15,7 +15,7 @@ ___
 
 ## Contents
 
-- [Funtionality](#functionality)
+- [Functionality](#functionality)
 - [Development](#development)
   - [News](#news)
   - [Main and development branches](#main-and-development-branches)
