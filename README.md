@@ -10,26 +10,13 @@ It is a revision, extension, and translation to the Python language of the
 been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc),
 and with code derived from the [LaPy](https://github.com/Deep-MI/lapy) and
 [BrainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
-
-## News
-
-We are happy to announce the release of version 2.0 of the fsqc toolbox. With
-this release comes a change of the project name from `qatools` to `fsqc`, to
-reflect increased independence from the original FreeSurfer QA tools, and
-applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
-
-Recent changes include the addition of the hippocampus and hypothalamus modules 
-as well as the addition of surface and skullstrip visualization modules. 
-Technical changes include how the package is installed, imported, and run, see 
-[below](https://github.com/Deep-MI/fsqc#usage) for details.
-
-A list of changes is available [here](CHANGES.md).
 ___
 
 ## Contents
 
 - [Functionality](#functionality)
 - [Development](#development)
+  - [News](#news)
   - [Main and development branches](#main-and-development-branches)
   - [Roadmap](#roadmap)
 - [Usage](#usage)
@@ -178,6 +165,20 @@ ___
 
 
 ## Development
+
+### News
+
+We are happy to announce the release of version 2.0 of the fsqc toolbox. With
+this release comes a change of the project name from `qatools` to `fsqc`, to
+reflect increased independence from the original FreeSurfer QA tools, and
+applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
+
+Recent changes include the addition of the hippocampus and hypothalamus modules 
+as well as the addition of surface and skullstrip visualization modules. 
+Technical changes include how the package is installed, imported, and run, see 
+[below](https://github.com/Deep-MI/fsqc#usage) for details.
+
+A list of changes is available [here](CHANGES.md).
 
 ### Main and development branches
 
