@@ -11,45 +11,6 @@ been augmented by additional functions from the [MRIQC toolbox](https://github.c
 and with code derived from the [LaPy](https://github.com/Deep-MI/lapy) and
 [BrainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
-## News
-
-We are happy to announce the release of version 2.0 of the fsqc toolbox. With
-this release comes a change of the project name from `qatools` to `fsqc`, to
-reflect increased independence from the original FreeSurfer QA tools, and
-applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
-
-Recent changes include the addition of the hippocampus and hypothalamus modules 
-as well as the addition of surface and skullstrip visualization modules. 
-Technical changes include how the package is installed, imported, and run, see 
-[below](https://github.com/Deep-MI/fsqc#usage) for details.
-
-A list of changes is available [here](CHANGES.md).
-___
-
-## Contents
-
-- [Functionality](#functionality)
-- [Development](#development)
-  - [Main and development branches](#main-and-development-branches)
-  - [Roadmap](#roadmap)
-- [Usage](#usage)
-  - [As a command line tool](#as-a-command-line-tool)
-  - [As a Python package](#as-a-python-package)
-  - [As a Docker image](#as-a-docker-image)
-- [Installation](#installation)
-   - [Installation as a Python package](#installation-as-a-python-package)
-   - [Installation from GitHub](#installation-from-github)
-   - [Download from GitHub](#download-from-github)
-- [Requirements](#requirements)
-- [Known issues](#known-issues)
-- [Authors](#authors)
-- [Citations](#citations)
-- [License](#license)
-
-___
-
-## Functionality
-
 The core functionality of this toolbox is to compute the following features:
 
 variable       |   description
@@ -173,35 +134,6 @@ variable                 |   description
 n_outliers_sample_nonpar | number of structures that are 1.5 times the IQR above/below the 75th/25th percentile
 n_outliers_sample_param  | number of structures that are 2 SD above/below the mean
 n_outliers_norms         | number of structures exceeding the upper and lower bounds of the normative values
-
-___
-
-
-## Development
-
-### Main and development branches
-
-This repository contains multiple branches, reflecting the ongoing
-development of the toolbox. The two primary branches are the main branch
-(`stable`) and the development branch (`dev`). New features will first be added
-to the development branch, and eventually be merged with the main branch. You
-are currently on the main branch. To go to the development branch, select it
-from the drop-down menu on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/dev).
-
-### Roadmap
-
-The goal of the `fsqc` project is to create a modular and extensible software
-package that provides quantitative metrics and visual information for the
-quality control of FreeSurfer- or Fastsurfer-processed MR images. The package
-is currently under development, and new features are continuously added.
-
-New features will initially be available in the [development branch](https://github.com/Deep-MI/fsqc/tree/dev)
-of this toolbox and will be included in the [main branch](https://github.com/Deep-MI/fsqc/tree/stable)
-after a period of testing and evaluation. Unless explicitly announced, all new
-features will preserve compatibility with earlier versions.
-
-Feedback, suggestions, and [contributions](CONTRIBUTINNG.md) are always welcome,
-preferably via [issues](https://github.com/Deep-MI/fsqc/issues) and [pull requests](https://github.com/Deep-MI/fsqc/pulls).
 
 ___
 
@@ -389,110 +321,6 @@ fsqc.run_fsqc(subjects_dir='/my/subjects/dir', output_dir='/my/output/dir', subj
 
 Call `help(fsqc.run_fsqc)` for further usage info and additional options.
 
-### As a Docker image
-
-We provide a configuration files that can be used to create a Docker or
-Singularity image for the fsqc scripts. Documentation can be found on the
-[Docker](docker/Docker.md) and [Singularity](singularity/Singularity.md) pages.
-
-___
-
-## Installation
-
-### Installation as a Python package
-
-Use:
-
-```bash
-pip install fsqc
-```
-
-to install the fsqc package and all of its dependencies. This is the recommended
-way of installing the package, and allows for both command-line execution and
-execution as a Python function. We also recommend to do this installation within
-a Python virtual environment, which can be created and activated as follows:
-
-```bash
-virtualenv /path/to/my/virtual/environment
-source /path/to/my/virtual/environment/bin/activate
-```
-
-### Installation from GitHub
-
-Use the following code to download, build and install the fsqc package from its
-GitHub repository into your local Python package directory:
-
-```bash
-pip install git+https://github.com/deep-mi/fsqc.git
-```
-
-This can be useful if you want to install a particular branch - such as the `dev`
-branch in the following example:
-
-```bash
-pip install git+https://github.com/deep-mi/fsqc.git@dev
-```
-
-### Download from GitHub
-
-This software can also be downloaded from its GitHub repository at `https://github.com/Deep-MI/fsqc`,
-or cloned directly via `git clone https://github.com/Deep-MI/fsqc`.
-
-The `run_fsqc` script will then be executable from the command line, as
-detailed above. Note, however, that the required dependencies will have to be
-installed manually. See the [requirements](#requirements) section for
-instructions.
-
-
-___
-
-## Requirements
-
-- At least one structural MR image that was processed with Freesurfer 6.0, 7.x,
-  or FastSurfer 1.1 or later (including the surface pipeline).
-
-- A Python version >= 3.8 is required to run this script.
-
-- Required packages include (among others) the nibabel and skimage package for
-  the core functionality, plus the matplotlib, pandas, and transform3d
-  packages for some optional functions and modules. See the `requirements.txt`
-  file for a complete list. Use `pip install -r requirements.txt` to install
-  these packages.
-
-- If installing the toolbox as a Python package or if using the Docker image,
-  all required packages will be installed automatically and manual installation
-  as detailed above will not be necessary.
-
-- This software has been tested on Ubuntu 20.04.
-
-- A working [FreeSurfer](https://freesurfer.net) installation (version 6 or
-  newer) is required for running the 'shape' module of this toolbox. Also make
-  sure that FreeSurfer is sourced (i.e., `FREESURFER_HOME` is set as an
-  environment variable) before running an analysis.
-
-___
-
-## Known issues
-
-- Aborted / restarted recon-all runs: the program will analyze recon-all
-  logfiles, and may fail or return erroneous results if the logfile is
-  appended by multiple restarts of recon-all runs. Ideally, the logfile should
-  therefore consist of just a single, successful recon-all run.
-- High-resolution data: Prior to update v1.4, the screenshots and fornix module
-  did not work well with high-resolution data that was processed using the
-  -cm flag in recon-all. With update v1.4 this has been fixed for the
-  screenhots module, but the fornix module is still experimental for
-  high-resolution data.
-
-___
-
-## Authors
-
-- fsqc toolbox: Kersten Diers, Tobias Wolff, and Martin Reuter.
-- Freesurfer QA Tools: David Koh, Stephanie Lee, Jenni Pacheco, Vasanth Pappu,
-  and Louis Vinke.
-- lapy and brainprint toolboxes: Martin Reuter.
-
 ___
 
 ## Citations
@@ -513,11 +341,3 @@ ___
   Neuroimaging Initiative; 2016; Normative data for subcortical regional volumes
   over the lifetime of the adult human brain; Neuroimage: 137, 9-20; doi.org/10.1016/j.neuroimage.2016.05.016
 
-___
-
-## License
-
-This software is licensed under the MIT License, see associated LICENSE file
-for details.
-
-Copyright (c) 2019 Image Analysis Group, DZNE e.V.

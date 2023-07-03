@@ -72,9 +72,8 @@ run_fsqc = 'fsqc.cli:main'
 
 [tool.setuptools.dynamic]
 version = {file = 'VERSION'}
-readme = {file = ["README.md", "CHANGES.md"]}
+readme = {file = 'DESCRIPTION.md', content-type = "text/markdown"}
 dependencies = {file = 'requirements.txt'}
-
 
 #[tool.setuptools] ### probably not needed
 #include-package-data = false
