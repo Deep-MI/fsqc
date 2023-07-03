@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'fsqc'
-description = 'A set of quality control scripts for Freesurfer- and Fastsurfer-processed structural MRI data'
+description = 'Quality control scripts for FastSurfer and FreeSurfer structural MRI data'
 license = {file = 'LICENSE'}
 requires-python = '>=3.8'
 authors = [
