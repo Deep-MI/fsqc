@@ -13,7 +13,8 @@ surface and skullstrip visualization modules. Technical changes include how the
 package is installed, imported, and run, see [below](https://github.com/Deep-MI/fsqc#usage)
 for details.
 
-A list of changes is available [here](CHANGES.md).
+A list of changes is available [here](CHANGES.md) (the installation via pypi.org 
+and dockerhub will be available soon).
 
 ___
 
@@ -311,7 +312,7 @@ expert options:
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
 ```
 
-- Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
+- Run the QC pipeline for two specific subjects that need to be present in `/my/subjects/directory`:
 
 ```bash
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2
@@ -353,7 +354,7 @@ run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv
 ```
 
-- Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
+- Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` (and other) arguments can also be used in conjunction.
 
 ### As a Python package
 
@@ -393,16 +394,6 @@ Call `help(fsqc.run_fsqc)` for further usage info and additional options.
 We provide a configuration files that can be used to create a Docker or
 Singularity image for the fsqc scripts. Documentation can be found on the
 [Docker](docker/Docker.md) and [Singularity](singularity/Singularity.md) pages.
-
-___
-
-## Main branch and development branch
-
-There are two branches in this repository, the main branch (`stable`) and the
-development branch (`dev`). New features will first be added to the development
-branch, and eventually be merged with the main branch. You are currently on the
-development branch. To go to the main branch, select it from the drop-down menu
-on the top left, or [click here](https://github.com/Deep-MI/fsqc/tree/stable).
 
 ___
 
