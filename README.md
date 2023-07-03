@@ -312,7 +312,7 @@ expert options:
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
 ```
 
-- Run the QC pipeline for two specific subjects that need to present in `/my/subjects/directory`:
+- Run the QC pipeline for two specific subjects that need to be present in `/my/subjects/directory`:
 
 ```bash
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --subjects mySubjectID1 mySubjectID2
@@ -354,7 +354,7 @@ run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory
 run_fsqc --subjects_dir /my/subjects/directory --output_dir /my/output/directory --outlier --outlier-table /my/table/with/normative/values.csv
 ```
 
-- Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` arguments can also be used in conjunction.
+- Note that the `--screenshots`, `--fornix`, `--shape`, and `--outlier` (and other) arguments can also be used in conjunction.
 
 ### As a Python package
 
