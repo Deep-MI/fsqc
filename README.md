@@ -178,7 +178,8 @@ as well as the addition of surface and skullstrip visualization modules.
 Technical changes include how the package is installed, imported, and run, see 
 [below](https://github.com/Deep-MI/fsqc#usage) for details.
 
-A list of changes is available [here](CHANGES.md).
+A list of changes is available [here](CHANGES.md) (installation via Dockerhub 
+will be available soon).
 
 ### Main and development branches
 
