@@ -166,7 +166,7 @@ ___
 
 ## Development
 
-### News
+### Current status
 
 We are happy to announce the release of version 2.0 of the fsqc toolbox. With
 this release comes a change of the project name from `qatools` to `fsqc`, to
@@ -178,8 +178,7 @@ as well as the addition of surface and skullstrip visualization modules.
 Technical changes include how the package is installed, imported, and run, see 
 [below](https://github.com/Deep-MI/fsqc#usage) for details.
 
-A list of changes is available [here](CHANGES.md) (installation via Dockerhub 
-will be available soon).
+A list of changes is available [here](CHANGES.md).
 
 ### Main and development branches
 
