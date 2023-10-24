@@ -59,6 +59,7 @@ def evaluateFornixSegmentation(
     import os
     import warnings
 
+    import nibabel as nb
     import numpy as np
 
     from fsqc.createScreenshots import createScreenshots
@@ -142,14 +143,15 @@ def evaluateFornixSegmentation(
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
-        # Note: SURF = [os.path.join(OUTPUT_DIR,"cc.surf")] is no longer possible
-        # unless using FreeSurfer's mri_binarize function (or creating the fornix
-        # surface otherwise)
+
+        hdr = nb.load(os.path.join(OUTPUT_DIR, "asegCCup.mgz"))
+        x_coord = np.matmul(hdr.header.get_vox2ras_tkr(), np.array((128, 128, 128, 1))[:,np.newaxis])[0]
+
         createScreenshots(
             SUBJECT=SUBJECT,
             SUBJECTS_DIR=SUBJECTS_DIR,
             INTERACTIVE=False,
-            VIEWS=[("x", -2), ("x", 0), ("x", 2)],
+            VIEWS=[("x", x_coord-1), ("x", x_coord), ("x", x_coord+1)],
             LAYOUT=(1, 3),
             BASE=[os.path.join(OUTPUT_DIR, "normCCup.mgz")],
             OVERLAY=[os.path.join(OUTPUT_DIR, "cc.mgz")],
