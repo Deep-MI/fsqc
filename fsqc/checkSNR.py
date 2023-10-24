@@ -95,7 +95,7 @@ def checkSNR(
     # Process white matter image
 
     # Create 3D binary data where the white matter locations are encoded with 1, all the others with zero
-    b_wm_data = np.zeros((256, 256, 256))
+    b_wm_data = np.zeros(norm.shape)
 
     # The following keys represent the white matter labels in the aparc+aseg image
     wm_labels = [2, 41, 7, 46, 251, 252, 253, 254, 255, 77, 78, 79]
@@ -120,7 +120,7 @@ def checkSNR(
     # Process gray matter image
 
     # Create 3D binary data where the gray matter locations are encoded with 1, all the others with zero
-    b_gm_data = np.zeros((256, 256, 256))
+    b_gm_data = np.zeros(norm.shape)
 
     # The following keys represent the gray matter labels in the aseg image
     gm_labels = [3, 42]
