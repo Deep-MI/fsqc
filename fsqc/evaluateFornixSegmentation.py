@@ -143,15 +143,16 @@ def evaluateFornixSegmentation(
     # create screenshot
 
     if CREATE_SCREENSHOT is True:
-
         hdr = nb.load(os.path.join(OUTPUT_DIR, "asegCCup.mgz"))
-        x_coord = np.matmul(hdr.header.get_vox2ras_tkr(), np.array((128, 128, 128, 1))[:,np.newaxis])[0]
+        x_coord = np.matmul(
+            hdr.header.get_vox2ras_tkr(), np.array((128, 128, 128, 1))[:, np.newaxis]
+        )[0]
 
         createScreenshots(
             SUBJECT=SUBJECT,
             SUBJECTS_DIR=SUBJECTS_DIR,
             INTERACTIVE=False,
-            VIEWS=[("x", x_coord-1), ("x", x_coord), ("x", x_coord+1)],
+            VIEWS=[("x", x_coord - 1), ("x", x_coord), ("x", x_coord + 1)],
             LAYOUT=(1, 3),
             BASE=[os.path.join(OUTPUT_DIR, "normCCup.mgz")],
             OVERLAY=[os.path.join(OUTPUT_DIR, "cc.mgz")],
