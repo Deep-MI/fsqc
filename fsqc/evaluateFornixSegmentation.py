@@ -21,7 +21,7 @@ def evaluateFornixSegmentation(
     This script evaluates potential missegmentation of the fornix, which may
     erroneously be attached to the 'corpus collosum' label.
 
-    It will appply the cc_up.lta transform to the norm.mgz and the aseg files,
+    It will apply the cc_up.lta transform to the norm.mgz and the aseg files,
     and create a binary corpus callosum mask and surface. Resulting files are
     saved to subject-specific directories within the 'fornix' subdirectory of
     the output directory.
