@@ -2,6 +2,10 @@
 
 This is a document summarizing the changes that are associated with (major) updates and releases. Priority is given to changes that are relevant to the user, and those that introduce new features or break compatibility with prior versions.
 
+## Version 2.0.1
+
+- This fix addresses two minor issues where output was omitted for the SNR computation and the fornix evaluation whenever hires inputs were used.
+
 ## Version 2.0.0
 
 - Name changes for the toolbox, repository, package, and scripts: the toolbox has been renamed to "fsqc tools", the python package name "qatoolspython" has been changed to "fsqc", and the "qatools.py" script has been renamed to "run_fsqc". The github repository is now located at "https://github.com/Deep-MI/fsqc", but requests to the old "https://github.com/Deep-MI/qatools-python" repository will be redirected.
@@ -12,6 +16,6 @@ This is a document summarizing the changes that are associated with (major) upda
 - Addition of skullstrip, surfaces, hippocampus and hypothalamus modules.
 - Improved logging, error handling, and testing frameworks.
 - Enhanced containerization support (docker, singularity, dockerhub).
-- Updated requirements, easier installation of the packaage and its dependencies, availability of the package on [pypi.org](https://pypi.org).
+- Updated requirements, easier installation of the package and its dependencies, availability of the package on [pypi.org](https://pypi.org).
 - FreeSurfer is no longer required as a dependency (except for the optional 'shape analysis' module, which relies on the brainprint package).
 - We do not preserve compatibility with earlier versions.
