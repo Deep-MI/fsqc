@@ -2,7 +2,6 @@
 This module provides a function to evaluate potential missegmentation of the fornix
 
 """
-
 # -----------------------------------------------------------------------------
 
 
@@ -16,43 +15,44 @@ def evaluateFornixSegmentation(
     N_EIGEN=15,
 ):
     """
-    A function to evaluate potential missegmentation of the fornix.
+    Evaluate potential missegmentation of the fornix.
 
-    This script evaluates potential missegmentation of the fornix, which may
-    erroneously be attached to the 'corpus collosum' label.
+    This script assesses the potential missegmentation of the fornix,
+    which might erroneously be attached to the 'corpus callosum' label.
 
-    It will apply the cc_up.lta transform to the norm.mgz and the aseg files,
-    and create a binary corpus callosum mask and surface. Resulting files are
-    saved to subject-specific directories within the 'fornix' subdirectory of
-    the output directory.
+    It applies the cc_up.lta transform to the norm.mgz and aseg files,
+    creating a binary corpus callosum mask and surface. The resulting
+    files are saved to subject-specific directories within
+    the 'fornix' subdirectory of the output directory.
 
-    If the corresponding arguments are set to 'True', the script will also
-    create screenshots and run a shape analysis of the corpus callosum surface.
-    Resulting files will be saved to the same directory as indicated above.
+    If the corresponding arguments are set to 'True', the script also
+    creates screenshots and runs a shape analysis of the
+    corpus callosum surface. Resulting files are saved to the same directory
+    as indicated above.
 
-    Required arguments:
-        - SUBJECT
-        - SUBJECTS_DIR
-        - OUTPUT_DIR
+    Parameters
+    ----------
+    SUBJECT : str
+        The subject identifier.
+    SUBJECTS_DIR : str
+        The directory containing subject data.
+    OUTPUT_DIR : str
+        The output directory.
+    CREATE_SCREENSHOT : bool, optional (default: True)
+        Whether to create screenshots.
+    SCREENSHOTS_OUTFILE : str or list, optional (default: [])
+        File or list of files for screenshots.
+    RUN_SHAPEDNA : bool, optional (default: True)
+        Whether to run shape analysis.
+    N_EIGEN : int, optional (default: 30)
+        Number of Eigenvalues for shape analysis.
 
-    Optional arguments:
-        - CREATE_SCREENSHOT <bool> (default: True)
-        - SCREENSHOTS_OUTFILE <string> or empty list (default: [])
-        - RUN_SHAPEDNA <bool> (default: True)
-        - N_EIGEN <int> number of Eigenvalues for shape analysis (default: 30)
-
-    Requires (if not found, returns NaNs):
-        - mri/transforms/cc_up.lta
-        - mri/aseg.mgz
-        - mri/norm.mgz
-
-    Returns:
-        - a numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA is True,
-          otherwise a numpy array of NaNs of the same dimension
-
+    Returns
+    -------
+    numpy.ndarray
+        A numpy array of N_EIGEN eigenvalues if RUN_SHAPEDNA is True,
+        otherwise a numpy array of NaNs of the same dimension.
     """
-
-    # --------------------------------------------------------------------------
     # imports
 
     import logging

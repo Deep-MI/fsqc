@@ -1,6 +1,5 @@
 """
 This module provides the main functionality of the fsqc package.
-
 """
 
 # ==============================================================================
@@ -11,6 +10,19 @@ This module provides the main functionality of the fsqc package.
 
 
 def get_version():
+    """
+    A function to get the version of the 'fsqc' package.
+
+    Returns
+    -------
+    str
+        The version of the 'fsqc' package if installed; otherwise, "unknown".
+
+    Notes
+    -----
+    This function uses the 'importlib.metadata' module to retrieve the package version.
+    If the package is not installed, it returns "unknown".
+    """
     from importlib import metadata
 
     try:
@@ -23,16 +35,23 @@ def get_version():
     return version
 
 
-# ------------------------------------------------------------------------------
-# get_help()
-
-
 def get_help(print_help=True, return_help=False):
     """
-    a function to return a help message
+    A function to return a help message.
 
+    Parameters
+    ----------
+    print_help : bool, optional, default: True
+        Whether to print the help message.
+    return_help : bool, optional, default: False
+        Whether to return the help message as a string.
+
+    Returns
+    -------
+    None or str
+        If `print_help` is True, the help message is printed. If `return_help`
+        is True, the help message is returned as a string.
     """
-
     HELPTEXT = """
 
     fsqc
@@ -378,10 +397,18 @@ def get_help(print_help=True, return_help=False):
 
 def _parse_arguments():
     """
-    an internal function to parse input arguments
+    An internal function to parse input arguments.
 
+    Returns
+    -------
+    argparse.Namespace or None
+        An object holding parsed command-line arguments or None if extensive help is requested.
+
+    Notes
+    -----
+    This function is for internal use and parses input arguments using the 'argparse' module.
+    The returned object contains the values of the parsed arguments.
     """
-
     # imports
     import argparse
     import sys
@@ -713,10 +740,30 @@ def _parse_arguments():
 
 def _check_arguments(argsDict):
     """
-    an internal function to check input arguments
+    Check input arguments for validity.
 
+    Parameters
+    ----------
+    argsDict : dict
+        Dictionary containing input arguments.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified subjects directory does not exist.
+    ValueError
+        If both --subjects and --subjects-file are specified.
+        If subjects file is specified but does not exist.
+        If neither --subjects nor --subjects-file is specified and no subjects are found in the subjects directory.
+        If --screenshots and --screenshots-html are both True and the screenshots directory cannot be created.
+        If --hippocampus or --hippocampus-html is True but --hippocampus-label is not specified.
+        If no subjects are found after file checks.
+
+    Returns
+    -------
+    dict
+        Updated dictionary of input arguments.
     """
-
     # --------------------------------------------------------------------------
     # imports
 
@@ -1407,8 +1454,17 @@ def _check_packages():
 
 def _do_fsqc(argsDict):
     """
-    an internal function to run the fsqc submodules
+    Run the FastSurferQC submodules.
 
+    Parameters
+    ----------
+    argsDict : dict
+        Dictionary containing input arguments.
+
+    Returns
+    -------
+    None
+        This function returns nothing.
     """
 
     # ------------------------------------------------------------------------------
@@ -2770,10 +2826,18 @@ def _do_fsqc(argsDict):
 
 def _start_logging(argsDict):
     """
-    start logging
+    Start logging.
 
+    Parameters
+    ----------
+    argsDict : dict
+        Dictionary containing input arguments.
+
+    Returns
+    -------
+    None
+        This function returns nothing.
     """
-
     # imports
     import logging
     import os
@@ -2881,7 +2945,8 @@ def run_fsqc(
     exit_on_error=False,
     logfile=None,
 ):
-    """Run the fsqc submodules.
+    """
+    Run the fsqc submodules.
 
     This is the main function to run the fsqc submodules.
 
@@ -2913,7 +2978,7 @@ def run_fsqc(
         List of filenames of surface files to include in screenshots.
     screenshots_views : list of str, default: "default"
         List of parameters to set the views of the screenshots.
-        Example: ['x=0', 'x=-10', 'x=10', 'y=20', 'z=0']
+        Example: ['x=0', 'x=-10', 'x=10', 'y=20', 'z=0'].
     screenshots_layout : list of int, default: None
         Layout describing rows and columns of the screenshots.
         Example: [1, 4] (one row, four columns).
@@ -2967,15 +3032,8 @@ def run_fsqc(
     Returns
     -------
     dict
-        A dictionary of input arguments and processing directives
-
+        A dictionary of input arguments and processing directives.
     """
-
-    # ------------------------------------------------------------------------------
-    #
-
-    #
-
     # create argsDict
     if argsDict is None and (subjects_dir is None or output_dir is None):
         raise ValueError(

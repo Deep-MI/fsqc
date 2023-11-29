@@ -24,18 +24,51 @@ def createScreenshots(
     ORIENTATION=["radiological"],
 ):
     """
-    function createScreenshots()
+    Function to create screenshots.
 
-    BASE, VIEWS must be lists, can be ["default"]
+    Parameters
+    ----------
+    SUBJECT : str
+        The subject.
+    SUBJECTS_DIR : str
+        The subjects directory.
+    OUTFILE : str
+        The output file path.
+    INTERACTIVE : bool, optional
+        Flag for interactive mode, default is True.
+    LAYOUT : str, optional
+        The layout, default is None.
+    BASE : list, optional
+        The base, default is ["default"].
+    OVERLAY : list, optional
+        The overlay, default is ["default"].
+    LABELS : None or str, optional
+        The labels, default is None.
+    SURF : list, optional
+        The surface, default is ["default"].
+    SURFCOLOR : list, optional
+        The surface color, default is ["default"].
+    VIEWS : list, optional
+        The views, default is ["default"].
+    XLIM : None or list, optional
+        The x limits, default is None.
+    YLIM : None or list, optional
+        The y limits, default is None.
+    BINARIZE : bool, optional
+        Flag for binarization, default is False.
+    ORIENTATION : list, optional
+        The orientation, default is ["radiological"].
 
-    OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"]
+    Notes
+    -----
+    BASE, VIEWS must be lists, can be ["default"].
+
+    OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"].
 
     XLIM, YLIM can be lists of list two-element numeric lists or None; if given,
     length must match length of VIEWS. x and y refer to final image dimensions,
     not MR volume dimensions.
-
     """
-
     # -----------------------------------------------------------------------------
     # auxiliary functions
 

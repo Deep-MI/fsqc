@@ -15,7 +15,7 @@ def evaluateHypothalamicSegmentation(
     SCREENSHOTS_ORIENTATION=["radiological"],
 ):
     """
-    A function to evaluate potential missegmentation of the hypothalamus.
+    Evaluate potential missegmentation of the hypothalamus.
 
     This script evaluates potential missegmentation of the hypothalamus as
     created by FreeSurfer 7.2's module for hypothalamic segmentation:
@@ -25,22 +25,32 @@ def evaluateHypothalamicSegmentation(
     create screenshots. Resulting files will be saved to the same directory
     as indicated above.
 
-    Required arguments:
-        - SUBJECT
-        - SUBJECTS_DIR
-        - OUTPUT_DIR
+    Parameters
+    ----------
+    SUBJECT : str
+        The subject identifier.
+    SUBJECTS_DIR : str
+        The directory containing subject data.
+    OUTPUT_DIR : str
+        The output directory.
+    CREATE_SCREENSHOT : bool, optional, default: True
+        Whether to create screenshots.
+    SCREENSHOTS_OUTFILE : str or list, optional, default: []
+        File or list of files for screenshots.
+    SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
+        Orientation or list of orientations for screenshots.
 
-    Optional arguments:
-        - CREATE_SCREENSHOT <bool> (default: True)
-        - SCREENSHOTS_OUTFILE <string> or empty list (default: [])
+    Returns
+    -------
+    None
+        This function return nothing.
 
-    Required files:
-        - mri/hypothalamic_subunits_seg.v1.mgz
-        - mri/norm.mgz
-
+    Notes
+    -----
+    Required Files:
+    - mri/hypothalamic_subunits_seg.v1.mgz
+    - mri/norm.mgz
     """
-
-    # --------------------------------------------------------------------------
     # imports
 
     import logging

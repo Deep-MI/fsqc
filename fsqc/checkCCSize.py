@@ -2,30 +2,33 @@
 This module provides a function to check the relative size of the corpus callosum
 
 """
-
 # -----------------------------------------------------------------------------
 
 
 def checkCCSize(subjects_dir, subject):
     """
-    A function to check the relative size of the corpus callosum.
+    Check the relative size of the corpus callosum.
 
-    This function evaluates the relative size of the corpus callosum in order
-    to detect possible outliers. It computes the sum of the volumes of the
-    corpus callosum from in the aseg.stats file, and divides by total
+    This function evaluates the relative size of the corpus callosum by computing
+    the sum of its volumes from the aseg.stats file and dividing it by the total
     intracranial volume.
 
-    Required Arguments:
-        - subjects_dir
-        - subject
+    Parameters
+    ----------
+    subjects_dir : str
+        The directory containing subject data.
+    subject : str
+        The name of the subject.
 
-    Returns:
-        - relative_cc
+    Returns
+    -------
+    relative_cc : float
+        The relative size of the corpus callosum.
 
-    Requires a valid stats/aseg.stats file.
-
+    Notes
+    -----
+    It requires a valid stats/aseg.stats file.
     """
-
     # Imports
     import logging
     import os

@@ -17,33 +17,40 @@ def checkSNR(
     A function to check the SNR of the white and gray matter.
 
     This function checks the SNR of the white and the gray matter. The white
-    matter segmentation is taken from the aparc+aseg image and the gray matter
-    from the aseg image. The white matter is eroded by three voxels in order to
-    ignore partial volumes. For the gray matter this is not possible, because
+    matter segmentation is taken from the aparc+aseg image, and the gray matter
+    from the aseg image. The white matter is eroded by three voxels to
+    ignore partial volumes. For the gray matter, this is not possible because
     the layer is already very thin. An erosion would eliminate nearly the whole
     signal.
 
-    Required arguments:
-        - subjects_dir : path to the subjects directory
-        - subject : subject ID
+    Parameters
+    ----------
+    subjects_dir : str
+        The directory containing subject data.
+    subject : str
+        The name of the subject.
+    nb_erode : int, optional
+        The number of erosions, default is 3.
+    ref_image : str, optional
+        The reference image, default is "norm.mgz", can be changed to "orig.mgz".
+    aparc_image : str, optional
+        The aparc+aseg image, default is "aparc+aseg.mgz", can
+        be changed to "aparc+aseg.orig.mgz" for FastSurfer output.
 
-    Optional arguments:
-        - nb_erode : the number of erosions, default = 3
-        - ref_image : the reference image, default = "norm.mgz", can be changed
-          to "orig.mgz"
-        - aparc_image : the aparc+aseg image, default = "aparc+aseg.mgz", can
-          be changed to "aparc+aseg.orig.mgz" for FastSurfer output
+    Returns
+    -------
+    wm_snr : float
+        The signal-to-noise ratio of the white matter.
+    gm_snr : float
+        The signal-to-noise ratio of the gray matter.
 
-    Returns:
-        - wm_snr, gm_snr
-
-    Requires valid mri/norm.mgz, mri/aseg.mgz, and mri/aparc+aseg.mgz files for
+    Notes
+    -----
+    It requires valid mri/norm.mgz, mri/aseg.mgz, and mri/aparc+aseg.mgz files for
     FreeSurfer output, and valid mri/norm.mgz, mri/aseg.mgz, and
     mri/aparc+aseg.orig.mgz files for FastSurfer output.
     If not found, NaNs will be returned.
-
     """
-
     # Imports
 
     import logging

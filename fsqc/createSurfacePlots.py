@@ -1,18 +1,31 @@
 """
 This module provides a function to create surface plots
-
 """
-
 # -----------------------------------------------------------------------------
 
 
 def createSurfacePlots(SUBJECT, SUBJECTS_DIR, SURFACES_OUTDIR, VIEWS, FASTSURFER):
     """
-    function createSurfacePlots
+    Create surface plots.
 
+    Parameters
+    ----------
+    SUBJECT : str
+        The subject.
+    SUBJECTS_DIR : str
+        The subjects directory.
+    SURFACES_OUTDIR : str
+        The output directory for surface plots.
+    VIEWS : list
+        List of views for which surface plots should be created.
+    FASTSURFER : bool
+        Flag indicating whether FastSurfer processing was used.
+
+    Returns
+    -------
+    None
+        The function returns nothing.
     """
-
-    # -----------------------------------------------------------------------------
     # imports
 
     import os

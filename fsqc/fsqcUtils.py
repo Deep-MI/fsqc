@@ -11,14 +11,19 @@ def importMGH(filename):
     """
     A function to read Freesurfer MGH files.
 
-    Required arguments:
-        - filename
+    Parameters
+    ----------
+    filename : str
+        Path to the MGH file.
 
-    Returns:
-        - vol
+    Returns
+    -------
+    vol : numpy.ndarray
+        3D array containing vol values.
 
-    Requires valid mgh file. If not found, NaNs will be returned.
-
+    Notes
+    -----
+    Requires a valid MGH file. If not found, NaNs will be returned.
     """
 
     import logging
@@ -83,6 +88,27 @@ def importMGH(filename):
 
 
 def binarizeImage(img_file, out_file, match=None):
+    """
+    Binarize an image and saves the result.
+
+    Parameters
+    ----------
+    img_file : str
+        Path to the input image file.
+    out_file : str
+        Path to save the binarized image.
+    match : array-like or None, optional
+        Values to consider as True. If None, non-zero values are considered True.
+
+    Returns
+    -------
+    None
+        This function returns nothing.
+
+    Notes
+    -----
+    This function uses nibabel to load and save NIfTI images.
+    """
     import nibabel as nb
     import numpy as np
 
@@ -105,6 +131,25 @@ def binarizeImage(img_file, out_file, match=None):
 
 
 def applyTransform(img_file, out_file, mat_file, interp):
+    """
+    Apply a transformation to an image.
+
+    Parameters
+    ----------
+    img_file : str
+        Input image file path.
+    out_file : str
+        Output transformed image file path.
+    mat_file : str
+        Transformation matrix file path (must be in xfm or lta format).
+    interp : {'nearest', 'cubic'}
+        Interpolation method to use.
+
+    Returns
+    -------
+    None
+        This function returns nothing.
+    """
     import os
 
     import nibabel as nb
@@ -157,6 +202,20 @@ def applyTransform(img_file, out_file, mat_file, interp):
 
 
 def readLTA(file):
+    """
+    It reads a LTA (Linear Transform Array) file and extracts transformation information.
+
+    Parameters
+    ----------
+    file : str
+        Path to the LTA file.
+
+    Returns
+    -------
+    dict
+        A dictionary containing transformation information, including type, number of transforms,
+        mean, sigma, and transformation matrices for source and destination volumes.
+    """
     import re
 
     import numpy as np
@@ -391,10 +450,28 @@ def readLTA(file):
 
 def levelsetsTria(v, t, p, levelsets):
     """
-    This is the levelsetsTria function
+    Generate intersections of triangles with level sets.
 
+    Parameters
+    ----------
+    v : numpy.ndarray
+        Array of vertex coordinates with shape (n, 3).
+    t : numpy.ndarray
+        Array of triangles with vertex indices, shape (m, 3).
+    p : numpy.ndarray
+        Array of values corresponding to vertex points, shape (n,).
+    levelsets : list or numpy.ndarray
+        List or array of level set values.
+
+    Returns
+    -------
+    vLVL : list
+        List of interpolated vertices for each level set.
+    lLVL : list
+        List of triangle indices corresponding to the interpolated vertices for each level set.
+    iLVL : list
+        List of triangle indices that intersect with the level set.
     """
-
     import numpy as np
     from scipy.sparse import lil_matrix
 
@@ -502,7 +579,12 @@ def levelsetsTria(v, t, p, levelsets):
 
 def returnFreeSurferColorLUT():
     """
-    Provides FreeSurfer color look-up table
+    Provide FreeSurfer color look-up table.
+
+    Returns
+    -------
+    numpy.ndarray
+        This function returns numpy array.
     """
 
     import numpy as np

@@ -1,4 +1,5 @@
 # Changelog
+===========
 
 This is a document summarizing the changes that are associated with (major) updates and releases. Priority is given to changes that are relevant to the user, and those that introduce new features or break compatibility with prior versions.
 

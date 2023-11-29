@@ -10,10 +10,18 @@ aseg.stats, aparc.stats, and hypothalamic and hippocampal values (if present).
 
 def readAsegStats(path_aseg_stats):
     """
-    A function to read aseg.stats files.
+    Read FreeSurfer aseg.stats files.
 
+    Parameters
+    ----------
+    path_aseg_stats : str
+        Path to the aseg.stats file.
+
+    Returns
+    -------
+    dict
+        A dictionary containing FreeSurfer aseg measures.
     """
-
     # read file
     with open(path_aseg_stats) as stats_file:
         aseg_stats = stats_file.read().splitlines()
@@ -166,10 +174,24 @@ def readAsegStats(path_aseg_stats):
 
 def readAparcStats(path_aparc_stats, hemi):
     """
-    A function to read aparc.stats files.
+    Read FreeSurfer aparc.stats files.
 
+    Parameters
+    ----------
+    path_aparc_stats : str
+        Path to the aparc.stats file.
+    hemi : str
+        Hemisphere designation ('lh' for left, 'rh' for right).
+
+    Returns
+    -------
+    tuple
+        A tuple containing three dictionaries:
+
+        - Header information for the aparc.stats file.
+        - Detailed measures for different anatomical regions.
+        - Thickness values for each region.
     """
-
     # read file
     with open(path_aparc_stats) as stats_file:
         aparc_stats = stats_file.read().splitlines()
@@ -698,10 +720,18 @@ def readAparcStats(path_aparc_stats, hemi):
 
 def readHypothalamusStats(path_hypothalamus_stats):
     """
-    A function to read hypothalamic volume files.
+    Read hypothalamic volume files.
 
+    Parameters
+    ----------
+    path_hypothalamus_stats : str
+        Path to the hypothalamic volume file.
+
+    Returns
+    -------
+    dict
+        A dictionary containing hypothalamic volume information.
     """
-
     # imports
     import pandas as pd
 
@@ -723,11 +753,22 @@ def readHypothalamusStats(path_hypothalamus_stats):
 
 def readHippocampusStats(path_hippocampus_stats, hemi, prefix):
     """
-    A function to read hippocampal volume files.
-    Also works for amygdala volume files.
+    Read hippocampal or amygdala volume files.
 
+    Parameters
+    ----------
+    path_hippocampus_stats : str
+        Path to the volume file.
+    hemi : str
+        Hemisphere identifier (e.g., 'lh' or 'rh').
+    prefix : str
+        Prefix for column names.
+
+    Returns
+    -------
+    dict
+        Dictionary containing volume values with column names.
     """
-
     # imports
     import pandas as pd
 
@@ -753,11 +794,13 @@ def readHippocampusStats(path_hippocampus_stats, hemi, prefix):
 
 def outlierTable():
     """
-    A function to provide normative values for Freesurfer segmentations and
-    parcellations.
+    Read hippocampal volume files. Also works for amygdala volume files.
 
+    Returns
+    -------
+    dict
+        A dictionary containing hippocampal volume information.
     """
-
     # define
 
     outlierDict = dict(
@@ -852,11 +895,32 @@ def outlierDetection(
     hippocampus_label=None,
 ):
     """
-    A function to evaluate potential outliers in the aseg.stats, [lr]h.aparc,
-    and optionally hypothalamic and hippocampal values.
+    Evaluate outliers in aseg.stats, [lr]h.aparc, and optional hypothalamic/hippocampal values.
 
+    Parameters
+    ----------
+    subjects : list
+        List of subject IDs.
+    subjects_dir : str
+        Path to the FreeSurfer subjects directory.
+    output_dir : str
+        Path to the output directory for saving results.
+    outlierDict : dict
+        Dictionary containing outlier thresholds for different measures.
+    min_no_subjects : int, optional
+        Minimum number of subjects required for analysis.
+    hypothalamus : bool, optional
+        Flag to include hypothalamic values in the analysis.
+    hippocampus : bool, optional
+        Flag to include hippocampal values in the analysis.
+    hippocampus_label : str or None, optional
+        Label to identify the hippocampus (e.g., "Hippocampus").
+
+    Returns
+    -------
+    None
+        This function returns nothing but saves results in the specified output directory.
     """
-
     # imports
 
     import csv
