@@ -8,7 +8,7 @@ We are happy to announce the release of version 2.0 of the `fsqc` toolbox. With 
 
 Recent changes include the addition of the hippocampus and hypothalamus modules as well as the addition of surface and skullstrip visualization modules. Technical changes include how the package is installed, imported, and run, see below for details.
 
-A list of changes is available :download:`here <../CHANGES.md>`.
+A list of changes is available Changelog section.
 
 Main and development branches
 -----------------------------

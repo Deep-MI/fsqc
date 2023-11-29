@@ -27,6 +27,7 @@ It has been augmented by additional functions from the `MRIQC toolbox <https://g
    Usage
    Installation
    Requirements
+   Changelog
    Authors
    Citations
    License
