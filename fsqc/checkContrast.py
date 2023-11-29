@@ -1,31 +1,35 @@
 """
 This module provides a function to compute the WM/GM contrast SNR.
-
 """
 
+
 # -----------------------------------------------------------------------------
-
-
 def checkContrast(subjects_dir, subject):
     """
-    A function to compute the WM/GM contrast SNR.
+    Compute the WM/GM contrast SNR.
 
     This function computes the WM/GM contrast SNR based on the output of the
     pctsurfcon function.
 
-    Required arguments:
-        - Subjects directory
-        - Subject
+    Parameters
+    ----------
+    subjects_dir : str
+        The directory containing subject data.
+    subject : str
+        The name of the subject.
 
-    Returns:
-        - con_lh_snr
-        - con_rh_snr
+    Returns
+    -------
+    con_lh_snr : float
+        Signal-to-noise ratio (SNR) for the left hemisphere WM/GM contrast.
+    con_rh_snr : float
+        Signal-to-noise ratio (SNR) for the right hemisphere WM/GM contrast.
 
-    Requires surf/[lr]h.w-g.pct.mgh and label/[lr]h.cortex.label. If not found,
-    NaNs will be returned.
-
+    Notes
+    -----
+    It requires surf/[lr]h.w-g.pct.mgh and label/[lr]h.cortex.label.
+    If not found, NaNs will be returned.
     """
-
     # Imports
     import logging
     import os

@@ -8,23 +8,38 @@ This module provides a function to check the topology of left and right surfaces
 
 def checkTopology(subjects_dir, subject):
     """
-    A function to check the topology of left and right surfaces.
+    Check the topology of left and right surfaces.
 
-    This scripts extract the information about the number of holes and defects
+    This function extracts information about the number of holes and defects
     in the left and right hemisphere, and also returns topological fixing time.
 
-    Required arguments:
-        - Subjects directory
-        - Subject
+    Parameters
+    ----------
+    subjects_dir : str
+        The directory containing subject data.
+    subject : str
+        The name of the subject.
 
-    Returns:
-        - lh_holes, rh_holes, lh_defects, rh_defects, topo_time_lh, topo_time_rh
+    Returns
+    -------
+    lh_holes : int
+        Number of holes in the left hemisphere.
+    rh_holes : int
+        Number of holes in the right hemisphere.
+    lh_defects : int
+        Number of defects in the left hemisphere.
+    rh_defects : int
+        Number of defects in the right hemisphere.
+    topo_time_lh : float
+        Topological fixing time for the left hemisphere.
+    topo_time_rh : float
+        Topological fixing time for the right hemisphere.
 
-    Requires valid scripts/recon-all.log file. If not found, NaNs will be
+    Notes
+    -----
+    Requires a valid scripts/recon-all.log file. If not found, NaNs will be
     returned.
-
     """
-
     # Imports
 
     import logging

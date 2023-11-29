@@ -1,10 +1,8 @@
 """
 This module provides a function to evaluate potential missegmentation of the
 hippocampus and amygdala
-
 """
-
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 
 def evaluateHippocampalSegmentation(
@@ -18,8 +16,7 @@ def evaluateHippocampalSegmentation(
     LABEL="T1.v21",
 ):
     """
-    A function to evaluate potential missegmentation of the hippocampus and
-    amygdala.
+    Evaluate potential missegmentation of the hippocampus and amygdala.
 
     This script evaluates potential missegmentation of the hippocampus and
     amygdala as created by FreeSurfer 7.1's dedicated module:
@@ -29,24 +26,36 @@ def evaluateHippocampalSegmentation(
     create screenshots. Resulting files will be saved to the same directory
     as indicated above.
 
-    Required arguments:
-        - SUBJECT
-        - SUBJECTS_DIR
-        - OUTPUT_DIR
+    Parameters
+    ----------
+    SUBJECT : str
+        The subject identifier.
+    SUBJECTS_DIR : str
+        The directory containing subject data.
+    OUTPUT_DIR : str
+        The output directory.
+    CREATE_SCREENSHOT : bool, optional, default: True
+        Whether to create screenshots.
+    SCREENSHOTS_OUTFILE : str or list, optional, default: []
+        File or list of files for screenshots.
+    SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
+        Orientation or list of orientations for screenshots.
+    HEMI : str, optional, default: "lh"
+        Hemisphere to evaluate, either 'lh' or 'rh'.
+    LABEL : str, optional, default: "T1.v21"
+        Label for hippocampal and amygdala segmentation.
 
-    Optional arguments:
-        - CREATE_SCREENSHOT <bool> (default: True)
-        - SCREENSHOTS_OUTFILE <string> or empty list (default: [])
-        - HEMI (default: lh)
-        - LABEL (default: T1.v21)
+    Returns
+    -------
+    None
+        This function returns nothing.
 
-    Required files:
-        - mri/[lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz
-        - mri/norm.mgz
-
+    Notes
+    -----
+    Required Files:
+    - mri/[lr]h.hippoAmygLabels-<LABEL>.FSvoxelSpace.mgz
+    - mri/norm.mgz
     """
-
-    # --------------------------------------------------------------------------
     # imports
 
     import logging
