@@ -11,12 +11,11 @@ from datetime import date
 from importlib import import_module
 from typing import Dict, Optional
 
-
 import fsqc
 
-project = 'fsqc'
-copyright = '2023, Martin Reuter'
-author = 'Martin Reuter'
+project = "fsqc"
+copyright = "2023, Martin Reuter"
+author = "Martin Reuter"
 copyright = f"{date.today().year}, {author}"
 # release = fsqc.__version__
 package = fsqc.__name__
@@ -115,7 +114,6 @@ intersphinx_mapping = {
 intersphinx_timeout = 5
 
 
-
 # -- sphinx-issues -----------------------------------------------------------
 issues_github_path = gh_url.split("https://github.com/")[-1]
 
@@ -123,8 +121,8 @@ issues_github_path = gh_url.split("https://github.com/")[-1]
 autosectionlabel_prefix_document = True
 
 # -- numpydoc ----------------------------------------------------------------
-#numpydoc_class_members_toctree = False
-#numpydoc_attributes_as_param_list = False
+# numpydoc_class_members_toctree = False
+# numpydoc_attributes_as_param_list = False
 
 # x-ref
 numpydoc_xref_param_type = True
@@ -139,7 +137,7 @@ numpydoc_xref_aliases = {
     # Scipy
     "csc_matrix": "scipy.sparse.csc_matrix",
 }
-#numpydoc_xref_ignore = {}
+# numpydoc_xref_ignore = {}
 
 # validation
 # https://numpydoc.readthedocs.io/en/latest/validation.html#validation-checks
@@ -171,6 +169,8 @@ bibtex_bibfiles = ["./references.bib"]
 
 #  Alternative method for linking to code by Osama, not sure which one is better
 from urllib.parse import quote
+
+
 def linkcode_resolve(domain, info):
     if domain != "py":
         return None
@@ -232,12 +232,14 @@ def linkcode_resolve(domain, info):
 #     return url
 
 
+import os
+
 # -- make sure pandoc gets installed -----------------------------------------
 from inspect import getsourcefile
-import os
 
 # Get path to directory containing this file, conf.py.
 DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
 
 def ensure_pandoc_installed(_):
     import pypandoc
@@ -253,6 +255,7 @@ def ensure_pandoc_installed(_):
         targetfolder=pandoc_dir,
         delete_installer=True,
     )
+
 
 def setup(app):
     app.connect("builder-inited", ensure_pandoc_installed)
