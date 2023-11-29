@@ -28,11 +28,11 @@ jobs:
       - name: Install package
         run: |
           python -m pip install --progress-bar off --upgrade pip setuptools wheel
-          python -m pip install --progress-bar off stable/.[doc]
+          python -m pip install --progress-bar off main/.[doc]
       - name: Display system information
         run: fsqc-sys_info --developer
       - name: Build doc
-        run: TZ=UTC sphinx-build ./stable/doc ./doc-build/dev -W --keep-going
+        run: TZ=UTC sphinx-build ./main/doc ./doc-build/dev -W --keep-going
       - name: Upload documentation
         uses: actions/upload-artifact@v3
         with:
