@@ -85,6 +85,7 @@ tracker = 'https://github.com/Deep-MI/fsqc/issues'
 
 [project.scripts]
 run_fsqc = 'fsqc.cli:main'
+fsqc-sys_info = 'fsqc.commands.sys_info:run'
 
 [tool.setuptools.dynamic]
 version = {file = 'VERSION'}
