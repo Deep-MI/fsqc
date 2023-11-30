@@ -71,6 +71,7 @@ test = [
 ]
 all = [
     'fsqc[build]',
+    'fsqc[doc]',
     'fsqc[style]',
 ]
 full = [
@@ -96,7 +97,7 @@ dependencies = {file = 'requirements.txt'}
 #include-package-data = false
 
 [tool.setuptools.packages.find]
-include = ['fsqc', 'fsqc.cli']
+include = ['fsqc', 'fsqc.cli', 'fsqc.commands']
 exclude = ['docker', 'singularity']
 
 [tool.black]
