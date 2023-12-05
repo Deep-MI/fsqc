@@ -10,6 +10,9 @@ It is a revision, extension, and translation to the Python language of the
 been augmented by additional functions from the [MRIQC toolbox](https://github.com/poldracklab/mriqc),
 and with code derived from the [LaPy](https://github.com/Deep-MI/lapy) and
 [BrainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
+
+This page provides general, usage, and installation information. See [here](https://deep-mi.org/fsqc/dev/index.html) 
+for the full documentation.
 ___
 
 ## Contents
