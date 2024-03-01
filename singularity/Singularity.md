@@ -1,16 +1,16 @@
 # Singularity
 
-We host releases of the fsqc package as Docker images on [Dockerhub](https://hub.docker.com/r/deepmi/fsqc/tags). For use on HPC systems or in other cases where Docker is not preferred you can easily create a Singularity image from the Docker images. 
+We host releases of the fsqc package as Docker images on [Dockerhub](https://hub.docker.com/r/deepmi/fsqcdocker/tags). For use on HPC systems or in other cases where Docker is not preferred you can easily create a Singularity image from the Docker images. 
 
 ## Creating s Singularity image
 For creating a singularity image from the Dockerhub just run: 
 
 ```bash
 cd /home/user/my_singlarity_images
-singularity build fsqc-latest.sif docker://deepmi/fsqc:latest
+singularity build fsqc-latest.sif docker://deepmi/fsqcdocker:latest
 ```
 
-Singularity Images are saved as `.sif` files. Here the _/homer/user/my_singlarity_images_ is the path where you want your file saved. You can change _deepmi/fsqc:latest_ with any tag provided in our [Dockerhub](https://hub.docker.com/r/deepmi/fsqc/tags).
+Singularity Images are saved as `.sif` files. Here the _/homer/user/my_singlarity_images_ is the path where you want your file saved. You can change _deepmi/fsqc:latest_ with any tag provided in our [Dockerhub](https://hub.docker.com/r/deepmi/fsqcdocker/tags).
 
 If you want to use a locally available image that you created yourself, instead run:
 
