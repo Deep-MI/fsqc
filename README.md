@@ -11,7 +11,7 @@ been augmented by additional functions from the [MRIQC toolbox](https://github.c
 and with code derived from the [LaPy](https://github.com/Deep-MI/lapy) and
 [BrainPrint](https://github.com/Deep-MI/brainprint) toolboxes.
 
-This page provides general, usage, and installation information. See [here](https://deep-mi.org/fsqc/dev/index.html) 
+This page provides general, usage, and installation information. See [here](https://deep-mi.org/fsqc/dev/index.html)
 for the full documentation.
 ___
 
@@ -151,7 +151,7 @@ alternative, users may specify their own normative values by using the
 names. It can be a subset and the order is arbitrary, but naming must exactly
 match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file.
 If cortical parcellations are included in the outlier table for a comparison
-with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. `upper` 
+with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. `upper`
 and `lower` are user-specified upper and lower bounds.
 
 The main csv table will be appended with the following summary variables, and
@@ -176,9 +176,9 @@ this release comes a change of the project name from `qatools` to `fsqc`, to
 reflect increased independence from the original FreeSurfer QA tools, and
 applicability to other neuroimaging analysis packages - such as [Fastsurfer](https://github.com/Deep-MI/FastSurfer).
 
-Recent changes include the addition of the hippocampus and hypothalamus modules 
-as well as the addition of surface and skullstrip visualization modules. 
-Technical changes include how the package is installed, imported, and run, see 
+Recent changes include the addition of the hippocampus and hypothalamus modules
+as well as the addition of surface and skullstrip visualization modules.
+Technical changes include how the package is installed, imported, and run, see
 [below](https://github.com/Deep-MI/fsqc#usage) for details.
 
 A list of changes is available [here](CHANGES.md).
