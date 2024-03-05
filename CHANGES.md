@@ -3,6 +3,10 @@
 
 This is a document summarizing the changes that are associated with (major) updates and releases. Priority is given to changes that are relevant to the user, and those that introduce new features or break compatibility with prior versions.
 
+## Version 2.0.2
+
+- This fixes an issue with the outlier module, which did not run for FastSurfer output due to incorrect expectations for names of stats files.
+
 ## Version 2.0.1
 
 - This fix addresses two minor issues where output was omitted for the SNR computation and the fornix evaluation whenever hires inputs were used.
