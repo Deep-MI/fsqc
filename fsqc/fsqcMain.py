@@ -1454,7 +1454,7 @@ def _check_packages():
 
 def _do_fsqc(argsDict):
     """
-    Run the FastSurferQC submodules.
+    Run the fsqc submodules.
 
     Parameters
     ----------
@@ -2298,6 +2298,7 @@ def _do_fsqc(argsDict):
                 hypothalamus=argsDict["hypothalamus"],
                 hippocampus=argsDict["hippocampus"],
                 hippocampus_label=argsDict["hippocampus_label"],
+                fastsurfer=argsDict["fastsurfer"],
             )
 
             # create a dictionary from outlier module output

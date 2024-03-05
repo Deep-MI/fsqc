@@ -794,12 +794,12 @@ def readHippocampusStats(path_hippocampus_stats, hemi, prefix):
 
 def outlierTable():
     """
-    Read hippocampal volume files. Also works for amygdala volume files.
+    Provide upper and lower bounds for volumes of several brain structures.
 
     Returns
     -------
     dict
-        A dictionary containing hippocampal volume information.
+        A dictionary containing upper and lower bounds for several brain structures.
     """
     # define
 
@@ -893,6 +893,7 @@ def outlierDetection(
     hypothalamus=False,
     hippocampus=False,
     hippocampus_label=None,
+    fastsurfer=False,
 ):
     """
     Evaluate outliers in aseg.stats, [lr]h.aparc, and optional hypothalamic/hippocampal values.
@@ -915,11 +916,17 @@ def outlierDetection(
         Flag to include hippocampal values in the analysis.
     hippocampus_label : str or None, optional
         Label to identify the hippocampus (e.g., "Hippocampus").
+    fastsurfer : bool, optional
+        Flag to use FastSurfer instead of FreeSurfer output files.
 
     Returns
     -------
-    None
-        This function returns nothing but saves results in the specified output directory.
+    tuple
+        A tuple containing three dictionaries:
+
+        - outlierSampleNonparNum
+        - outlierSampleParamNum
+        - outlierNormsNum
     """
     # imports
 
@@ -937,26 +944,34 @@ def outlierDetection(
 
     for subject in subjects:
         # aseg
-
         path_aseg_stats = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
         aseg_stats = readAsegStats(path_aseg_stats)
         regions[subject] = aseg_stats.copy()
         all_regions_keys.extend(list(aseg_stats.keys()))
 
         # aparc
-
-        path_aparc_stats = os.path.join(
-            subjects_dir, subject, "stats", "lh.aparc.stats"
-        )
+        if fastsurfer is True:
+            path_aparc_stats = os.path.join(
+                subjects_dir, subject, "stats", "lh.aparc.DKTatlas.mapped.stats"
+            )
+        else:
+            path_aparc_stats = os.path.join(
+                subjects_dir, subject, "stats", "lh.aparc.stats"
+            )
         aparc_header, aparc_stats, aparc_thickness = readAparcStats(
             path_aparc_stats, hemi="lh"
         )
         regions[subject].update(aparc_thickness)
         all_regions_keys.extend(list(aparc_thickness.keys()))
 
-        path_aparc_stats = os.path.join(
-            subjects_dir, subject, "stats", "rh.aparc.stats"
-        )
+        if fastsurfer is True:
+            path_aparc_stats = os.path.join(
+                subjects_dir, subject, "stats", "rh.aparc.DKTatlas.mapped.stats"
+            )
+        else:
+            path_aparc_stats = os.path.join(
+                subjects_dir, subject, "stats", "rh.aparc.stats"
+            )
         aparc_header, aparc_stats, aparc_thickness = readAparcStats(
             path_aparc_stats, hemi="rh"
         )
