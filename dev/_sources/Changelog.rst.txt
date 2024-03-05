@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 2.0.2
+-------------
+
+- This fixes an issue with the outlier module, which did not run for FastSurfer output due to incorrect expectations for names of stats files.
+
 Version 2.0.1
 -------------
 

@@ -224,7 +224,7 @@
 aseg.stats, aparc.stats, and hypothalamic and hippocampal values (if present).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="fsqc.outlierDetection.outlierDetection">
-<span class="sig-prename descclassname"><span class="pre">fsqc.outlierDetection.</span></span><span class="sig-name descname"><span class="pre">outlierDetection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subjects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subjects_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlierDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_no_subjects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypothalamus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hippocampus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hippocampus_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Deep-MI/fsqc/blob/stable//fsqc/outlierDetection.py#:~:text=outlierDetection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fsqc.outlierDetection.outlierDetection" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">fsqc.outlierDetection.</span></span><span class="sig-name descname"><span class="pre">outlierDetection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subjects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subjects_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlierDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_no_subjects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypothalamus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hippocampus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hippocampus_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fastsurfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Deep-MI/fsqc/blob/stable//fsqc/outlierDetection.py#:~:text=outlierDetection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fsqc.outlierDetection.outlierDetection" title="Permalink to this definition">#</a></dt>
 <dd><p>Evaluate outliers in aseg.stats, [lr]h.aparc, and optional hypothalamic/hippocampal values.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -245,11 +245,18 @@ aseg.stats, aparc.stats, and hypothalamic and hippocampal values (if present).</
 </dd>
 <dt><strong>hippocampus_label</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">None</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></span></dt><dd><p>Label to identify the hippocampus (e.g., “Hippocampus”).</p>
 </dd>
+<dt><strong>fastsurfer</strong><span class="classifier"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">bool</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">optional</span></code></span></dt><dd><p>Flag to use FastSurfer instead of FreeSurfer output files.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">None</span></code></a></dt><dd><p>This function returns nothing but saves results in the specified output directory.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">tuple</span></code></a></dt><dd><p>A tuple containing three dictionaries:</p>
+<ul class="simple">
+<li><p>outlierSampleNonparNum</p></li>
+<li><p>outlierSampleParamNum</p></li>
+<li><p>outlierNormsNum</p></li>
+</ul>
 </dd>
 </dl>
 </dd>
@@ -259,11 +266,11 @@ aseg.stats, aparc.stats, and hypothalamic and hippocampal values (if present).</
 <dl class="py function">
 <dt class="sig sig-object py" id="fsqc.outlierDetection.outlierTable">
 <span class="sig-prename descclassname"><span class="pre">fsqc.outlierDetection.</span></span><span class="sig-name descname"><span class="pre">outlierTable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Deep-MI/fsqc/blob/stable//fsqc/outlierDetection.py#:~:text=outlierTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fsqc.outlierDetection.outlierTable" title="Permalink to this definition">#</a></dt>
-<dd><p>Read hippocampal volume files. Also works for amygdala volume files.</p>
+<dd><p>Provide upper and lower bounds for volumes of several brain structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a></dt><dd><p>A dictionary containing hippocampal volume information.</p>
+<dt><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="docutils literal notranslate"><span class="pre">dict</span></code></a></dt><dd><p>A dictionary containing upper and lower bounds for several brain structures.</p>
 </dd>
 </dl>
 </dd>
