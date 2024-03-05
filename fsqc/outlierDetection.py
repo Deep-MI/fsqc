@@ -794,7 +794,7 @@ def readHippocampusStats(path_hippocampus_stats, hemi, prefix):
 
 def outlierTable():
     """
-    Provides upper and lower bounds for volumes of several brain structures.
+    Provide upper and lower bounds for volumes of several brain structures.
 
     Returns
     -------
@@ -943,7 +943,6 @@ def outlierDetection(
     all_regions_keys = list()
 
     for subject in subjects:
-
         # aseg
         path_aseg_stats = os.path.join(subjects_dir, subject, "stats", "aseg.stats")
         aseg_stats = readAsegStats(path_aseg_stats)
