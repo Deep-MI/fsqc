@@ -144,15 +144,15 @@ required for running these analyses, otherwise `NaNs` will be returned.
 
 For comparisons with the normative values, lower and upper bounds are computed
 from the 95% prediction intervals of the regression models given in Potvin et
-al., 1996, and values exceeding these bounds will be flagged. As an
+al., 2016, and values exceeding these bounds will be flagged. As an
 alternative, users may specify their own normative values by using the
 '--outlier-table' argument. This requires a custom csv table with headers
 `label`, `upper`, and `lower`, where `label` indicates a column of anatomical
 names. It can be a subset and the order is arbitrary, but naming must exactly
 match the nomenclature of the 'aseg.stats' and/or '[lr]h.aparc.stats' file.
 If cortical parcellations are included in the outlier table for a comparison
-with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. file.
-`upper` and `lower` are user-specified upper and lower bounds.
+with aparc.stats values, the labels must have a 'lh.' or 'rh.' prefix. `upper` 
+and `lower` are user-specified upper and lower bounds.
 
 The main csv table will be appended with the following summary variables, and
 more detailed output about will be saved as csv tables in the 'outliers'
