@@ -200,7 +200,8 @@ def get_help(print_help=True, return_help=False):
                                   [--fornix] [--fornix-html] [--hypothalamus]
                                   [--hypothalamus-html] [--hippocampus]
                                   [--hippocampus-html] [--hippocampus-label <label>]
-                                  [--shape] [--outlier] [--fastsurfer] [-h]
+                                  [--shape] [--outlier] [--fastsurfer]
+                                  [--exit-on-error] [--skip-existing] [-h]
 
         required arguments:
           --subjects_dir <directory>
@@ -243,6 +244,9 @@ def get_help(print_help=True, return_help=False):
           --exit-on-error       terminate the program when encountering an error;
                                 otherwise, try to continue with the next module or
                                 case
+          --skip-existing       skips processing for a given case if output
+                                already exists, even with possibly different
+                                parameters or settings.
 
         getting help:
           -h, --help            display this help message and exit
@@ -616,6 +620,14 @@ def _parse_arguments():
         action="store_true",
         required=False,
     )
+    optional.add_argument(
+        "--skip-existing",
+        dest="skip_existing",
+        help="skip processing if output already exists",
+        default=False,
+        action="store_true",
+        required=False,
+    )
 
     expert = parser.add_argument_group("expert arguments")
     expert.add_argument(
@@ -729,6 +741,7 @@ def _parse_arguments():
     argsDict["outlier_table"] = args.outlier_table
     argsDict["fastsurfer"] = args.fastsurfer
     argsDict["exit_on_error"] = args.exit_on_error
+    argsDict["skip_existing"] = args.skip_existing
 
     #
     return argsDict
@@ -1476,6 +1489,7 @@ def _do_fsqc(argsDict):
     import time
 
     import numpy as np
+    import pandas as pd
 
     from fsqc.checkCCSize import checkCCSize
     from fsqc.checkContrast import checkContrast
@@ -1554,697 +1568,864 @@ def _do_fsqc(argsDict):
         statusDict.update({subject: {"subject": subject}})
 
         # ----------------------------------------------------------------------
+        # check for existing statusfile
+
+        # check / create subject-specific status_outdir
+        status_outdir = os.path.join(argsDict["output_dir"], "status", subject)
+        if not os.path.isdir(status_outdir):
+            os.makedirs(status_outdir)
+
+        # if it already exists, read statusfile
+        if os.path.exists(os.path.join(status_outdir, "status.txt")):
+            statusDict[subject] = dict(pd.read_csv(os.path.join(status_outdir, "status.txt"), sep=":", header=None, comment="#", names=["module", "status"]).to_dict(orient="split")['data'])
+
+        # note:
+        # 0: OK
+        # 1: Failed
+        # 2: Not done
+        # 3: Skipped
+
+        # ----------------------------------------------------------------------
         # compute core metrics
 
-        # set status
-        metrics_ok = True
+        # check / create subject-specific metrics_outdir
+        metrics_outdir = os.path.join(argsDict["output_dir"], "metrics", subject)
+        if not os.path.isdir(metrics_outdir):
+            os.makedirs(metrics_outdir)
 
-        # get WM and GM SNR for orig.mgz
-        try:
-            wm_snr_orig, gm_snr_orig = checkSNR(
-                argsDict["subjects_dir"],
-                subject,
-                SNR_AMOUT_EROSION,
-                ref_image="orig.mgz",
-                aparc_image=aparc_image,
+        #
+        metrics_status = 0
+        if argsDict["skip_existing"] is True:
+            if subject in statusDict.keys():
+                if statusDict[subject]["metrics"] == 0 or statusDict[subject]["metrics"] == 3:
+                    metrics_status = 3
+                    logging.info("Skipping metrics computation for " + subject)
+                else:
+                    logging.info("Not skipping metrics computation for " + subject + ", because statusfile did not indicate ok or skipped")
+            else:
+                logging.info("Not skipping metrics computation for " + subject + ", because no statusfile was found")
+
+        if metrics_status == 0:
+
+            # get WM and GM SNR for orig.mgz
+            try:
+                wm_snr_orig, gm_snr_orig = checkSNR(
+                    argsDict["subjects_dir"],
+                    subject,
+                    SNR_AMOUT_EROSION,
+                    ref_image="orig.mgz",
+                    aparc_image=aparc_image,
+                )
+
+            except Exception as e:
+                logging.error("ERROR: SNR computation failed for " + subject)
+                logging.error("Reason: " + str(e))
+                wm_snr_orig = np.nan
+                gm_snr_orig = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # get WM and GM SNR for norm.mgz
+            try:
+                wm_snr_norm, gm_snr_norm = checkSNR(
+                    argsDict["subjects_dir"],
+                    subject,
+                    SNR_AMOUT_EROSION,
+                    ref_image="norm.mgz",
+                    aparc_image=aparc_image,
+                )
+
+            except Exception as e:
+                logging.error("ERROR: SNR computation failed for " + subject)
+                logging.error("Reason: " + str(e))
+                wm_snr_norm = np.nan
+                gm_snr_norm = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # check CC size
+            try:
+                cc_size = checkCCSize(argsDict["subjects_dir"], subject)
+
+            except Exception as e:
+                logging.error("ERROR: CC size computation failed for " + subject)
+                logging.error("Reason: " + str(e))
+                cc_size = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # check topology
+            try:
+                (
+                    holes_lh,
+                    holes_rh,
+                    defects_lh,
+                    defects_rh,
+                    topo_lh,
+                    topo_rh,
+                ) = checkTopology(argsDict["subjects_dir"], subject)
+
+            except Exception as e:
+                logging.error("ERROR: Topology check failed for " + subject)
+                logging.error("Reason: " + str(e))
+                holes_lh = np.nan
+                holes_rh = np.nan
+                defects_lh = np.nan
+                defects_rh = np.nan
+                topo_lh = np.nan
+                topo_rh = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # check contrast
+            try:
+                con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
+
+            except Exception as e:
+                logging.error("ERROR: Contrast check failed for " + subject)
+                logging.error("Reason: " + str(e))
+                con_snr_lh = np.nan
+                con_snr_rh = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # check rotation
+            try:
+                rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(
+                    argsDict["subjects_dir"], subject
+                )
+
+            except Exception as e:
+                logging.error("ERROR: Rotation failed for " + subject)
+                logging.error("Reason: " + str(e))
+                rot_tal_x = np.nan
+                rot_tal_y = np.nan
+                rot_tal_z = np.nan
+                metrics_status = 1
+                if argsDict["exit_on_error"] is True:
+                    raise
+
+            # store data
+            metricsDict[subject].update(
+                {
+                    "wm_snr_orig": wm_snr_orig,
+                    "gm_snr_orig": gm_snr_orig,
+                    "wm_snr_norm": wm_snr_norm,
+                    "gm_snr_norm": gm_snr_norm,
+                    "cc_size": cc_size,
+                    "holes_lh": holes_lh,
+                    "holes_rh": holes_rh,
+                    "defects_lh": defects_lh,
+                    "defects_rh": defects_rh,
+                    "topo_lh": topo_lh,
+                    "topo_rh": topo_rh,
+                    "con_snr_lh": con_snr_lh,
+                    "con_snr_rh": con_snr_rh,
+                    "rot_tal_x": rot_tal_x,
+                    "rot_tal_y": rot_tal_y,
+                    "rot_tal_z": rot_tal_z,
+                }
             )
 
-        except Exception as e:
-            logging.error("ERROR: SNR computation failed for " + subject)
-            logging.error("Reason: " + str(e))
-            wm_snr_orig = np.nan
-            gm_snr_orig = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
+            # write to file
+            pd.DataFrame(metricsDict[subject], index=[subject]).to_csv(os.path.join(argsDict["output_dir"], "metrics", subject, "metrics.csv"))
 
-        # get WM and GM SNR for norm.mgz
-        try:
-            wm_snr_norm, gm_snr_norm = checkSNR(
-                argsDict["subjects_dir"],
-                subject,
-                SNR_AMOUT_EROSION,
-                ref_image="norm.mgz",
-                aparc_image=aparc_image,
-            )
-
-        except Exception as e:
-            logging.error("ERROR: SNR computation failed for " + subject)
-            logging.error("Reason: " + str(e))
-            wm_snr_norm = np.nan
-            gm_snr_norm = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
-
-        # check CC size
-        try:
-            cc_size = checkCCSize(argsDict["subjects_dir"], subject)
-
-        except Exception as e:
-            logging.error("ERROR: CC size computation failed for " + subject)
-            logging.error("Reason: " + str(e))
-            cc_size = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
-
-        # check topology
-        try:
-            (
-                holes_lh,
-                holes_rh,
-                defects_lh,
-                defects_rh,
-                topo_lh,
-                topo_rh,
-            ) = checkTopology(argsDict["subjects_dir"], subject)
-
-        except Exception as e:
-            logging.error("ERROR: Topology check failed for " + subject)
-            logging.error("Reason: " + str(e))
-            holes_lh = np.nan
-            holes_rh = np.nan
-            defects_lh = np.nan
-            defects_rh = np.nan
-            topo_lh = np.nan
-            topo_rh = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
-
-        # check contrast
-        try:
-            con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
-
-        except Exception as e:
-            logging.error("ERROR: Contrast check failed for " + subject)
-            logging.error("Reason: " + str(e))
-            con_snr_lh = np.nan
-            con_snr_rh = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
-
-        # check rotation
-        try:
-            rot_tal_x, rot_tal_y, rot_tal_z = checkRotation(
-                argsDict["subjects_dir"], subject
-            )
-
-        except Exception as e:
-            logging.error("ERROR: Rotation failed for " + subject)
-            logging.error("Reason: " + str(e))
-            rot_tal_x = np.nan
-            rot_tal_y = np.nan
-            rot_tal_z = np.nan
-            metrics_ok = False
-            if argsDict["exit_on_error"] is True:
-                raise
+        # note that we cannot "not do" the metrics module, only skipping is possible.
+        # hence no metrics_status == 2 possible.
 
         # store data
-        metricsDict[subject].update(
-            {
-                "wm_snr_orig": wm_snr_orig,
-                "gm_snr_orig": gm_snr_orig,
-                "wm_snr_norm": wm_snr_norm,
-                "gm_snr_norm": gm_snr_norm,
-                "cc_size": cc_size,
-                "holes_lh": holes_lh,
-                "holes_rh": holes_rh,
-                "defects_lh": defects_lh,
-                "defects_rh": defects_rh,
-                "topo_lh": topo_lh,
-                "topo_rh": topo_rh,
-                "con_snr_lh": con_snr_lh,
-                "con_snr_rh": con_snr_rh,
-                "rot_tal_x": rot_tal_x,
-                "rot_tal_y": rot_tal_y,
-                "rot_tal_z": rot_tal_z,
-            }
-        )
-
-        # store data
-        statusDict[subject].update({"metrics": metrics_ok})
+        statusDict[subject].update({"metrics": metrics_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: shape analysis
 
         if argsDict["shape"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Running brainPrint analysis ...")
-                print("")
 
-                from pathlib import Path
+            shape_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["shape"] == 0 or statusDict[subject]["shape"] == 3:
+                        shape_status = 3
+                        logging.info("Skipping shape computation for " + subject)
+                    else:
+                        logging.info("Not skipping shape computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                else:
+                    logging.info("Not skipping shape computation for " + subject + ", because no statusfile was found")
 
-                # compute brainprint (will also compute shapeDNA)
-                import brainprint
+            if shape_status == 0:
 
-                # check / create subject-specific brainprint_outdir
-                brainprint_outdir = Path(
-                    os.path.join(argsDict["output_dir"], "brainprint", subject)
-                )
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Running brainPrint analysis ...")
+                    print("")
 
-                # run brainPrint
-                evMat, evecMat, dstMat = brainprint.brainprint.run_brainprint(
-                    subjects_dir=argsDict["subjects_dir"],
-                    subject_id=subject,
-                    destination=brainprint_outdir,
-                    keep_eigenvectors=SHAPE_EVEC,
-                    skip_cortex=SHAPE_SKIPCORTEX,
-                    num=SHAPE_NUM,
-                    norm=SHAPE_NORM,
-                    reweight=SHAPE_REWEIGHT,
-                    asymmetry=SHAPE_ASYMMETRY,
-                )
+                    from pathlib import Path
 
-                # get a subset of the brainprint results
-                distDict = {subject: dstMat}
+                    # compute brainprint (will also compute shapeDNA)
+                    import brainprint
 
-                # return
-                shape_ok = True
+                    # check / create subject-specific brainprint_outdir
+                    brainprint_outdir = Path(
+                        os.path.join(argsDict["output_dir"], "brainprint", subject)
+                    )
 
-            #
-            except Exception as e:
-                distDict = {subject: []}
-                logging.error("ERROR: the shape module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                shape_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
+                    # run brainPrint
+                    evMat, evecMat, dstMat = brainprint.brainprint.run_brainprint(
+                        subjects_dir=argsDict["subjects_dir"],
+                        subject_id=subject,
+                        destination=brainprint_outdir,
+                        keep_eigenvectors=SHAPE_EVEC,
+                        skip_cortex=SHAPE_SKIPCORTEX,
+                        num=SHAPE_NUM,
+                        norm=SHAPE_NORM,
+                        reweight=SHAPE_REWEIGHT,
+                        asymmetry=SHAPE_ASYMMETRY,
+                    )
 
-            # store data
-            metricsDict[subject].update(distDict[subject])
+                    # get a subset of the brainprint results
+                    distDict = {subject: dstMat}
 
-            # store data
-            statusDict[subject].update({"shape": shape_ok})
+                    # return
+                    shape_status = 0
+
+                #
+                except Exception as e:
+                    distDict = {subject: []}
+                    logging.error("ERROR: the shape module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    shape_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                metricsDict[subject].update(distDict[subject])
+
+        else:
+            shape_status = 2
+
+        # store data
+        statusDict[subject].update({"shape": shape_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: screenshots
 
         if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Creating screenshots ...")
-                print("")
 
-                # check / create subject-specific screenshots_outdir
-                screenshots_outdir = os.path.join(
-                    argsDict["output_dir"], "screenshots", subject
-                )
-                if not os.path.isdir(screenshots_outdir):
-                    os.makedirs(screenshots_outdir)
-                outfile = os.path.join(screenshots_outdir, subject + ".png")
-
-                # re-initialize
-                screenshots_base_subj = list()
-                screenshots_overlay_subj = list()
-                screenshots_surf_subj = list()
-
-                # check screenshots_base
-                if argsDict["screenshots_base"][0] == "default":
-                    screenshots_base_subj = argsDict["screenshots_base"]
-                    logging.info("Using default for screenshot base image")
-                elif os.path.isfile(argsDict["screenshots_base"][0]):
-                    screenshots_base_subj = argsDict["screenshots_base"]
-                    logging.info(
-                        "Using "
-                        + screenshots_base_subj[0]
-                        + " as screenshot base image"
-                    )
-                elif os.path.isfile(
-                    os.path.join(
-                        argsDict["subjects_dir"],
-                        subject,
-                        "mri",
-                        argsDict["screenshots_base"][0],
-                    )
-                ):
-                    screenshots_base_subj = [
-                        os.path.join(
-                            argsDict["subjects_dir"],
-                            subject,
-                            "mri",
-                            argsDict["screenshots_base"][0],
-                        )
-                    ]
-                    logging.info(
-                        "Using "
-                        + screenshots_base_subj[0]
-                        + " as screenshot base image"
-                    )
+            screenshots_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["screenshots"] == 0 or statusDict[subject]["screenshots"] == 3:
+                        screenshots_status = 3
+                        logging.info("Skipping screenshots computation for " + subject)
+                    else:
+                        logging.info("Not skipping screenshots computation for " + subject + ", because statusfile did not indicate ok or skipped")
                 else:
-                    raise FileNotFoundError(
-                        "ERROR: cannot find the screenshots base file "
-                        + argsDict["screenshots_base"][0]
-                    )
+                    logging.info("Not skipping screenshots computation for " + subject + ", because no statusfile was found")
 
-                # check screenshots_overlay
-                if argsDict["screenshots_overlay"] is not None:
-                    if argsDict["screenshots_overlay"][0] == "default":
-                        screenshots_overlay_subj = argsDict["screenshots_overlay"]
-                        logging.info("Using default for screenshot overlay image")
-                    elif os.path.isfile(argsDict["screenshots_overlay"][0]):
-                        screenshots_overlay_subj = argsDict["screenshots_overlay"]
+            if screenshots_status == 0:
+
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Creating screenshots ...")
+                    print("")
+
+                    # check / create subject-specific screenshots_outdir
+                    screenshots_outdir = os.path.join(
+                        argsDict["output_dir"], "screenshots", subject
+                    )
+                    if not os.path.isdir(screenshots_outdir):
+                        os.makedirs(screenshots_outdir)
+                    outfile = os.path.join(screenshots_outdir, subject + ".png")
+
+                    # re-initialize
+                    screenshots_base_subj = list()
+                    screenshots_overlay_subj = list()
+                    screenshots_surf_subj = list()
+
+                    # check screenshots_base
+                    if argsDict["screenshots_base"][0] == "default":
+                        screenshots_base_subj = argsDict["screenshots_base"]
+                        logging.info("Using default for screenshot base image")
+                    elif os.path.isfile(argsDict["screenshots_base"][0]):
+                        screenshots_base_subj = argsDict["screenshots_base"]
                         logging.info(
                             "Using "
-                            + screenshots_overlay_subj[0]
-                            + " as screenshot overlay image"
+                            + screenshots_base_subj[0]
+                            + " as screenshot base image"
                         )
                     elif os.path.isfile(
                         os.path.join(
                             argsDict["subjects_dir"],
                             subject,
                             "mri",
-                            argsDict["screenshots_overlay"][0],
+                            argsDict["screenshots_base"][0],
                         )
                     ):
-                        screenshots_overlay_subj = [
+                        screenshots_base_subj = [
+                            os.path.join(
+                                argsDict["subjects_dir"],
+                                subject,
+                                "mri",
+                                argsDict["screenshots_base"][0],
+                            )
+                        ]
+                        logging.info(
+                            "Using "
+                            + screenshots_base_subj[0]
+                            + " as screenshot base image"
+                        )
+                    else:
+                        raise FileNotFoundError(
+                            "ERROR: cannot find the screenshots base file "
+                            + argsDict["screenshots_base"][0]
+                        )
+
+                    # check screenshots_overlay
+                    if argsDict["screenshots_overlay"] is not None:
+                        if argsDict["screenshots_overlay"][0] == "default":
+                            screenshots_overlay_subj = argsDict["screenshots_overlay"]
+                            logging.info("Using default for screenshot overlay image")
+                        elif os.path.isfile(argsDict["screenshots_overlay"][0]):
+                            screenshots_overlay_subj = argsDict["screenshots_overlay"]
+                            logging.info(
+                                "Using "
+                                + screenshots_overlay_subj[0]
+                                + " as screenshot overlay image"
+                            )
+                        elif os.path.isfile(
                             os.path.join(
                                 argsDict["subjects_dir"],
                                 subject,
                                 "mri",
                                 argsDict["screenshots_overlay"][0],
                             )
-                        ]
-                        logging.info(
-                            "Using "
-                            + screenshots_overlay_subj[0]
-                            + " as screenshot overlay image"
-                        )
-                    else:
-                        raise FileNotFoundError(
-                            "ERROR: cannot find the screenshots overlay file "
-                            + argsDict["screenshots_overlay"][0]
-                        )
-                else:
-                    screenshots_overlay_subj = argsDict["screenshots_overlay"]
-
-                # check screenshots_surf
-                if argsDict["screenshots_surf"] is not None:
-                    for screenshots_surf_i in argsDict["screenshots_surf"]:
-                        if screenshots_surf_i == "default":
-                            logging.info("Using default for screenshot surface")
-                        elif os.path.isfile(screenshots_surf_i):
-                            logging.info(
-                                "Using " + screenshots_surf_i + " as screenshot surface"
-                            )
-                        elif os.path.isfile(
-                            os.path.join(
-                                argsDict["subjects_dir"],
-                                subject,
-                                "surf",
-                                screenshots_surf_i,
-                            )
                         ):
-                            screenshots_surf_i = os.path.join(
-                                argsDict["subjects_dir"],
-                                subject,
-                                "surf",
-                                screenshots_surf_i,
-                            )
+                            screenshots_overlay_subj = [
+                                os.path.join(
+                                    argsDict["subjects_dir"],
+                                    subject,
+                                    "mri",
+                                    argsDict["screenshots_overlay"][0],
+                                )
+                            ]
                             logging.info(
-                                "Using " + screenshots_surf_i + " as screenshot surface"
+                                "Using "
+                                + screenshots_overlay_subj[0]
+                                + " as screenshot overlay image"
                             )
                         else:
                             raise FileNotFoundError(
-                                "ERROR: cannot find the screenshots surface file "
-                                + screenshots_surf_i
+                                "ERROR: cannot find the screenshots overlay file "
+                                + argsDict["screenshots_overlay"][0]
                             )
-                        screenshots_surf_subj.append(screenshots_surf_i)
+                    else:
+                        screenshots_overlay_subj = argsDict["screenshots_overlay"]
+
+                    # check screenshots_surf
+                    if argsDict["screenshots_surf"] is not None:
+                        for screenshots_surf_i in argsDict["screenshots_surf"]:
+                            if screenshots_surf_i == "default":
+                                logging.info("Using default for screenshot surface")
+                            elif os.path.isfile(screenshots_surf_i):
+                                logging.info(
+                                    "Using " + screenshots_surf_i + " as screenshot surface"
+                                )
+                            elif os.path.isfile(
+                                os.path.join(
+                                    argsDict["subjects_dir"],
+                                    subject,
+                                    "surf",
+                                    screenshots_surf_i,
+                                )
+                            ):
+                                screenshots_surf_i = os.path.join(
+                                    argsDict["subjects_dir"],
+                                    subject,
+                                    "surf",
+                                    screenshots_surf_i,
+                                )
+                                logging.info(
+                                    "Using " + screenshots_surf_i + " as screenshot surface"
+                                )
+                            else:
+                                raise FileNotFoundError(
+                                    "ERROR: cannot find the screenshots surface file "
+                                    + screenshots_surf_i
+                                )
+                            screenshots_surf_subj.append(screenshots_surf_i)
+                    else:
+                        screenshots_surf_subj = None
+
+                    # process
+                    createScreenshots(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTFILE=outfile,
+                        INTERACTIVE=False,
+                        BASE=screenshots_base_subj,
+                        OVERLAY=screenshots_overlay_subj,
+                        SURF=screenshots_surf_subj,
+                        VIEWS=argsDict["screenshots_views"],
+                        LAYOUT=argsDict["screenshots_layout"],
+                        ORIENTATION=argsDict["screenshots_orientation"],
+                    )
+
+                    # return
+                    screenshots_status = 0
+
+                #
+                except Exception as e:
+                    logging.error("ERROR: screenshots module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    screenshots_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                if screenshots_status == 0: # TODO: need outfile even for status 3
+                    imagesScreenshotsDict[subject] = outfile
                 else:
-                    screenshots_surf_subj = None
+                    imagesScreenshotsDict[subject] = []
 
-                # process
-                createScreenshots(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTFILE=outfile,
-                    INTERACTIVE=False,
-                    BASE=screenshots_base_subj,
-                    OVERLAY=screenshots_overlay_subj,
-                    SURF=screenshots_surf_subj,
-                    VIEWS=argsDict["screenshots_views"],
-                    LAYOUT=argsDict["screenshots_layout"],
-                    ORIENTATION=argsDict["screenshots_orientation"],
-                )
+        else:
+            screenshots_status = 2
 
-                # return
-                screenshots_ok = True
-
-            #
-            except Exception as e:
-                logging.error("ERROR: screenshots module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                screenshots_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
-
-            # store data
-            if screenshots_ok:
-                imagesScreenshotsDict[subject] = outfile
-            else:
-                imagesScreenshotsDict[subject] = []
-
-            # store data
-            statusDict[subject].update({"screenshots": screenshots_ok})
+        # store data
+        statusDict[subject].update({"screenshots": screenshots_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: surface plots
 
         if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Creating surface plots ...")
-                print("")
 
-                # check / create subject-specific surfaces_outdir
-                surfaces_outdir = os.path.join(
-                    argsDict["output_dir"], "surfaces", subject
-                )
-                if not os.path.isdir(surfaces_outdir):
-                    os.makedirs(surfaces_outdir)
+            surfaces_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["surfaces"] == 0 or statusDict[subject]["surfaces"] == 3:
+                        surfaces_status = 3
+                        logging.info("Skipping surfaces computation for " + subject)
+                    else:
+                        logging.info("Not skipping surfaces computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                else:
+                    logging.info("Not skipping surfaces computation for " + subject + ", because no statusfile was found")
 
-                # process
-                createSurfacePlots(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    SURFACES_OUTDIR=surfaces_outdir,
-                    VIEWS=argsDict["surfaces_views"],
-                    FASTSURFER=argsDict["fastsurfer"],
-                )
-                # return
-                surfaces_ok = True
+            if surfaces_status == 0:
 
-            #
-            except Exception as e:
-                logging.error("ERROR: surfaces module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                surfaces_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Creating surface plots ...")
+                    print("")
 
-            # store data
-            if surfaces_ok:
-                imagesSurfacesDict[subject] = surfaces_outdir
-            else:
-                imagesSurfacesDict[subject] = []
+                    # check / create subject-specific surfaces_outdir
+                    surfaces_outdir = os.path.join(
+                        argsDict["output_dir"], "surfaces", subject
+                    )
+                    if not os.path.isdir(surfaces_outdir):
+                        os.makedirs(surfaces_outdir)
 
-            # store data
-            statusDict[subject].update({"surfaces": surfaces_ok})
+                    # process
+                    createSurfacePlots(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        SURFACES_OUTDIR=surfaces_outdir,
+                        VIEWS=argsDict["surfaces_views"],
+                        FASTSURFER=argsDict["fastsurfer"],
+                    )
+                    # return
+                    surfaces_status = 0
+
+                #
+                except Exception as e:
+                    logging.error("ERROR: surfaces module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    surfaces_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                if surfaces_status == 0: # TODO: need outfile even for status 3
+                    imagesSurfacesDict[subject] = surfaces_outdir
+                else:
+                    imagesSurfacesDict[subject] = []
+
+        else:
+            surfaces_status = 2
+
+        # store data
+        statusDict[subject].update({"surfaces": surfaces_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: skullstrip
 
         if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Creating skullstrip evaluation  ...")
-                print("")
 
-                # check / create subject-specific skullstrip_outdir
-                skullstrip_outdir = os.path.join(
-                    argsDict["output_dir"], "skullstrip", subject
-                )
-                if not os.path.isdir(skullstrip_outdir):
-                    os.makedirs(skullstrip_outdir)
-                outfile = os.path.join(skullstrip_outdir, subject + ".png")
-
-                # re-initialize
-                skullstrip_base_subj = list()
-                skullstrip_overlay_subj = list()
-
-                # check skullstrip_base
-                if os.path.isfile(
-                    os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
-                ):
-                    skullstrip_base_subj = [
-                        os.path.join(
-                            argsDict["subjects_dir"], subject, "mri", "orig.mgz"
-                        )
-                    ]
-                    logging.info("Using " + "orig.mgz" + " as skullstrip base image")
+            skullstrip_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["skullstrip"] == 0 or statusDict[subject]["skullstrip"] == 3:
+                        skullstrip_status = 3
+                        logging.info("Skipping skullstrip computation for " + subject)
+                    else:
+                        logging.info("Not skipping skullstrip computation for " + subject + ", because statusfile did not indicate ok or skipped")
                 else:
-                    raise FileNotFoundError(
-                        "ERROR: cannot find the skullstrip base file " + "orig.mgz"
-                    )
+                    logging.info("Not skipping skullstrip computation for " + subject + ", because no statusfile was found")
 
-                # check skullstrip_overlay
-                if os.path.isfile(
-                    os.path.join(
-                        argsDict["subjects_dir"], subject, "mri", "brainmask.mgz"
+            if skullstrip_status == 0:
+
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Creating skullstrip evaluation  ...")
+                    print("")
+
+                    # check / create subject-specific skullstrip_outdir
+                    skullstrip_outdir = os.path.join(
+                        argsDict["output_dir"], "skullstrip", subject
                     )
-                ):
-                    skullstrip_overlay_subj = [
+                    if not os.path.isdir(skullstrip_outdir):
+                        os.makedirs(skullstrip_outdir)
+                    outfile = os.path.join(skullstrip_outdir, subject + ".png")
+
+                    # re-initialize
+                    skullstrip_base_subj = list()
+                    skullstrip_overlay_subj = list()
+
+                    # check skullstrip_base
+                    if os.path.isfile(
+                        os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
+                    ):
+                        skullstrip_base_subj = [
+                            os.path.join(
+                                argsDict["subjects_dir"], subject, "mri", "orig.mgz"
+                            )
+                        ]
+                        logging.info("Using " + "orig.mgz" + " as skullstrip base image")
+                    else:
+                        raise FileNotFoundError(
+                            "ERROR: cannot find the skullstrip base file " + "orig.mgz"
+                        )
+
+                    # check skullstrip_overlay
+                    if os.path.isfile(
                         os.path.join(
                             argsDict["subjects_dir"], subject, "mri", "brainmask.mgz"
                         )
-                    ]
-                    logging.info(
-                        "Using " + "brainmask.mgz" + " as skullstrip overlay image"
+                    ):
+                        skullstrip_overlay_subj = [
+                            os.path.join(
+                                argsDict["subjects_dir"], subject, "mri", "brainmask.mgz"
+                            )
+                        ]
+                        logging.info(
+                            "Using " + "brainmask.mgz" + " as skullstrip overlay image"
+                        )
+                    else:
+                        raise FileNotFoundError(
+                            "ERROR: cannot find the skullstrip overlay file "
+                            + "brainmask.mgz"
+                        )
+
+                    # process
+                    createScreenshots(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTFILE=outfile,
+                        INTERACTIVE=False,
+                        BASE=skullstrip_base_subj,
+                        OVERLAY=skullstrip_overlay_subj,
+                        SURF=None,
+                        VIEWS=argsDict["screenshots_views"],
+                        LAYOUT=argsDict["screenshots_layout"],
+                        BINARIZE=True,
+                        ORIENTATION=argsDict["screenshots_orientation"],
                     )
+
+                    # return
+                    skullstrip_status = 0
+
+                #
+                except Exception as e:
+                    logging.error("ERROR: skullstrip module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    skullstrip_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                if skullstrip_status == 0: # TODO: need outfile even for status 3
+                    imagesSkullstripDict[subject] = outfile
                 else:
-                    raise FileNotFoundError(
-                        "ERROR: cannot find the skullstrip overlay file "
-                        + "brainmask.mgz"
-                    )
+                    imagesSkullstripDict[subject] = []
 
-                # process
-                createScreenshots(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTFILE=outfile,
-                    INTERACTIVE=False,
-                    BASE=skullstrip_base_subj,
-                    OVERLAY=skullstrip_overlay_subj,
-                    SURF=None,
-                    VIEWS=argsDict["screenshots_views"],
-                    LAYOUT=argsDict["screenshots_layout"],
-                    BINARIZE=True,
-                    ORIENTATION=argsDict["screenshots_orientation"],
-                )
+        else:
+            skullstrip_status = 2
 
-                # return
-                skullstrip_ok = True
-
-            #
-            except Exception as e:
-                logging.error("ERROR: skullstrip module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                skullstrip_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
-
-            # store data
-            if skullstrip_ok:
-                imagesSkullstripDict[subject] = outfile
-            else:
-                imagesSkullstripDict[subject] = []
-
-            # store data
-            statusDict[subject].update({"skullstrip": skullstrip_ok})
+        # store data
+        statusDict[subject].update({"skullstrip": skullstrip_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: fornix
 
         if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Checking fornix segmentation ...")
-                print("")
 
-                # check / create subject-specific fornix_outdir
-                fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
-                if not os.path.isdir(fornix_outdir):
-                    os.makedirs(fornix_outdir)
-                fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
+            fornix_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["fornix"] == 0 or statusDict[subject]["fornix"] == 3:
+                        fornix_status = 3
+                        logging.info("Skipping fornix computation for " + subject)
+                    else:
+                        logging.info("Not skipping fornix computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                else:
+                    logging.info("Not skipping fornix computation for " + subject + ", because no statusfile was found")
 
-                # process
-                fornixShapeOutput = evaluateFornixSegmentation(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTPUT_DIR=fornix_outdir,
-                    CREATE_SCREENSHOT=FORNIX_SCREENSHOT,
-                    SCREENSHOTS_OUTFILE=fornix_screenshot_outfile,
-                    RUN_SHAPEDNA=FORNIX_SHAPE,
-                    N_EIGEN=FORNIX_N_EIGEN,
-                )
+            if fornix_status == 0:
 
-                # create a dictionary from fornix shape output
-                fornixShapeDict = {
-                    subject: dict(
-                        zip(
-                            map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
-                            fornixShapeOutput,
-                        )
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Checking fornix segmentation ...")
+                    print("")
+
+                    # check / create subject-specific fornix_outdir
+                    fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
+                    if not os.path.isdir(fornix_outdir):
+                        os.makedirs(fornix_outdir)
+                    fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
+
+                    # process
+                    fornixShapeOutput = evaluateFornixSegmentation(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTPUT_DIR=fornix_outdir,
+                        CREATE_SCREENSHOT=FORNIX_SCREENSHOT,
+                        SCREENSHOTS_OUTFILE=fornix_screenshot_outfile,
+                        RUN_SHAPEDNA=FORNIX_SHAPE,
+                        N_EIGEN=FORNIX_N_EIGEN,
                     )
-                }
 
-                # return
-                fornix_ok = True
-
-            #
-            except Exception as e:
-                fornixShapeDict = {
-                    subject: dict(
-                        zip(
-                            map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
-                            np.full(FORNIX_N_EIGEN, np.nan),
+                    # create a dictionary from fornix shape output
+                    fornixShapeDict = {
+                        subject: dict(
+                            zip(
+                                map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
+                                fornixShapeOutput,
+                            )
                         )
-                    )
-                }
-                logging.error("ERROR: fornix module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                fornix_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
+                    }
 
-            # store data
-            if FORNIX_SHAPE:
-                metricsDict[subject].update(fornixShapeDict[subject])
+                    # return
+                    fornix_status = 0
 
-            # store data
-            if FORNIX_SCREENSHOT and fornix_ok:
-                imagesFornixDict[subject] = fornix_screenshot_outfile
-            else:
-                imagesFornixDict[subject] = []
+                #
+                except Exception as e:
+                    fornixShapeDict = {
+                        subject: dict(
+                            zip(
+                                map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
+                                np.full(FORNIX_N_EIGEN, np.nan),
+                            )
+                        )
+                    }
+                    logging.error("ERROR: fornix module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    fornix_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
 
-            # store data
-            statusDict[subject].update({"fornix": fornix_ok})
+                # store data
+                if FORNIX_SHAPE:
+                    metricsDict[subject].update(fornixShapeDict[subject])
+
+                # store data
+                if FORNIX_SCREENSHOT and fornix_status == 0: # TODO: need outfile even for status 3
+                    imagesFornixDict[subject] = fornix_screenshot_outfile
+                else:
+                    imagesFornixDict[subject] = []
+
+        else:
+            fornix_status = 2
+
+        # store data
+        statusDict[subject].update({"fornix": fornix_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: hypothalamus
 
         if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Checking hypothalamus segmentation ...")
-                print("")
 
-                # check / create subject-specific hypothalamus_outdir
-                hypothalamus_outdir = os.path.join(
-                    argsDict["output_dir"], "hypothalamus", subject
-                )
-                if not os.path.isdir(hypothalamus_outdir):
-                    os.makedirs(hypothalamus_outdir)
-                hypothalamus_screenshot_outfile = os.path.join(
-                    hypothalamus_outdir, "hypothalamus.png"
-                )
+            hypothalamus_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["hypothalamus"] == 0 or statusDict[subject]["hypothalamus"] == 3:
+                        hypothalamus_status = 3
+                        logging.info("Skipping hypothalamus computation for " + subject)
+                    else:
+                        logging.info("Not skipping hypothalamus computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                else:
+                    logging.info("Not skipping hypothalamus computation for " + subject + ", because no statusfile was found")
 
-                # process
-                evaluateHypothalamicSegmentation(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTPUT_DIR=hypothalamus_outdir,
-                    CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT,
-                    SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile,
-                    SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
-                )
+            if hypothalamus_status == 0:
 
-                # return
-                hypothalamus_ok = True
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Checking hypothalamus segmentation ...")
+                    print("")
 
-            #
-            except Exception as e:
-                logging.error(
-                    "ERROR: hypothalamus module failed for subject " + subject
-                )
-                logging.error("Reason: " + str(e))
-                hypothalamus_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
+                    # check / create subject-specific hypothalamus_outdir
+                    hypothalamus_outdir = os.path.join(
+                        argsDict["output_dir"], "hypothalamus", subject
+                    )
+                    if not os.path.isdir(hypothalamus_outdir):
+                        os.makedirs(hypothalamus_outdir)
+                    hypothalamus_screenshot_outfile = os.path.join(
+                        hypothalamus_outdir, "hypothalamus.png"
+                    )
 
-            # store data
-            if HYPOTHALAMUS_SCREENSHOT and hypothalamus_ok:
-                imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
-            else:
-                imagesHypothalamusDict[subject] = []
+                    # process
+                    evaluateHypothalamicSegmentation(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTPUT_DIR=hypothalamus_outdir,
+                        CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT,
+                        SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile,
+                        SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                    )
 
-            # store data
-            statusDict[subject].update({"hypothalamus": hypothalamus_ok})
+                    # return
+                    hypothalamus_status = 0
+
+                #
+                except Exception as e:
+                    logging.error(
+                        "ERROR: hypothalamus module failed for subject " + subject
+                    )
+                    logging.error("Reason: " + str(e))
+                    hypothalamus_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                if HYPOTHALAMUS_SCREENSHOT and hypothalamus_status == 0: # TODO: need outfile even for status 3
+                    imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
+                else:
+                    imagesHypothalamusDict[subject] = []
+
+        else:
+            hypothalamus_status = 2
+
+        # store data
+        statusDict[subject].update({"hypothalamus": hypothalamus_status})
 
         # ----------------------------------------------------------------------
         # run optional modules: hippocampus
 
         if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
-            #
-            try:
-                # message
-                print("-----------------------------")
-                print("Checking hippocampus segmentation ...")
-                print("")
 
-                # check / create subject-specific hippocampus_outdir
-                hippocampus_outdir = os.path.join(
-                    argsDict["output_dir"], "hippocampus", subject
-                )
-                if not os.path.isdir(hippocampus_outdir):
-                    os.makedirs(hippocampus_outdir)
-                hippocampus_screenshot_outfile_left = os.path.join(
-                    hippocampus_outdir, "hippocampus-left.png"
-                )
-                hippocampus_screenshot_outfile_right = os.path.join(
-                    hippocampus_outdir, "hippocampus-right.png"
-                )
+            hippocampus_status = 0
+            if argsDict["skip_existing"] is True:
+                if subject in statusDict.keys():
+                    if statusDict[subject]["hippocampus"] == 0 or statusDict[subject]["hippocampus"] == 3:
+                        hippocampus_status = 3
+                        logging.info("Skipping hippocampus computation for " + subject)
+                    else:
+                        logging.info("Not skipping hippocampus computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                else:
+                    logging.info("Not skipping hippocampus computation for " + subject + ", because no statusfile was found")
 
-                # process left
-                evaluateHippocampalSegmentation(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTPUT_DIR=hippocampus_outdir,
-                    CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
-                    SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left,
-                    SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
-                    HEMI="lh",
-                    LABEL=argsDict["hippocampus_label"],
-                )
-                evaluateHippocampalSegmentation(
-                    SUBJECT=subject,
-                    SUBJECTS_DIR=argsDict["subjects_dir"],
-                    OUTPUT_DIR=hippocampus_outdir,
-                    CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
-                    SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right,
-                    SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
-                    HEMI="rh",
-                    LABEL=argsDict["hippocampus_label"],
-                )
+            if hippocampus_status == 0:
 
-                # return
-                hippocampus_ok = True
+                #
+                try:
+                    # message
+                    print("-----------------------------")
+                    print("Checking hippocampus segmentation ...")
+                    print("")
 
-            #
-            except Exception as e:
-                logging.error("ERROR: hippocampus module failed for subject " + subject)
-                logging.error("Reason: " + str(e))
-                hippocampus_ok = False
-                if argsDict["exit_on_error"] is True:
-                    raise
+                    # check / create subject-specific hippocampus_outdir
+                    hippocampus_outdir = os.path.join(
+                        argsDict["output_dir"], "hippocampus", subject
+                    )
+                    if not os.path.isdir(hippocampus_outdir):
+                        os.makedirs(hippocampus_outdir)
+                    hippocampus_screenshot_outfile_left = os.path.join(
+                        hippocampus_outdir, "hippocampus-left.png"
+                    )
+                    hippocampus_screenshot_outfile_right = os.path.join(
+                        hippocampus_outdir, "hippocampus-right.png"
+                    )
 
-            # store data
-            if HIPPOCAMPUS_SCREENSHOT and hippocampus_ok:
-                imagesHippocampusLeftDict[subject] = hippocampus_screenshot_outfile_left
-                imagesHippocampusRightDict[
-                    subject
-                ] = hippocampus_screenshot_outfile_right
-            else:
-                imagesHippocampusLeftDict[subject] = []
-                imagesHippocampusRightDict[subject] = []
+                    # process left
+                    evaluateHippocampalSegmentation(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTPUT_DIR=hippocampus_outdir,
+                        CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
+                        SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left,
+                        SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                        HEMI="lh",
+                        LABEL=argsDict["hippocampus_label"],
+                    )
+                    evaluateHippocampalSegmentation(
+                        SUBJECT=subject,
+                        SUBJECTS_DIR=argsDict["subjects_dir"],
+                        OUTPUT_DIR=hippocampus_outdir,
+                        CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
+                        SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right,
+                        SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                        HEMI="rh",
+                        LABEL=argsDict["hippocampus_label"],
+                    )
 
-            # store data
-            statusDict[subject].update({"hippocampus": hippocampus_ok})
+                    # return
+                    hippocampus_status = 0
+
+                #
+                except Exception as e:
+                    logging.error("ERROR: hippocampus module failed for subject " + subject)
+                    logging.error("Reason: " + str(e))
+                    hippocampus_status = 1
+                    if argsDict["exit_on_error"] is True:
+                        raise
+
+                # store data
+                if HIPPOCAMPUS_SCREENSHOT and hippocampus_status == 0: # TODO: need outfile even for status 3
+                    imagesHippocampusLeftDict[subject] = hippocampus_screenshot_outfile_left
+                    imagesHippocampusRightDict[
+                        subject
+                    ] = hippocampus_screenshot_outfile_right
+                else:
+                    imagesHippocampusLeftDict[subject] = []
+                    imagesHippocampusRightDict[subject] = []
+
+        else:
+            hippocampus_status = 2
+
+        # store data
+        statusDict[subject].update({"hippocampus": hippocampus_status})
+
+        # --------------------------------------------------------------------------
+        # write statusfile
+        # 0: OK
+        # 1: Failed
+        # 2: Not done
+        # 3: Skipped
+        pd.DataFrame(statusDict[subject], index=[subject]).T.to_csv(os.path.join(argsDict["output_dir"], "status", subject, "status.txt"), header=False, sep=":")
 
         # --------------------------------------------------------------------------
         # message
@@ -2315,7 +2496,7 @@ def _do_fsqc(argsDict):
                 )
 
             # return
-            # outlier_ok = True
+            # outlier_status = 0
 
         #
         except Exception as e:
@@ -2880,6 +3061,32 @@ def _start_logging(argsDict):
             logging.error("Reason: " + str(e))
             raise
 
+    # check if mandatory status subdirectory directory exists or can be created
+    if os.path.isdir(os.path.join(argsDict["output_dir"], "status")):
+        logging.info("Found status directory " + os.path.join(argsDict["output_dir"], "status"))
+    else:
+        try:
+            os.mkdir(os.path.join(argsDict["output_dir"], "status"))
+        except Exception as e:
+            logging.error(
+                "ERROR: cannot create status directory " + os.path.join(argsDict["output_dir"], "status")
+            )
+            logging.error("Reason: " + str(e))
+            raise
+
+    # check if mandatory metrics subdirectory directory exists or can be created
+    if os.path.isdir(os.path.join(argsDict["output_dir"], "metrics")):
+        logging.info("Found metrics directory " + os.path.join(argsDict["output_dir"], "metrics"))
+    else:
+        try:
+            os.mkdir(os.path.join(argsDict["output_dir"], "metrics"))
+        except Exception as e:
+            logging.error(
+                "ERROR: cannot create metrics directory " + os.path.join(argsDict["output_dir"], "metrics")
+            )
+            logging.error("Reason: " + str(e))
+            raise
+
     # check if logfile can be written in output directory
     try:
         testfile = tempfile.TemporaryFile(dir=argsDict["output_dir"])
@@ -2944,6 +3151,7 @@ def run_fsqc(
     outlier_table=None,
     fastsurfer=False,
     exit_on_error=False,
+    skip_existing=False,
     logfile=None,
 ):
     """
@@ -3026,6 +3234,9 @@ def run_fsqc(
     exit_on_error : bool, default: False
         Exit on error. If False, a warning is thrown and the analysis
         continues.
+    skip_existing : bool, default: False
+        Skip processing for a given case if output already exists, even with
+        possibly different parameters or settings.
     logfile : str, default: None
         Specify a custom location for the logfile. Default location is the
         output directory.
@@ -3072,6 +3283,7 @@ def run_fsqc(
         argsDict["outlier_table"] = outlier_table
         argsDict["fastsurfer"] = fastsurfer
         argsDict["exit_on_error"] = exit_on_error
+        argsDict["skip_existing"] = skip_existing
         argsDict["logfile"] = logfile
 
     elif (argsDict is not None) and (
