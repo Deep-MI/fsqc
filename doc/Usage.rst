@@ -91,6 +91,9 @@ As a Command Line Tool
     --exit-on-error
         Terminate the program when encountering an error; otherwise, try to continue with the next module or case
 
+    --skip-existing
+        skips processing for a given case if output already exists, even with possibly different parameters or settings
+
     Getting Help:
     -------------
     -h, --help
