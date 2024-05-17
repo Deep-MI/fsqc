@@ -1601,9 +1601,9 @@ def _do_fsqc(argsDict):
                     metrics_status = 3
                     logging.info("Skipping metrics computation for " + subject)
                 else:
-                    logging.info("Not skipping metrics computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                    logging.info("Not skipping metrics computation for " + subject + ": statusfile did not indicate ok or skipped")
             else:
-                logging.info("Not skipping metrics computation for " + subject + ", because no statusfile was found")
+                logging.info("Not skipping metrics computation for " + subject + ": no statusfile was found")
 
         if metrics_status == 0:
 
@@ -1753,9 +1753,9 @@ def _do_fsqc(argsDict):
                         shape_status = 3
                         logging.info("Skipping shape computation for " + subject)
                     else:
-                        logging.info("Not skipping shape computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping shape computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping shape computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping shape computation for " + subject + ": no statusfile was found")
 
             if shape_status == 0:
 
@@ -1805,7 +1805,7 @@ def _do_fsqc(argsDict):
                         raise
 
                 # store data
-                metricsDict[subject].update(distDict[subject])
+                metricsDict[subject].update(distDict[subject]) # TODO: what if shape_status==3? write to and read from disk?
 
         else:
             shape_status = 2
@@ -1818,6 +1818,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
 
+            # determine status
             screenshots_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -1825,10 +1826,19 @@ def _do_fsqc(argsDict):
                         screenshots_status = 3
                         logging.info("Skipping screenshots computation for " + subject)
                     else:
-                        logging.info("Not skipping screenshots computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping screenshots computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping screenshots computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping screenshots computation for " + subject + ": no statusfile was found")
 
+            # check / create subject-specific screenshots_outdir
+            screenshots_outdir = os.path.join(
+                argsDict["output_dir"], "screenshots", subject
+            )
+            if not os.path.isdir(screenshots_outdir):
+                os.makedirs(screenshots_outdir)
+            outfile = os.path.join(screenshots_outdir, subject + ".png")
+
+            #
             if screenshots_status == 0:
 
                 #
@@ -1837,14 +1847,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Creating screenshots ...")
                     print("")
-
-                    # check / create subject-specific screenshots_outdir
-                    screenshots_outdir = os.path.join(
-                        argsDict["output_dir"], "screenshots", subject
-                    )
-                    if not os.path.isdir(screenshots_outdir):
-                        os.makedirs(screenshots_outdir)
-                    outfile = os.path.join(screenshots_outdir, subject + ".png")
 
                     # re-initialize
                     screenshots_base_subj = list()
@@ -1990,11 +1992,11 @@ def _do_fsqc(argsDict):
                     if argsDict["exit_on_error"] is True:
                         raise
 
-                # store data
-                if screenshots_status == 0: # TODO: need outfile even for status 3
-                    imagesScreenshotsDict[subject] = outfile
-                else:
-                    imagesScreenshotsDict[subject] = []
+            # store data
+            if screenshots_status == 0 or screenshots_status == 3:
+                imagesScreenshotsDict[subject] = outfile
+            else:
+                imagesScreenshotsDict[subject] = []
 
         else:
             screenshots_status = 2
@@ -2007,6 +2009,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
 
+            # determine status
             surfaces_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -2014,10 +2017,18 @@ def _do_fsqc(argsDict):
                         surfaces_status = 3
                         logging.info("Skipping surfaces computation for " + subject)
                     else:
-                        logging.info("Not skipping surfaces computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping surfaces computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping surfaces computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping surfaces computation for " + subject + ": no statusfile was found")
 
+            # check / create subject-specific surfaces_outdir
+            surfaces_outdir = os.path.join(
+                argsDict["output_dir"], "surfaces", subject
+            )
+            if not os.path.isdir(surfaces_outdir):
+                os.makedirs(surfaces_outdir)
+
+            #
             if surfaces_status == 0:
 
                 #
@@ -2026,13 +2037,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Creating surface plots ...")
                     print("")
-
-                    # check / create subject-specific surfaces_outdir
-                    surfaces_outdir = os.path.join(
-                        argsDict["output_dir"], "surfaces", subject
-                    )
-                    if not os.path.isdir(surfaces_outdir):
-                        os.makedirs(surfaces_outdir)
 
                     # process
                     createSurfacePlots(
@@ -2053,11 +2057,11 @@ def _do_fsqc(argsDict):
                     if argsDict["exit_on_error"] is True:
                         raise
 
-                # store data
-                if surfaces_status == 0: # TODO: need outfile even for status 3
-                    imagesSurfacesDict[subject] = surfaces_outdir
-                else:
-                    imagesSurfacesDict[subject] = []
+            # store data
+            if surfaces_status == 0 or surfaces_status == 3:
+                imagesSurfacesDict[subject] = surfaces_outdir
+            else:
+                imagesSurfacesDict[subject] = []
 
         else:
             surfaces_status = 2
@@ -2070,6 +2074,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
 
+            # determine status
             skullstrip_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -2077,10 +2082,20 @@ def _do_fsqc(argsDict):
                         skullstrip_status = 3
                         logging.info("Skipping skullstrip computation for " + subject)
                     else:
-                        logging.info("Not skipping skullstrip computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping skullstrip computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping skullstrip computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping skullstrip computation for " + subject + ": no statusfile was found")
 
+
+            # check / create subject-specific skullstrip_outdir
+            skullstrip_outdir = os.path.join(
+                argsDict["output_dir"], "skullstrip", subject
+            )
+            if not os.path.isdir(skullstrip_outdir):
+                os.makedirs(skullstrip_outdir)
+            outfile = os.path.join(skullstrip_outdir, subject + ".png")
+
+            #
             if skullstrip_status == 0:
 
                 #
@@ -2089,14 +2104,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Creating skullstrip evaluation  ...")
                     print("")
-
-                    # check / create subject-specific skullstrip_outdir
-                    skullstrip_outdir = os.path.join(
-                        argsDict["output_dir"], "skullstrip", subject
-                    )
-                    if not os.path.isdir(skullstrip_outdir):
-                        os.makedirs(skullstrip_outdir)
-                    outfile = os.path.join(skullstrip_outdir, subject + ".png")
 
                     # re-initialize
                     skullstrip_base_subj = list()
@@ -2163,11 +2170,11 @@ def _do_fsqc(argsDict):
                     if argsDict["exit_on_error"] is True:
                         raise
 
-                # store data
-                if skullstrip_status == 0: # TODO: need outfile even for status 3
-                    imagesSkullstripDict[subject] = outfile
-                else:
-                    imagesSkullstripDict[subject] = []
+            # store data
+            if skullstrip_status == 0 or skullstrip_status == 3:
+                imagesSkullstripDict[subject] = outfile
+            else:
+                imagesSkullstripDict[subject] = []
 
         else:
             skullstrip_status = 2
@@ -2180,6 +2187,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
 
+            # determine status
             fornix_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -2187,10 +2195,17 @@ def _do_fsqc(argsDict):
                         fornix_status = 3
                         logging.info("Skipping fornix computation for " + subject)
                     else:
-                        logging.info("Not skipping fornix computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping fornix computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping fornix computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping fornix computation for " + subject + ": no statusfile was found")
 
+            # check / create subject-specific fornix_outdir
+            fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
+            if not os.path.isdir(fornix_outdir):
+                os.makedirs(fornix_outdir)
+            fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
+
+            #
             if fornix_status == 0:
 
                 #
@@ -2199,12 +2214,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Checking fornix segmentation ...")
                     print("")
-
-                    # check / create subject-specific fornix_outdir
-                    fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
-                    if not os.path.isdir(fornix_outdir):
-                        os.makedirs(fornix_outdir)
-                    fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
 
                     # process
                     fornixShapeOutput = evaluateFornixSegmentation(
@@ -2248,13 +2257,13 @@ def _do_fsqc(argsDict):
 
                 # store data
                 if FORNIX_SHAPE:
-                    metricsDict[subject].update(fornixShapeDict[subject])
+                    metricsDict[subject].update(fornixShapeDict[subject]) # TODO: what if fornix_status==3? write to and read from disk?
 
-                # store data
-                if FORNIX_SCREENSHOT and fornix_status == 0: # TODO: need outfile even for status 3
-                    imagesFornixDict[subject] = fornix_screenshot_outfile
-                else:
-                    imagesFornixDict[subject] = []
+            # store data
+            if FORNIX_SCREENSHOT and (fornix_status == 0 or fornix_status == 3):
+                imagesFornixDict[subject] = fornix_screenshot_outfile
+            else:
+                imagesFornixDict[subject] = []
 
         else:
             fornix_status = 2
@@ -2267,6 +2276,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
 
+            # determine status
             hypothalamus_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -2274,10 +2284,21 @@ def _do_fsqc(argsDict):
                         hypothalamus_status = 3
                         logging.info("Skipping hypothalamus computation for " + subject)
                     else:
-                        logging.info("Not skipping hypothalamus computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping hypothalamus computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping hypothalamus computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping hypothalamus computation for " + subject + ": no statusfile was found")
 
+            # check / create subject-specific hypothalamus_outdir
+            hypothalamus_outdir = os.path.join(
+                argsDict["output_dir"], "hypothalamus", subject
+            )
+            if not os.path.isdir(hypothalamus_outdir):
+                os.makedirs(hypothalamus_outdir)
+            hypothalamus_screenshot_outfile = os.path.join(
+                hypothalamus_outdir, "hypothalamus.png"
+            )
+
+            #
             if hypothalamus_status == 0:
 
                 #
@@ -2286,16 +2307,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Checking hypothalamus segmentation ...")
                     print("")
-
-                    # check / create subject-specific hypothalamus_outdir
-                    hypothalamus_outdir = os.path.join(
-                        argsDict["output_dir"], "hypothalamus", subject
-                    )
-                    if not os.path.isdir(hypothalamus_outdir):
-                        os.makedirs(hypothalamus_outdir)
-                    hypothalamus_screenshot_outfile = os.path.join(
-                        hypothalamus_outdir, "hypothalamus.png"
-                    )
 
                     # process
                     evaluateHypothalamicSegmentation(
@@ -2320,11 +2331,11 @@ def _do_fsqc(argsDict):
                     if argsDict["exit_on_error"] is True:
                         raise
 
-                # store data
-                if HYPOTHALAMUS_SCREENSHOT and hypothalamus_status == 0: # TODO: need outfile even for status 3
-                    imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
-                else:
-                    imagesHypothalamusDict[subject] = []
+            # store data
+            if HYPOTHALAMUS_SCREENSHOT and (hypothalamus_status == 0 or hypothalamus_status == 3):
+                imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
+            else:
+                imagesHypothalamusDict[subject] = []
 
         else:
             hypothalamus_status = 2
@@ -2337,6 +2348,7 @@ def _do_fsqc(argsDict):
 
         if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
 
+            # determine status
             hippocampus_status = 0
             if argsDict["skip_existing"] is True:
                 if subject in statusDict.keys():
@@ -2344,10 +2356,24 @@ def _do_fsqc(argsDict):
                         hippocampus_status = 3
                         logging.info("Skipping hippocampus computation for " + subject)
                     else:
-                        logging.info("Not skipping hippocampus computation for " + subject + ", because statusfile did not indicate ok or skipped")
+                        logging.info("Not skipping hippocampus computation for " + subject + ": statusfile did not indicate ok or skipped")
                 else:
-                    logging.info("Not skipping hippocampus computation for " + subject + ", because no statusfile was found")
+                    logging.info("Not skipping hippocampus computation for " + subject + ": no statusfile was found")
 
+            # check / create subject-specific hippocampus_outdir
+            hippocampus_outdir = os.path.join(
+                argsDict["output_dir"], "hippocampus", subject
+            )
+            if not os.path.isdir(hippocampus_outdir):
+                os.makedirs(hippocampus_outdir)
+            hippocampus_screenshot_outfile_left = os.path.join(
+                hippocampus_outdir, "hippocampus-left.png"
+            )
+            hippocampus_screenshot_outfile_right = os.path.join(
+                hippocampus_outdir, "hippocampus-right.png"
+            )
+
+            #
             if hippocampus_status == 0:
 
                 #
@@ -2356,19 +2382,6 @@ def _do_fsqc(argsDict):
                     print("-----------------------------")
                     print("Checking hippocampus segmentation ...")
                     print("")
-
-                    # check / create subject-specific hippocampus_outdir
-                    hippocampus_outdir = os.path.join(
-                        argsDict["output_dir"], "hippocampus", subject
-                    )
-                    if not os.path.isdir(hippocampus_outdir):
-                        os.makedirs(hippocampus_outdir)
-                    hippocampus_screenshot_outfile_left = os.path.join(
-                        hippocampus_outdir, "hippocampus-left.png"
-                    )
-                    hippocampus_screenshot_outfile_right = os.path.join(
-                        hippocampus_outdir, "hippocampus-right.png"
-                    )
 
                     # process left
                     evaluateHippocampalSegmentation(
@@ -2403,15 +2416,15 @@ def _do_fsqc(argsDict):
                     if argsDict["exit_on_error"] is True:
                         raise
 
-                # store data
-                if HIPPOCAMPUS_SCREENSHOT and hippocampus_status == 0: # TODO: need outfile even for status 3
-                    imagesHippocampusLeftDict[subject] = hippocampus_screenshot_outfile_left
-                    imagesHippocampusRightDict[
-                        subject
-                    ] = hippocampus_screenshot_outfile_right
-                else:
-                    imagesHippocampusLeftDict[subject] = []
-                    imagesHippocampusRightDict[subject] = []
+            # store data
+            if HIPPOCAMPUS_SCREENSHOT and (hippocampus_status == 0 or hippocampus_status == 3):
+                imagesHippocampusLeftDict[subject] = hippocampus_screenshot_outfile_left
+                imagesHippocampusRightDict[
+                    subject
+                ] = hippocampus_screenshot_outfile_right
+            else:
+                imagesHippocampusLeftDict[subject] = []
+                imagesHippocampusRightDict[subject] = []
 
         else:
             hippocampus_status = 2
