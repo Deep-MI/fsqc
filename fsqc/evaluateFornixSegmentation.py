@@ -13,6 +13,7 @@ def evaluateFornixSegmentation(
     SCREENSHOTS_OUTFILE=[],
     RUN_SHAPEDNA=True,
     N_EIGEN=15,
+    WRITE_EIGEN=True,
 ):
     """
     Evaluate potential missegmentation of the fornix.
@@ -46,6 +47,8 @@ def evaluateFornixSegmentation(
         Whether to run shape analysis.
     N_EIGEN : int, optional (default: 30)
         Number of Eigenvalues for shape analysis.
+    WRITE_EIGEN : bool, optional (default: True)
+        Write csv file with eigenvalues (or nans) to output directory.
 
     Returns
     -------
@@ -61,6 +64,7 @@ def evaluateFornixSegmentation(
 
     import nibabel as nb
     import numpy as np
+    import pandas as pd
 
     from fsqc.createScreenshots import createScreenshots
     from fsqc.fsqcUtils import applyTransform, binarizeImage
@@ -187,10 +191,17 @@ def evaluateFornixSegmentation(
         d["Eigenvectors"] = evec
 
         # return
-        return d["Eigenvalues"]
+        out = d["Eigenvalues"]
 
     else:
         out = np.empty(N_EIGEN)
         out[:] = np.nan
 
-        return out
+    # write output
+    if WRITE_EIGEN is True:
+        pd.DataFrame(out).transpose().to_csv(os.path.join(OUTPUT_DIR, SUBJECT + ".fornix.csv"), na_rep="NA", index=False)
+
+    # --------------------------------------------------------------------------
+    # return
+
+    return out
