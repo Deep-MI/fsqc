@@ -94,6 +94,12 @@ As a Command Line Tool
     --skip-existing
         skips processing for a given case if output already exists, even with possibly different parameters or settings
 
+    --no-group
+        run script in subject-level mode. will compute individual files and statistics, but not create group-level summaries.
+
+    --group-only
+        run script in group mode. will create group-level summaries from existing inputs. needs to be run on output directory with already existing results.
+
     Getting Help:
     -------------
     -h, --help
