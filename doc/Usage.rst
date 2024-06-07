@@ -6,8 +6,8 @@ As a Command Line Tool
 
 .. code-block:: sh
 
-    run_fsqc 
-    --subjects_dir <directory> 
+    run_fsqc
+    --subjects_dir <directory>
     --output_dir <directory>
     [--subjects SubjectID]
     [--subjects-file <file>] [--screenshots]
@@ -22,7 +22,7 @@ As a Command Line Tool
     Required Arguments:
     -------------------
     --subjects_dir <directory>
-        Subjects directory with a set of Freesurfer- or 
+        Subjects directory with a set of Freesurfer- or
         Fastsurfer-processed individual datasets.
 
     --output_dir <directory>
@@ -111,34 +111,34 @@ As a Command Line Tool
     ---------------
     --screenshots_base <image>
         Filename of an image that should be used instead of
-        norm.mgz as the base image for the screenshots. Can be 
-        an individual file (which would not be appropriate for 
-        multi-subject analysis) or can be a file without 
+        norm.mgz as the base image for the screenshots. Can be
+        an individual file (which would not be appropriate for
+        multi-subject analysis) or can be a file without
         pathname and with the same filename across subjects within the 'mri'
-        subdirectory of an individual FreeSurfer results directory 
+        subdirectory of an individual FreeSurfer results directory
         (which would be appropriate for multi-subject analysis).
 
     --screenshots_overlay <image>
-        Path to an image that should be used instead of aseg.mgz 
-        as the overlay image for the screenshots can also be none. 
-        Can be an individual file (which would not be appropriate 
+        Path to an image that should be used instead of aseg.mgz
+        as the overlay image for the screenshots can also be none.
+        Can be an individual file (which would not be appropriate
         for multi-subject analysis) or can be a file without pathname
         and with the same filename across subjects within the 'mri' subdirectory
-        of an individual FreeSurfer results directory 
+        of an individual FreeSurfer results directory
         (which would be appropriate for multi-subject analysis).
 
     --screenshots_surf <surf> [<surf> ...]
-        One or more surface files that should be used instead of 
+        One or more surface files that should be used instead of
         [lr]h.white and [lr]h.pial; can also be none.
-        Can be one or more individual file(s) (which would not 
+        Can be one or more individual file(s) (which would not
         be appropriate for multi-subject analysis) or
-        can be a (list of) file(s) without pathname and with the same 
+        can be a (list of) file(s) without pathname and with the same
         filename across subjects within the 'surf'
-        subdirectory of an individual FreeSurfer results directory 
+        subdirectory of an individual FreeSurfer results directory
         (which would be appropriate for multi-subject analysis).
 
     --screenshots_views <view> [<view> ...]
-        One or more views to use for the screenshots in the form of 
+        One or more views to use for the screenshots in the form of
         x=<numeric> y=<numeric> and/or z=<numeric>.
         Order does not matter. Default views are x=-10 x=10 y=0 z=0.
 

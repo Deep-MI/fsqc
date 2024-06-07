@@ -264,12 +264,17 @@ optional arguments:
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
+  --no_group             run script in subject-level mode. will compute
+                         individual files and statistics, but not create
+                         group-level summaries.
+  --group-only           run script in group mode. will create group-level
+                         summaries from existing inputs
   --exit-on-error        terminate the program when encountering an error;
                          otherwise, try to continue with the next module or
                          case
   --skip-existing        skips processing for a given case if output
-                         already exists, even with possibly different 
-                         parameters or settings.                         
+                         already exists, even with possibly different
+                         parameters or settings
 
 getting help:
   -h, --help            display this help message and exit
