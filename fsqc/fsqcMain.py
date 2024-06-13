@@ -863,6 +863,12 @@ def _check_arguments(argsDict):
             "ERROR: Use either --no-group or --group-only (but not both)."
         )
 
+    # skip-existing cannot be used with group-only
+    if argsDict["skip_existing"] is True and argsDict["group_only"] is True:
+        raise ValueError(
+            "ERROR: Use either --skip_existing or --group-only (but not both)."
+        )
+
     # check if screenshots subdirectory exists or can be created and is writable
     if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
         if os.path.isdir(os.path.join(argsDict["output_dir"], "screenshots")):
@@ -1616,6 +1622,7 @@ def _do_fsqc(argsDict):
                 os.makedirs(status_outdir)
 
             # if it already exists, read statusfile
+            status_dict = dict()
             if os.path.exists(os.path.join(status_outdir, "status.txt")):
                 status_dict = dict(pd.read_csv(os.path.join(status_outdir, "status.txt"), sep=":", header=None, comment="#", names=["module", "status"], dtype=str).to_dict(orient="split")['data'])
                 for x in ['metrics', 'shape', 'screenshots', 'surfaces', 'skullstrip', 'fornix', 'hypothalamus', 'hippocampus']:
@@ -1639,7 +1646,7 @@ def _do_fsqc(argsDict):
             #
             metrics_status = 0
             if argsDict["skip_existing"] is True:
-                if subject in statusDict.keys():
+                if len(status_dict)>0:
                     if statusDict[subject]["metrics"] == 0 or statusDict[subject]["metrics"] == 3:
                         metrics_status = 3
                         logging.info("Skipping metrics computation for " + subject)
@@ -1778,6 +1785,9 @@ def _do_fsqc(argsDict):
                 # write to file
                 pd.DataFrame(metricsDict[subject], index=[subject]).to_csv(os.path.join(argsDict["output_dir"], "metrics", subject, "metrics.csv"))
 
+            elif metrics_status == 3:
+                metricsDict[subject] = metricsDict[subject] | pd.read_csv(os.path.join(metrics_outdir, "metrics.csv"), dtype={'Unnamed: 0':str, 'subject':str}).set_index('Unnamed: 0').to_dict(orient="index")[subject]
+
             # note that we cannot "not do" the metrics module, only skipping is possible.
             # hence no metrics_status == 2 possible.
 
@@ -1792,7 +1802,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 shape_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["shape"] == 0 or statusDict[subject]["shape"] == 3:
                             shape_status = 3
                             logging.info("Skipping shape computation for " + subject)
@@ -1870,7 +1880,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 screenshots_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["screenshots"] == 0 or statusDict[subject]["screenshots"] == 3:
                             screenshots_status = 3
                             logging.info("Skipping screenshots computation for " + subject)
@@ -2061,7 +2071,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 surfaces_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["surfaces"] == 0 or statusDict[subject]["surfaces"] == 3:
                             surfaces_status = 3
                             logging.info("Skipping surfaces computation for " + subject)
@@ -2126,7 +2136,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 skullstrip_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["skullstrip"] == 0 or statusDict[subject]["skullstrip"] == 3:
                             skullstrip_status = 3
                             logging.info("Skipping skullstrip computation for " + subject)
@@ -2239,7 +2249,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 fornix_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["fornix"] == 0 or statusDict[subject]["fornix"] == 3:
                             fornix_status = 3
                             logging.info("Skipping fornix computation for " + subject)
@@ -2337,7 +2347,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 hypothalamus_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["hypothalamus"] == 0 or statusDict[subject]["hypothalamus"] == 3:
                             hypothalamus_status = 3
                             logging.info("Skipping hypothalamus computation for " + subject)
@@ -2409,7 +2419,7 @@ def _do_fsqc(argsDict):
                 # determine status
                 hippocampus_status = 0
                 if argsDict["skip_existing"] is True:
-                    if subject in statusDict.keys():
+                    if len(status_dict)>0:
                         if statusDict[subject]["hippocampus"] == 0 or statusDict[subject]["hippocampus"] == 3:
                             hippocampus_status = 3
                             logging.info("Skipping hippocampus computation for " + subject)
@@ -2510,7 +2520,7 @@ def _do_fsqc(argsDict):
     # --------------------------------------------------------------------------
     # run optional modules: outlier detection
 
-    if argsDict["no_group"] is False: # todo: what input is required for group_only?
+    if argsDict["no_group"] is False:
 
         #
         if argsDict["outlier"] is True:
@@ -2598,7 +2608,7 @@ def _do_fsqc(argsDict):
             # store data
             for subject in argsDict["subjects"]:
                 if argsDict["group_only"] is True:
-                    metricsDict.update({subject: {"subject": subject}})                
+                    metricsDict.update({subject: {"subject": subject}})
                 metricsDict[subject].update(outlierDict[subject])
 
     # --------------------------------------------------------------------------
@@ -2638,7 +2648,9 @@ def _do_fsqc(argsDict):
             ]
         )
 
-        # check if data needs to be read from disk
+        # check if data needs to be read from disk; note that skip-existing is
+        # mutually exclusive with group-only; in case of skip-existing, data
+        # that is already present will have been read earlier already
         if argsDict['group_only'] is True:
             for subject in argsDict["subjects"]:
                 # metricsDict may (or not) be populated from previous outlier module
