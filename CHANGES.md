@@ -5,8 +5,8 @@ This is a document summarizing the changes that are associated with (major) upda
 
 ## Version 2.1.0
 
-- Added group-only, no-group options
-- Added status file and skip-existing option
+- Added group-only, no-group options to allow for running the scripts at the individual or group level only. Default is to run at both levels.
+- Added status file and skip-existing option to allow for incremental updates of a given output directory; additional cases or additional modules will be added. Existing ones will not be recomputed.
 
 ## Version 2.0.2
 

@@ -404,7 +404,7 @@ Call `help(fsqc.run_fsqc)` for further usage info and additional options.
 
 ### As a Docker image
 
-We provide a configuration files that can be used to create a Docker or
+We provide configuration files that can be used to create a Docker or
 Singularity image for the fsqc scripts. Documentation can be found on the
 [Docker](docker/Docker.md) and [Singularity](singularity/Singularity.md) pages.
 
