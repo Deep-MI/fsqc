@@ -2668,6 +2668,23 @@ def _do_fsqc(argsDict):
                     fornixShapeDict = {subject: dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),fornixShapeOutput))}
                     metricsDict[subject].update(fornixShapeDict[subject])
 
+        # check if other dictionaries need to be populated
+        if argsDict['group_only'] is True:
+            for subject in argsDict["subjects"]:
+                if argsDict["screenshots_html"] is True:
+                    imagesScreenshotsDict[subject] = os.path.join(argsDict["output_dir"], "screenshots", subject, subject + ".png")
+                if argsDict["surfaces_html"] is True:
+                    imagesSurfacesDict[subject] = os.path.join(argsDict["output_dir"], "surfaces", subject)
+                if argsDict["skullstrip_html"] is True:
+                    imagesSkullstripDict[subject] = os.path.join(argsDict["output_dir"], "skullstrip", subject, subject + ".png")
+                if argsDict["fornix_html"] is True:
+                    imagesFornixDict[subject] = os.path.join(argsDict["output_dir"], "fornix", subject, "cc.png")
+                if argsDict["hypothalamus_html"] is True:
+                    imagesHypothalamusDict[subject] = os.path.join(argsDict["output_dir"], "hypothalamus", subject, "hypothalamus.png")
+                if argsDict["hippocampus_html"] is True:
+                    imagesHippocampusLeftDict[subject] = os.path.join(argsDict["output_dir"], "hippocampus", subject, "hippocampus-left.png")
+                    imagesHippocampusRightDict[subject] = os.path.join(argsDict["output_dir"], "hippocampus", subject, "hippocampus-right.png")
+
         # collect other keys; need to iterate over subjects, because not all of them
         # necessarily have the same set of keys
         if argsDict["shape"] is True:
@@ -2682,9 +2699,7 @@ def _do_fsqc(argsDict):
             fornixKeys = list()
             for subject in fornixShapeDict.keys():
                 if len(fornixShapeDict[subject]) > 0:
-                    fornixKeys = list(
-                        np.unique(fornixKeys + list(fornixShapeDict[subject].keys()))
-                    )
+                    fornixKeys = list(np.unique(fornixKeys + list(fornixShapeDict[subject].keys())))
             metricsFieldnames.extend(sorted(fornixKeys))
 
         #
@@ -2692,9 +2707,7 @@ def _do_fsqc(argsDict):
             outlierKeys = list()
             for subject in outlierDict.keys():
                 if len(outlierDict[subject]) > 0:
-                    outlierKeys = list(
-                        np.unique(outlierKeys + list(outlierDict[subject].keys()))
-                    )
+                    outlierKeys = list(np.unique(outlierKeys + list(outlierDict[subject].keys())))
             metricsFieldnames.extend(sorted(outlierKeys))
 
         # determine output file names
