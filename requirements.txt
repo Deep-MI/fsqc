@@ -1,5 +1,5 @@
-brainprint>=0.4.0
-lapy>=1.0.0
+brainprint==0.4.0
+lapy>=1.0.0,<2
 kaleido
 matplotlib
 nibabel
