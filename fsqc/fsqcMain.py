@@ -2583,7 +2583,7 @@ def _do_fsqc(argsDict):
                     )
 
                 # return
-                outlier_status = 0
+                # outlier_status = 0 # not used currently
 
             #
             except Exception as e:
@@ -2654,7 +2654,7 @@ def _do_fsqc(argsDict):
         if argsDict['group_only'] is True:
             for subject in argsDict["subjects"]:
                 # metricsDict may (or not) be populated from previous outlier module
-                if not subject in metricsDict.keys():
+                if subject not in metricsDict.keys():
                     metricsDict.update({subject: {"subject": subject}})
                 metricsDict[subject] = metricsDict[subject] | pd.read_csv(os.path.join(argsDict["output_dir"], "metrics", subject, "metrics.csv"), dtype={'Unnamed: 0':str, 'subject':str}).set_index('Unnamed: 0').to_dict(orient="index")[subject]
                 #
