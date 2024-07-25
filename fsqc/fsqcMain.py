@@ -3363,10 +3363,10 @@ def run_fsqc(
     fastsurfer : bool, default: False
         Use FastSurfer instead of FreeSurfer input.
     no_group : bool, default: False
-        run script in subject-level mode. will compute individual files and
+        Run script in subject-level mode. will compute individual files and
         statistics, but not create group-level summaries.
-    group-only : bool, default: False
-        run script in group mode. will create group-level summaries from
+    group_only : bool, default: False
+        Run script in group mode. will create group-level summaries from
         existing inputs.
     exit_on_error : bool, default: False
         Exit on error. If False, a warning is thrown and the analysis
