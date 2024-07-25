@@ -199,7 +199,9 @@ def evaluateFornixSegmentation(
 
     # write output
     if WRITE_EIGEN is True:
-        pd.DataFrame(out).transpose().to_csv(os.path.join(OUTPUT_DIR, SUBJECT + ".fornix.csv"), na_rep="NA", index=False)
+        pd.DataFrame(out).transpose().to_csv(
+            os.path.join(OUTPUT_DIR, SUBJECT + ".fornix.csv"), na_rep="NA", index=False
+        )
 
     # --------------------------------------------------------------------------
     # return

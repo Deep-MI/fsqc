@@ -859,9 +859,7 @@ def _check_arguments(argsDict):
 
     # check if only one of no_group and group_only is true
     if argsDict["no_group"] is True and argsDict["group_only"] is True:
-        raise ValueError(
-            "ERROR: Use either --no-group or --group-only (but not both)."
-        )
+        raise ValueError("ERROR: Use either --no-group or --group-only (but not both).")
 
     # skip-existing cannot be used with group-only
     if argsDict["skip_existing"] is True and argsDict["group_only"] is True:
@@ -1587,7 +1585,6 @@ def _do_fsqc(argsDict):
     # subject-level processing
 
     if argsDict["group_only"] is False:
-
         # loop through the specified subjects
         for subject in argsDict["subjects"]:
             #
@@ -1623,8 +1620,26 @@ def _do_fsqc(argsDict):
             # if it already exists, read statusfile
             status_dict = dict()
             if os.path.exists(os.path.join(status_outdir, "status.txt")):
-                status_dict = dict(pd.read_csv(os.path.join(status_outdir, "status.txt"), sep=":", header=None, comment="#", names=["module", "status"], dtype=str).to_dict(orient="split")['data'])
-                for x in ['metrics', 'shape', 'screenshots', 'surfaces', 'skullstrip', 'fornix', 'hypothalamus', 'hippocampus']:
+                status_dict = dict(
+                    pd.read_csv(
+                        os.path.join(status_outdir, "status.txt"),
+                        sep=":",
+                        header=None,
+                        comment="#",
+                        names=["module", "status"],
+                        dtype=str,
+                    ).to_dict(orient="split")["data"]
+                )
+                for x in [
+                    "metrics",
+                    "shape",
+                    "screenshots",
+                    "surfaces",
+                    "skullstrip",
+                    "fornix",
+                    "hypothalamus",
+                    "hippocampus",
+                ]:
                     status_dict[x] = int(status_dict[x])
                 statusDict[subject] = status_dict
 
@@ -1645,17 +1660,27 @@ def _do_fsqc(argsDict):
             #
             metrics_status = 0
             if argsDict["skip_existing"] is True:
-                if len(status_dict)>0:
-                    if statusDict[subject]["metrics"] == 0 or statusDict[subject]["metrics"] == 3:
+                if len(status_dict) > 0:
+                    if (
+                        statusDict[subject]["metrics"] == 0
+                        or statusDict[subject]["metrics"] == 3
+                    ):
                         metrics_status = 3
                         logging.info("Skipping metrics computation for " + subject)
                     else:
-                        logging.info("Not skipping metrics computation for " + subject + ": statusfile did not indicate ok or skipped")
+                        logging.info(
+                            "Not skipping metrics computation for "
+                            + subject
+                            + ": statusfile did not indicate ok or skipped"
+                        )
                 else:
-                    logging.info("Not skipping metrics computation for " + subject + ": no statusfile was found")
+                    logging.info(
+                        "Not skipping metrics computation for "
+                        + subject
+                        + ": no statusfile was found"
+                    )
 
             if metrics_status == 0:
-
                 # get WM and GM SNR for orig.mgz
                 try:
                     wm_snr_orig, gm_snr_orig = checkSNR(
@@ -1732,7 +1757,9 @@ def _do_fsqc(argsDict):
 
                 # check contrast
                 try:
-                    con_snr_lh, con_snr_rh = checkContrast(argsDict["subjects_dir"], subject)
+                    con_snr_lh, con_snr_rh = checkContrast(
+                        argsDict["subjects_dir"], subject
+                    )
 
                 except Exception as e:
                     logging.error("ERROR: Contrast check failed for " + subject)
@@ -1782,10 +1809,22 @@ def _do_fsqc(argsDict):
                 )
 
                 # write to file
-                pd.DataFrame(metricsDict[subject], index=[subject]).to_csv(os.path.join(argsDict["output_dir"], "metrics", subject, "metrics.csv"))
+                pd.DataFrame(metricsDict[subject], index=[subject]).to_csv(
+                    os.path.join(
+                        argsDict["output_dir"], "metrics", subject, "metrics.csv"
+                    )
+                )
 
             elif metrics_status == 3:
-                metricsDict[subject] = metricsDict[subject] | pd.read_csv(os.path.join(metrics_outdir, "metrics.csv"), dtype={'Unnamed: 0':str, 'subject':str}).set_index('Unnamed: 0').to_dict(orient="index")[subject]
+                metricsDict[subject] = (
+                    metricsDict[subject]
+                    | pd.read_csv(
+                        os.path.join(metrics_outdir, "metrics.csv"),
+                        dtype={"Unnamed: 0": str, "subject": str},
+                    )
+                    .set_index("Unnamed: 0")
+                    .to_dict(orient="index")[subject]
+                )
 
             # note that we cannot "not do" the metrics module, only skipping is possible.
             # hence no metrics_status == 2 possible.
@@ -1797,18 +1836,28 @@ def _do_fsqc(argsDict):
             # run optional modules: shape analysis
 
             if argsDict["shape"] is True:
-
                 # determine status
                 shape_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["shape"] == 0 or statusDict[subject]["shape"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["shape"] == 0
+                            or statusDict[subject]["shape"] == 3
+                        ):
                             shape_status = 3
                             logging.info("Skipping shape computation for " + subject)
                         else:
-                            logging.info("Not skipping shape computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping shape computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping shape computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping shape computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific brainprint_outdir
                 brainprint_outdir = Path(
@@ -1817,7 +1866,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if shape_status == 0:
-
                     #
                     try:
                         # message
@@ -1850,16 +1898,19 @@ def _do_fsqc(argsDict):
                     #
                     except Exception as e:
                         distDict = {subject: []}
-                        logging.error("ERROR: the shape module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: the shape module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         shape_status = 1
                         if argsDict["exit_on_error"] is True:
                             raise
 
                 elif shape_status == 3:
-
                     # read results from previous run
-                    dstMat = pd.read_csv(brainprint_outdir / (subject + ".brainprint.asymmetry.csv")).to_dict(orient="index")[0]
+                    dstMat = pd.read_csv(
+                        brainprint_outdir / (subject + ".brainprint.asymmetry.csv")
+                    ).to_dict(orient="index")[0]
                     distDict = {subject: dstMat}
 
                 # store data
@@ -1875,18 +1926,30 @@ def _do_fsqc(argsDict):
             # run optional modules: screenshots
 
             if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
-
                 # determine status
                 screenshots_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["screenshots"] == 0 or statusDict[subject]["screenshots"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["screenshots"] == 0
+                            or statusDict[subject]["screenshots"] == 3
+                        ):
                             screenshots_status = 3
-                            logging.info("Skipping screenshots computation for " + subject)
+                            logging.info(
+                                "Skipping screenshots computation for " + subject
+                            )
                         else:
-                            logging.info("Not skipping screenshots computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping screenshots computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping screenshots computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping screenshots computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific screenshots_outdir
                 screenshots_outdir = os.path.join(
@@ -1898,7 +1961,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if screenshots_status == 0:
-
                     #
                     try:
                         # message
@@ -1952,10 +2014,16 @@ def _do_fsqc(argsDict):
                         # check screenshots_overlay
                         if argsDict["screenshots_overlay"] is not None:
                             if argsDict["screenshots_overlay"][0] == "default":
-                                screenshots_overlay_subj = argsDict["screenshots_overlay"]
-                                logging.info("Using default for screenshot overlay image")
+                                screenshots_overlay_subj = argsDict[
+                                    "screenshots_overlay"
+                                ]
+                                logging.info(
+                                    "Using default for screenshot overlay image"
+                                )
                             elif os.path.isfile(argsDict["screenshots_overlay"][0]):
-                                screenshots_overlay_subj = argsDict["screenshots_overlay"]
+                                screenshots_overlay_subj = argsDict[
+                                    "screenshots_overlay"
+                                ]
                                 logging.info(
                                     "Using "
                                     + screenshots_overlay_subj[0]
@@ -1997,7 +2065,9 @@ def _do_fsqc(argsDict):
                                     logging.info("Using default for screenshot surface")
                                 elif os.path.isfile(screenshots_surf_i):
                                     logging.info(
-                                        "Using " + screenshots_surf_i + " as screenshot surface"
+                                        "Using "
+                                        + screenshots_surf_i
+                                        + " as screenshot surface"
                                     )
                                 elif os.path.isfile(
                                     os.path.join(
@@ -2014,7 +2084,9 @@ def _do_fsqc(argsDict):
                                         screenshots_surf_i,
                                     )
                                     logging.info(
-                                        "Using " + screenshots_surf_i + " as screenshot surface"
+                                        "Using "
+                                        + screenshots_surf_i
+                                        + " as screenshot surface"
                                     )
                                 else:
                                     raise FileNotFoundError(
@@ -2044,7 +2116,9 @@ def _do_fsqc(argsDict):
 
                     #
                     except Exception as e:
-                        logging.error("ERROR: screenshots module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: screenshots module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         screenshots_status = 1
                         if argsDict["exit_on_error"] is True:
@@ -2066,18 +2140,28 @@ def _do_fsqc(argsDict):
             # run optional modules: surface plots
 
             if argsDict["surfaces"] is True or argsDict["surfaces_html"] is True:
-
                 # determine status
                 surfaces_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["surfaces"] == 0 or statusDict[subject]["surfaces"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["surfaces"] == 0
+                            or statusDict[subject]["surfaces"] == 3
+                        ):
                             surfaces_status = 3
                             logging.info("Skipping surfaces computation for " + subject)
                         else:
-                            logging.info("Not skipping surfaces computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping surfaces computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping surfaces computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping surfaces computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific surfaces_outdir
                 surfaces_outdir = os.path.join(
@@ -2088,7 +2172,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if surfaces_status == 0:
-
                     #
                     try:
                         # message
@@ -2109,7 +2192,9 @@ def _do_fsqc(argsDict):
 
                     #
                     except Exception as e:
-                        logging.error("ERROR: surfaces module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: surfaces module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         surfaces_status = 1
                         if argsDict["exit_on_error"] is True:
@@ -2131,19 +2216,30 @@ def _do_fsqc(argsDict):
             # run optional modules: skullstrip
 
             if argsDict["skullstrip"] is True or argsDict["skullstrip_html"] is True:
-
                 # determine status
                 skullstrip_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["skullstrip"] == 0 or statusDict[subject]["skullstrip"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["skullstrip"] == 0
+                            or statusDict[subject]["skullstrip"] == 3
+                        ):
                             skullstrip_status = 3
-                            logging.info("Skipping skullstrip computation for " + subject)
+                            logging.info(
+                                "Skipping skullstrip computation for " + subject
+                            )
                         else:
-                            logging.info("Not skipping skullstrip computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping skullstrip computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping skullstrip computation for " + subject + ": no statusfile was found")
-
+                        logging.info(
+                            "Not skipping skullstrip computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific skullstrip_outdir
                 skullstrip_outdir = os.path.join(
@@ -2155,7 +2251,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if skullstrip_status == 0:
-
                     #
                     try:
                         # message
@@ -2169,32 +2264,45 @@ def _do_fsqc(argsDict):
 
                         # check skullstrip_base
                         if os.path.isfile(
-                            os.path.join(argsDict["subjects_dir"], subject, "mri", "orig.mgz")
+                            os.path.join(
+                                argsDict["subjects_dir"], subject, "mri", "orig.mgz"
+                            )
                         ):
                             skullstrip_base_subj = [
                                 os.path.join(
                                     argsDict["subjects_dir"], subject, "mri", "orig.mgz"
                                 )
                             ]
-                            logging.info("Using " + "orig.mgz" + " as skullstrip base image")
+                            logging.info(
+                                "Using " + "orig.mgz" + " as skullstrip base image"
+                            )
                         else:
                             raise FileNotFoundError(
-                                "ERROR: cannot find the skullstrip base file " + "orig.mgz"
+                                "ERROR: cannot find the skullstrip base file "
+                                + "orig.mgz"
                             )
 
                         # check skullstrip_overlay
                         if os.path.isfile(
                             os.path.join(
-                                argsDict["subjects_dir"], subject, "mri", "brainmask.mgz"
+                                argsDict["subjects_dir"],
+                                subject,
+                                "mri",
+                                "brainmask.mgz",
                             )
                         ):
                             skullstrip_overlay_subj = [
                                 os.path.join(
-                                    argsDict["subjects_dir"], subject, "mri", "brainmask.mgz"
+                                    argsDict["subjects_dir"],
+                                    subject,
+                                    "mri",
+                                    "brainmask.mgz",
                                 )
                             ]
                             logging.info(
-                                "Using " + "brainmask.mgz" + " as skullstrip overlay image"
+                                "Using "
+                                + "brainmask.mgz"
+                                + " as skullstrip overlay image"
                             )
                         else:
                             raise FileNotFoundError(
@@ -2222,7 +2330,9 @@ def _do_fsqc(argsDict):
 
                     #
                     except Exception as e:
-                        logging.error("ERROR: skullstrip module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: skullstrip module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         skullstrip_status = 1
                         if argsDict["exit_on_error"] is True:
@@ -2244,18 +2354,28 @@ def _do_fsqc(argsDict):
             # run optional modules: fornix
 
             if argsDict["fornix"] is True or argsDict["fornix_html"] is True:
-
                 # determine status
                 fornix_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["fornix"] == 0 or statusDict[subject]["fornix"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["fornix"] == 0
+                            or statusDict[subject]["fornix"] == 3
+                        ):
                             fornix_status = 3
                             logging.info("Skipping fornix computation for " + subject)
                         else:
-                            logging.info("Not skipping fornix computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping fornix computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping fornix computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping fornix computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific fornix_outdir
                 fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
@@ -2265,7 +2385,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if fornix_status == 0:
-
                     #
                     try:
                         # message
@@ -2289,7 +2408,10 @@ def _do_fsqc(argsDict):
                         fornixShapeDict = {
                             subject: dict(
                                 zip(
-                                    map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
+                                    map(
+                                        "fornixShapeEV{:0>3}".format,
+                                        range(FORNIX_N_EIGEN),
+                                    ),
                                     fornixShapeOutput,
                                 )
                             )
@@ -2303,12 +2425,17 @@ def _do_fsqc(argsDict):
                         fornixShapeDict = {
                             subject: dict(
                                 zip(
-                                    map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),
+                                    map(
+                                        "fornixShapeEV{:0>3}".format,
+                                        range(FORNIX_N_EIGEN),
+                                    ),
                                     np.full(FORNIX_N_EIGEN, np.nan),
                                 )
                             )
                         }
-                        logging.error("ERROR: fornix module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: fornix module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         fornix_status = 1
                         if argsDict["exit_on_error"] is True:
@@ -2319,11 +2446,24 @@ def _do_fsqc(argsDict):
                         metricsDict[subject].update(fornixShapeDict[subject])
 
                 elif fornix_status == 3:
-
                     if FORNIX_SHAPE:
                         # read results from previous run
-                        fornixShapeOutput = np.array(pd.read_csv(os.path.join(fornix_outdir, subject + ".fornix.csv")))[0]
-                        fornixShapeDict = {subject: dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),fornixShapeOutput))}
+                        fornixShapeOutput = np.array(
+                            pd.read_csv(
+                                os.path.join(fornix_outdir, subject + ".fornix.csv")
+                            )
+                        )[0]
+                        fornixShapeDict = {
+                            subject: dict(
+                                zip(
+                                    map(
+                                        "fornixShapeEV{:0>3}".format,
+                                        range(FORNIX_N_EIGEN),
+                                    ),
+                                    fornixShapeOutput,
+                                )
+                            )
+                        }
                         metricsDict[subject].update(fornixShapeDict[subject])
 
                 # store data
@@ -2341,19 +2481,34 @@ def _do_fsqc(argsDict):
             # ----------------------------------------------------------------------
             # run optional modules: hypothalamus
 
-            if argsDict["hypothalamus"] is True or argsDict["hypothalamus_html"] is True:
-
+            if (
+                argsDict["hypothalamus"] is True
+                or argsDict["hypothalamus_html"] is True
+            ):
                 # determine status
                 hypothalamus_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["hypothalamus"] == 0 or statusDict[subject]["hypothalamus"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["hypothalamus"] == 0
+                            or statusDict[subject]["hypothalamus"] == 3
+                        ):
                             hypothalamus_status = 3
-                            logging.info("Skipping hypothalamus computation for " + subject)
+                            logging.info(
+                                "Skipping hypothalamus computation for " + subject
+                            )
                         else:
-                            logging.info("Not skipping hypothalamus computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping hypothalamus computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping hypothalamus computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping hypothalamus computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific hypothalamus_outdir
                 hypothalamus_outdir = os.path.join(
@@ -2367,7 +2522,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if hypothalamus_status == 0:
-
                     #
                     try:
                         # message
@@ -2399,7 +2553,9 @@ def _do_fsqc(argsDict):
                             raise
 
                 # store data
-                if HYPOTHALAMUS_SCREENSHOT and (hypothalamus_status == 0 or hypothalamus_status == 3):
+                if HYPOTHALAMUS_SCREENSHOT and (
+                    hypothalamus_status == 0 or hypothalamus_status == 3
+                ):
                     imagesHypothalamusDict[subject] = hypothalamus_screenshot_outfile
                 else:
                     imagesHypothalamusDict[subject] = []
@@ -2414,18 +2570,30 @@ def _do_fsqc(argsDict):
             # run optional modules: hippocampus
 
             if argsDict["hippocampus"] is True or argsDict["hippocampus_html"] is True:
-
                 # determine status
                 hippocampus_status = 0
                 if argsDict["skip_existing"] is True:
-                    if len(status_dict)>0:
-                        if statusDict[subject]["hippocampus"] == 0 or statusDict[subject]["hippocampus"] == 3:
+                    if len(status_dict) > 0:
+                        if (
+                            statusDict[subject]["hippocampus"] == 0
+                            or statusDict[subject]["hippocampus"] == 3
+                        ):
                             hippocampus_status = 3
-                            logging.info("Skipping hippocampus computation for " + subject)
+                            logging.info(
+                                "Skipping hippocampus computation for " + subject
+                            )
                         else:
-                            logging.info("Not skipping hippocampus computation for " + subject + ": statusfile did not indicate ok or skipped")
+                            logging.info(
+                                "Not skipping hippocampus computation for "
+                                + subject
+                                + ": statusfile did not indicate ok or skipped"
+                            )
                     else:
-                        logging.info("Not skipping hippocampus computation for " + subject + ": no statusfile was found")
+                        logging.info(
+                            "Not skipping hippocampus computation for "
+                            + subject
+                            + ": no statusfile was found"
+                        )
 
                 # check / create subject-specific hippocampus_outdir
                 hippocampus_outdir = os.path.join(
@@ -2442,7 +2610,6 @@ def _do_fsqc(argsDict):
 
                 #
                 if hippocampus_status == 0:
-
                     #
                     try:
                         # message
@@ -2477,15 +2644,21 @@ def _do_fsqc(argsDict):
 
                     #
                     except Exception as e:
-                        logging.error("ERROR: hippocampus module failed for subject " + subject)
+                        logging.error(
+                            "ERROR: hippocampus module failed for subject " + subject
+                        )
                         logging.error("Reason: " + str(e))
                         hippocampus_status = 1
                         if argsDict["exit_on_error"] is True:
                             raise
 
                 # store data
-                if HIPPOCAMPUS_SCREENSHOT and (hippocampus_status == 0 or hippocampus_status == 3):
-                    imagesHippocampusLeftDict[subject] = hippocampus_screenshot_outfile_left
+                if HIPPOCAMPUS_SCREENSHOT and (
+                    hippocampus_status == 0 or hippocampus_status == 3
+                ):
+                    imagesHippocampusLeftDict[
+                        subject
+                    ] = hippocampus_screenshot_outfile_left
                     imagesHippocampusRightDict[
                         subject
                     ] = hippocampus_screenshot_outfile_right
@@ -2505,7 +2678,11 @@ def _do_fsqc(argsDict):
             # 1: Failed
             # 2: Not done
             # 3: Skipped
-            pd.DataFrame(statusDict[subject], index=[subject]).T.to_csv(os.path.join(argsDict["output_dir"], "status", subject, "status.txt"), header=False, sep=":")
+            pd.DataFrame(statusDict[subject], index=[subject]).T.to_csv(
+                os.path.join(argsDict["output_dir"], "status", subject, "status.txt"),
+                header=False,
+                sep=":",
+            )
 
             # --------------------------------------------------------------------------
             # message
@@ -2520,10 +2697,8 @@ def _do_fsqc(argsDict):
     # run optional modules: outlier detection
 
     if argsDict["no_group"] is False:
-
         #
         if argsDict["outlier"] is True:
-
             # message
             logging.info("Running outlier detection")
 
@@ -2574,8 +2749,12 @@ def _do_fsqc(argsDict):
                     outlierDict.update(
                         {
                             subject: {
-                                "n_outlier_sample_nonpar": n_outlier_sample_nonpar[subject],
-                                "n_outlier_sample_param": n_outlier_sample_param[subject],
+                                "n_outlier_sample_nonpar": n_outlier_sample_nonpar[
+                                    subject
+                                ],
+                                "n_outlier_sample_param": n_outlier_sample_param[
+                                    subject
+                                ],
                                 "n_outlier_norms": n_outlier_norms[subject],
                             }
                         }
@@ -2614,11 +2793,9 @@ def _do_fsqc(argsDict):
     # generate output
 
     if argsDict["no_group"] is True:
-
         logging.info("Not generating group output")
 
     else:
-
         #
         logging.info("Generating group output")
 
@@ -2650,39 +2827,97 @@ def _do_fsqc(argsDict):
         # check if data needs to be read from disk; note that skip-existing is
         # mutually exclusive with group-only; in case of skip-existing, data
         # that is already present will have been read earlier already
-        if argsDict['group_only'] is True:
+        if argsDict["group_only"] is True:
             for subject in argsDict["subjects"]:
                 # metricsDict may (or not) be populated from previous outlier module
                 if subject not in metricsDict.keys():
                     metricsDict.update({subject: {"subject": subject}})
-                metricsDict[subject] = metricsDict[subject] | pd.read_csv(os.path.join(argsDict["output_dir"], "metrics", subject, "metrics.csv"), dtype={'Unnamed: 0':str, 'subject':str}).set_index('Unnamed: 0').to_dict(orient="index")[subject]
+                metricsDict[subject] = (
+                    metricsDict[subject]
+                    | pd.read_csv(
+                        os.path.join(
+                            argsDict["output_dir"], "metrics", subject, "metrics.csv"
+                        ),
+                        dtype={"Unnamed: 0": str, "subject": str},
+                    )
+                    .set_index("Unnamed: 0")
+                    .to_dict(orient="index")[subject]
+                )
                 #
                 if argsDict["shape"] is True:
-                    dstMat = pd.read_csv(Path(os.path.join(argsDict["output_dir"], "brainprint", subject) ) / (subject + ".brainprint.asymmetry.csv")).to_dict(orient="index")[0]
+                    dstMat = pd.read_csv(
+                        Path(
+                            os.path.join(argsDict["output_dir"], "brainprint", subject)
+                        )
+                        / (subject + ".brainprint.asymmetry.csv")
+                    ).to_dict(orient="index")[0]
                     distDict = {subject: dstMat}
                     metricsDict[subject].update(distDict[subject])
                 #
-                if (argsDict["fornix"] is True or argsDict["fornix_html"] is True) and FORNIX_SHAPE is True:
-                    fornixShapeOutput = np.array(pd.read_csv(os.path.join(argsDict["output_dir"], "fornix", subject, subject + ".fornix.csv")))[0]
-                    fornixShapeDict = {subject: dict(zip(map("fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)),fornixShapeOutput))}
+                if (
+                    argsDict["fornix"] is True or argsDict["fornix_html"] is True
+                ) and FORNIX_SHAPE is True:
+                    fornixShapeOutput = np.array(
+                        pd.read_csv(
+                            os.path.join(
+                                argsDict["output_dir"],
+                                "fornix",
+                                subject,
+                                subject + ".fornix.csv",
+                            )
+                        )
+                    )[0]
+                    fornixShapeDict = {
+                        subject: dict(
+                            zip(
+                                map(
+                                    "fornixShapeEV{:0>3}".format, range(FORNIX_N_EIGEN)
+                                ),
+                                fornixShapeOutput,
+                            )
+                        )
+                    }
                     metricsDict[subject].update(fornixShapeDict[subject])
 
         # check if other dictionaries need to be populated
-        if argsDict['group_only'] is True:
+        if argsDict["group_only"] is True:
             for subject in argsDict["subjects"]:
                 if argsDict["screenshots_html"] is True:
-                    imagesScreenshotsDict[subject] = os.path.join(argsDict["output_dir"], "screenshots", subject, subject + ".png")
+                    imagesScreenshotsDict[subject] = os.path.join(
+                        argsDict["output_dir"], "screenshots", subject, subject + ".png"
+                    )
                 if argsDict["surfaces_html"] is True:
-                    imagesSurfacesDict[subject] = os.path.join(argsDict["output_dir"], "surfaces", subject)
+                    imagesSurfacesDict[subject] = os.path.join(
+                        argsDict["output_dir"], "surfaces", subject
+                    )
                 if argsDict["skullstrip_html"] is True:
-                    imagesSkullstripDict[subject] = os.path.join(argsDict["output_dir"], "skullstrip", subject, subject + ".png")
+                    imagesSkullstripDict[subject] = os.path.join(
+                        argsDict["output_dir"], "skullstrip", subject, subject + ".png"
+                    )
                 if argsDict["fornix_html"] is True:
-                    imagesFornixDict[subject] = os.path.join(argsDict["output_dir"], "fornix", subject, "cc.png")
+                    imagesFornixDict[subject] = os.path.join(
+                        argsDict["output_dir"], "fornix", subject, "cc.png"
+                    )
                 if argsDict["hypothalamus_html"] is True:
-                    imagesHypothalamusDict[subject] = os.path.join(argsDict["output_dir"], "hypothalamus", subject, "hypothalamus.png")
+                    imagesHypothalamusDict[subject] = os.path.join(
+                        argsDict["output_dir"],
+                        "hypothalamus",
+                        subject,
+                        "hypothalamus.png",
+                    )
                 if argsDict["hippocampus_html"] is True:
-                    imagesHippocampusLeftDict[subject] = os.path.join(argsDict["output_dir"], "hippocampus", subject, "hippocampus-left.png")
-                    imagesHippocampusRightDict[subject] = os.path.join(argsDict["output_dir"], "hippocampus", subject, "hippocampus-right.png")
+                    imagesHippocampusLeftDict[subject] = os.path.join(
+                        argsDict["output_dir"],
+                        "hippocampus",
+                        subject,
+                        "hippocampus-left.png",
+                    )
+                    imagesHippocampusRightDict[subject] = os.path.join(
+                        argsDict["output_dir"],
+                        "hippocampus",
+                        subject,
+                        "hippocampus-right.png",
+                    )
 
         # collect other keys; need to iterate over subjects, because not all of them
         # necessarily have the same set of keys
@@ -2690,15 +2925,21 @@ def _do_fsqc(argsDict):
             shapeKeys = list()
             for subject in distDict.keys():
                 if len(distDict[subject]) > 0:
-                    shapeKeys = list(np.unique(shapeKeys + list(distDict[subject].keys())))
+                    shapeKeys = list(
+                        np.unique(shapeKeys + list(distDict[subject].keys()))
+                    )
             metricsFieldnames.extend(shapeKeys)
 
         #
-        if (argsDict["fornix"] is True or argsDict["fornix_html"] is True) and FORNIX_SHAPE is True:
+        if (
+            argsDict["fornix"] is True or argsDict["fornix_html"] is True
+        ) and FORNIX_SHAPE is True:
             fornixKeys = list()
             for subject in fornixShapeDict.keys():
                 if len(fornixShapeDict[subject]) > 0:
-                    fornixKeys = list(np.unique(fornixKeys + list(fornixShapeDict[subject].keys())))
+                    fornixKeys = list(
+                        np.unique(fornixKeys + list(fornixShapeDict[subject].keys()))
+                    )
             metricsFieldnames.extend(sorted(fornixKeys))
 
         #
@@ -2706,7 +2947,9 @@ def _do_fsqc(argsDict):
             outlierKeys = list()
             for subject in outlierDict.keys():
                 if len(outlierDict[subject]) > 0:
-                    outlierKeys = list(np.unique(outlierKeys + list(outlierDict[subject].keys())))
+                    outlierKeys = list(
+                        np.unique(outlierKeys + list(outlierDict[subject].keys()))
+                    )
             metricsFieldnames.extend(sorted(outlierKeys))
 
         # determine output file names
@@ -2770,14 +3013,18 @@ def _do_fsqc(argsDict):
                                     + os.path.join(
                                         "screenshots",
                                         subject,
-                                        os.path.basename(imagesScreenshotsDict[subject]),
+                                        os.path.basename(
+                                            imagesScreenshotsDict[subject]
+                                        ),
                                     )
                                     + '">'
                                     + '<img src="'
                                     + os.path.join(
                                         "screenshots",
                                         subject,
-                                        os.path.basename(imagesScreenshotsDict[subject]),
+                                        os.path.basename(
+                                            imagesScreenshotsDict[subject]
+                                        ),
                                     )
                                     + '" '
                                     + 'alt="Image for subject '
@@ -3030,14 +3277,18 @@ def _do_fsqc(argsDict):
                                     + os.path.join(
                                         "hypothalamus",
                                         subject,
-                                        os.path.basename(imagesHypothalamusDict[subject]),
+                                        os.path.basename(
+                                            imagesHypothalamusDict[subject]
+                                        ),
                                     )
                                     + '">'
                                     + '<img src="'
                                     + os.path.join(
                                         "hypothalamus",
                                         subject,
-                                        os.path.basename(imagesHypothalamusDict[subject]),
+                                        os.path.basename(
+                                            imagesHypothalamusDict[subject]
+                                        ),
                                     )
                                     + '" '
                                     + 'alt="Image for subject '
@@ -3062,7 +3313,9 @@ def _do_fsqc(argsDict):
                                     argsDict["output_dir"],
                                     "hippocampus",
                                     subject,
-                                    os.path.basename(imagesHippocampusLeftDict[subject]),
+                                    os.path.basename(
+                                        imagesHippocampusLeftDict[subject]
+                                    ),
                                 )
                             ):
                                 print(
@@ -3097,7 +3350,9 @@ def _do_fsqc(argsDict):
                                     argsDict["output_dir"],
                                     "hippocampus",
                                     subject,
-                                    os.path.basename(imagesHippocampusRightDict[subject]),
+                                    os.path.basename(
+                                        imagesHippocampusRightDict[subject]
+                                    ),
                                 )
                             ):
                                 print(
@@ -3191,26 +3446,32 @@ def _start_logging(argsDict):
 
     # check if mandatory status subdirectory directory exists or can be created
     if os.path.isdir(os.path.join(argsDict["output_dir"], "status")):
-        logging.info("Found status directory " + os.path.join(argsDict["output_dir"], "status"))
+        logging.info(
+            "Found status directory " + os.path.join(argsDict["output_dir"], "status")
+        )
     else:
         try:
             os.mkdir(os.path.join(argsDict["output_dir"], "status"))
         except Exception as e:
             logging.error(
-                "ERROR: cannot create status directory " + os.path.join(argsDict["output_dir"], "status")
+                "ERROR: cannot create status directory "
+                + os.path.join(argsDict["output_dir"], "status")
             )
             logging.error("Reason: " + str(e))
             raise
 
     # check if mandatory metrics subdirectory directory exists or can be created
     if os.path.isdir(os.path.join(argsDict["output_dir"], "metrics")):
-        logging.info("Found metrics directory " + os.path.join(argsDict["output_dir"], "metrics"))
+        logging.info(
+            "Found metrics directory " + os.path.join(argsDict["output_dir"], "metrics")
+        )
     else:
         try:
             os.mkdir(os.path.join(argsDict["output_dir"], "metrics"))
         except Exception as e:
             logging.error(
-                "ERROR: cannot create metrics directory " + os.path.join(argsDict["output_dir"], "metrics")
+                "ERROR: cannot create metrics directory "
+                + os.path.join(argsDict["output_dir"], "metrics")
             )
             logging.error("Reason: " + str(e))
             raise
