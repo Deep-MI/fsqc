@@ -222,7 +222,8 @@ run_fsqc --subjects_dir <directory> --output_dir <directory>
     [--fornix] [--fornix-html] [--hippocampus]
     [--hippocampus-html] [--hippocampus-label ... ]
     [--hypothalamus] [--hypothalamus-html] [--shape]
-    [--outlier] [--fastsurfer] [exit-on-error]
+    [--outlier] [--fastsurfer] [--no-group]
+    [--group-only] [--exit-on-error]
     [--skip-existing] [-h] [--more-help]
     [...]
 
@@ -264,7 +265,7 @@ optional arguments:
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
-  --no_group             run script in subject-level mode. will compute
+  --no-group             run script in subject-level mode. will compute
                          individual files and statistics, but not create
                          group-level summaries.
   --group-only           run script in group mode. will create group-level
@@ -476,7 +477,7 @@ ___
   all required packages will be installed automatically and manual installation
   as detailed above will not be necessary.
 
-- This software has been tested on Ubuntu 20.04.
+- This software has been tested on Ubuntu 20.04 and 22.04.
 
 - A working [FreeSurfer](https://freesurfer.net) installation (version 6 or
   newer) is required for running the 'shape' module of this toolbox. Also make

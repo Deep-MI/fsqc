@@ -9,14 +9,16 @@ As a Command Line Tool
     run_fsqc
     --subjects_dir <directory>
     --output_dir <directory>
-    [--subjects SubjectID]
+    [--subjects SubjectID [SubjectID ...]]
     [--subjects-file <file>] [--screenshots]
     [--screenshots-html] [--surfaces] [--surfaces-html]
     [--skullstrip] [--skullstrip-html]
     [--fornix] [--fornix-html] [--hippocampus]
     [--hippocampus-html] [--hippocampus-label ... ]
     [--hypothalamus] [--hypothalamus-html] [--shape]
-    [--outlier] [--fastsurfer] [-h] [--more-help]
+    [--outlier] [--fastsurfer] [--no-group]
+    [--group-only] [--exit-on-error]
+    [--skip-existing] [-h] [--more-help]
     [...]
 
     Required Arguments:
@@ -88,17 +90,17 @@ As a Command Line Tool
     --fastsurfer
         Use FastSurfer instead of FreeSurfer output
 
-    --exit-on-error
-        Terminate the program when encountering an error; otherwise, try to continue with the next module or case
-
-    --skip-existing
-        skips processing for a given case if output already exists, even with possibly different parameters or settings
-
     --no-group
         run script in subject-level mode. will compute individual files and statistics, but not create group-level summaries.
 
     --group-only
         run script in group mode. will create group-level summaries from existing inputs. needs to be run on output directory with already existing results.
+
+    --exit-on-error
+        Terminate the program when encountering an error; otherwise, try to continue with the next module or case
+
+    --skip-existing
+        skips processing for a given case if output already exists, even with possibly different parameters or settings
 
     Getting Help:
     -------------
