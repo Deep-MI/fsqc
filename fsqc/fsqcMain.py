@@ -1525,11 +1525,10 @@ def _do_fsqc(argsDict):
     import logging
     import os
     import time
+    from pathlib import Path
 
     import numpy as np
     import pandas as pd
-
-    from pathlib import Path
 
     from fsqc.checkCCSize import checkCCSize
     from fsqc.checkContrast import checkContrast
