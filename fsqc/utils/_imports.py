@@ -51,12 +51,12 @@ def import_optional_dependency(
 
     try:
         module = importlib.import_module(name)
-    except ImportError:
+    except ImportError as err:
         if raise_error:
             raise ImportError(
                 f"Missing optional dependency '{install_name}'. {extra} "
                 f"Use pip or conda to install {install_name}."
-            )
+            ) from err
         else:
             return None
 

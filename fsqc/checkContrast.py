@@ -49,12 +49,14 @@ def checkContrast(subjects_dir, subject):
     # Check if files exist
     path_pct_lh = os.path.join(subjects_dir, subject, "surf", "lh.w-g.pct.mgh")
     if not os.path.exists(path_pct_lh):
-        warnings.warn("WARNING: could not find " + path_pct_lh + ", returning NaNs")
+        warnings.warn("WARNING: could not find " + path_pct_lh + ", returning NaNs",
+            stacklevel = 2)
         return numpy.nan
 
     path_pct_rh = os.path.join(subjects_dir, subject, "surf", "rh.w-g.pct.mgh")
     if not os.path.exists(path_pct_rh):
-        warnings.warn("WARNING: could not find " + path_pct_rh + ", returning NaNs")
+        warnings.warn("WARNING: could not find " + path_pct_rh + ", returning NaNs",
+            stacklevel = 2)
         return numpy.nan
 
     path_label_cortex_lh = os.path.join(
@@ -62,7 +64,8 @@ def checkContrast(subjects_dir, subject):
     )
     if not os.path.exists(path_label_cortex_lh):
         warnings.warn(
-            "WARNING: could not find " + path_label_cortex_lh + ", returning NaNs"
+            "WARNING: could not find " + path_label_cortex_lh + ", returning NaNs",
+            stacklevel = 2
         )
         return numpy.nan
 
@@ -71,7 +74,8 @@ def checkContrast(subjects_dir, subject):
     )
     if not os.path.exists(path_label_cortex_rh):
         warnings.warn(
-            "WARNING: could not find " + path_label_cortex_rh + ", returning NaNs"
+            "WARNING: could not find " + path_label_cortex_rh + ", returning NaNs",
+            stacklevel = 2
         )
         return numpy.nan
 
@@ -91,14 +95,14 @@ def checkContrast(subjects_dir, subject):
     con_lh_std = numpy.std(con_lh)
     con_lh_snr = con_lh_mean / con_lh_std
     logging.info(
-        "WM/GM contrast SNR for the left hemisphere: " + "{:.4}".format(con_lh_snr)
+        "WM/GM contrast SNR for the left hemisphere: " + f"{con_lh_snr:.4}"
     )
 
     con_rh_mean = numpy.mean(con_rh)
     con_rh_std = numpy.std(con_rh)
     con_rh_snr = con_rh_mean / con_rh_std
     logging.info(
-        "WM/GM contrast SNR for the right hemisphere: " + "{:.4}".format(con_rh_snr)
+        "WM/GM contrast SNR for the right hemisphere: " + f"{con_rh_snr:.4}"
     )
 
     # Return

@@ -77,7 +77,8 @@ def checkSNR(
         norm_data = norm.get_fdata()
     else:
         warnings.warn(
-            "WARNING: could not open " + path_reference_image + ", returning NaNs."
+            "WARNING: could not open " + path_reference_image + ", returning NaNs.",
+            stacklevel = 2
         )
         return np.nan, np.nan
 
@@ -86,7 +87,8 @@ def checkSNR(
         aseg = nib.load(path_aseg)
         data_aseg = aseg.get_fdata()
     else:
-        warnings.warn("WARNING: could not open " + path_aseg + ", returning NaNs.")
+        warnings.warn("WARNING: could not open " + path_aseg + ", returning NaNs.",
+            stacklevel = 2)
         return np.nan, np.nan
 
     path_aparc_aseg = os.path.join(subjects_dir, subject, "mri", aparc_image)
@@ -95,7 +97,8 @@ def checkSNR(
         data_aparc_aseg = inseg.get_fdata()
     else:
         warnings.warn(
-            "WARNING: could not open " + path_aparc_aseg + ", returning NaNs."
+            "WARNING: could not open " + path_aparc_aseg + ", returning NaNs.",
+            stacklevel = 2
         )
         return np.nan, np.nan
 
@@ -122,7 +125,7 @@ def checkSNR(
     signal_wm_mean = np.mean(signal_wm)
     signal_wm_std = np.std(signal_wm)
     wm_snr = signal_wm_mean / signal_wm_std
-    logging.info("White matter signal to noise ratio: " + "{:.4}".format(wm_snr))
+    logging.info("White matter signal to noise ratio: " + f"{wm_snr:.4}")
 
     # Process gray matter image
 
@@ -143,7 +146,7 @@ def checkSNR(
     signal_gm_mean = np.mean(signal_gm)
     signal_gm_std = np.std(signal_gm)
     gm_snr = signal_gm_mean / signal_gm_std
-    logging.info("Gray matter signal to noise ratio: " + "{:.4}".format(gm_snr))
+    logging.info("Gray matter signal to noise ratio: " + f"{gm_snr:.4}")
 
     # Return
     return wm_snr, gm_snr

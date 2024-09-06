@@ -50,7 +50,8 @@ def checkRotation(subjects_dir, subject):
 
     if importlib.util.find_spec("transforms3d") is None:
         warnings.warn(
-            "WARNING: 'transforms3d' package required for running this script, returning NaNs."
+            "WARNING: 'transforms3d' package required for running this script, returning NaNs.",
+            stacklevel = 2
         )
         return np.nan, np.nan, np.nan
     else:
@@ -64,12 +65,13 @@ def checkRotation(subjects_dir, subject):
         warnings.warn(
             "WARNING: could not open "
             + os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
-            + ", returning NaNs."
+            + ", returning NaNs.",
+            stacklevel = 2
         )
         return np.nan, np.nan, np.nan
 
     with open(
-        os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta"), "r"
+        os.path.join(subjects_dir, subject, "mri", "transforms", "talairach.lta")
     ) as datafile:
         lines = datafile.readlines()
 
@@ -102,11 +104,11 @@ def checkRotation(subjects_dir, subject):
 
     logging.info(
         "Found Talairach rotation angles: x = "
-        + "{:.3}".format(rot_x)
+        + f"{rot_x:.3}"
         + ", y = "
-        + "{:.3}".format(rot_y)
+        + f"{rot_y:.3}"
         + ", z = "
-        + "{:.3}".format(rot_z)
+        + f"{rot_z:.3}"
         + " radians.",
     )
 

@@ -12,16 +12,16 @@ def createScreenshots(
     OUTFILE,
     INTERACTIVE=True,
     LAYOUT=None,
-    BASE=["default"],
-    OVERLAY=["default"],
+    BASE="default",
+    OVERLAY="default",
     LABELS=None,
-    SURF=["default"],
-    SURFCOLOR=["default"],
-    VIEWS=["default"],
+    SURF="default",
+    SURFCOLOR="default",
+    VIEWS="default",
     XLIM=None,
     YLIM=None,
     BINARIZE=False,
-    ORIENTATION=["radiological"],
+    ORIENTATION=None,
 ):
     """
     Function to create screenshots.
@@ -39,17 +39,19 @@ def createScreenshots(
     LAYOUT : str, optional
         The layout, default is None.
     BASE : list, optional
-        The base, default is ["default"].
+        The base, default is "default".
+        Load norm.mgz as default.
     OVERLAY : list, optional
-        The overlay, default is ["default"].
+        The overlay, default is "default".
+        Load aseg.mgz as default.
     LABELS : None or str, optional
         The labels, default is None.
     SURF : list, optional
-        The surface, default is ["default"].
+        The surface, default is "default".
     SURFCOLOR : list, optional
-        The surface color, default is ["default"].
+        The surface color, default is "default".
     VIEWS : list, optional
-        The views, default is ["default"].
+        The views, default is "default".
     XLIM : None or list, optional
         The x limits, default is None.
     YLIM : None or list, optional
@@ -57,13 +59,14 @@ def createScreenshots(
     BINARIZE : bool, optional
         Flag for binarization, default is False.
     ORIENTATION : list, optional
-        The orientation, default is ["radiological"].
+        The orientation, default is None.
+        Will use ["radiological"] per default.
 
     Notes
     -----
-    BASE, VIEWS must be lists, can be ["default"].
+    BASE, VIEWS must be lists, can be "default".
 
-    OVERLAY, SURF, SURFCOLOR can be lists or None, can be ["default"].
+    OVERLAY, SURF, SURFCOLOR can be lists, None, or "default".
 
     XLIM, YLIM can be lists of list two-element numeric lists or None; if given,
     length must match length of VIEWS. x and y refer to final image dimensions,
@@ -92,6 +95,9 @@ def createScreenshots(
     import nibabel as nb
     import numpy as np
 
+    if ORIENTATION is None:
+        ORIENTATION = ["radiological"]
+
     if not INTERACTIVE:
         matplotlib.use("Agg")
 
@@ -115,14 +121,14 @@ def createScreenshots(
     # -----------------------------------------------------------------------------
     # import image data
 
-    if BASE == ["default"]:
+    if BASE == "default":
         norm = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"))
     else:
         norm = nb.load(BASE[0])
 
     if OVERLAY is None:
         aseg = None
-    elif OVERLAY == ["default"]:
+    elif OVERLAY == "default":
         aseg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz"))
     else:
         aseg = nb.load(OVERLAY[0])
@@ -130,7 +136,7 @@ def createScreenshots(
     # -----------------------------------------------------------------------------
     # import surface data
 
-    if SURF == ["default"]:
+    if SURF == "default":
         surflist = [
             os.path.join(SUBJECTS_DIR, SUBJECT, "surf", "lh.white"),
             os.path.join(SUBJECTS_DIR, SUBJECT, "surf", "rh.white"),
@@ -146,9 +152,9 @@ def createScreenshots(
         for i in range(len(surflist)):
             surf.append(nb.freesurfer.io.read_geometry(surflist[i], read_metadata=True))
 
-    if SURFCOLOR == ["default"] and SURF == ["default"]:
+    if SURFCOLOR == "default" and SURF == "default":
         surfcolor = ["yellow", "yellow", "red", "red"]
-    elif SURFCOLOR == ["default"] and SURF != ["default"]:
+    elif SURFCOLOR == "default" and SURF != "default":
         surfcolor = ["yellow"] * len(surf)
     else:
         surfcolor = SURFCOLOR
@@ -211,7 +217,7 @@ def createScreenshots(
     # -----------------------------------------------------------------------------
     # determine VIEWS
 
-    if VIEWS == ["default"]:
+    if VIEWS == "default":
         CutsRRAS = [("x", -10), ("x", 10), ("y", 0), ("z", 0)]
     else:
         CutsRRAS = VIEWS
@@ -678,7 +684,8 @@ def createScreenshots(
                         sortIdx = np.delete(sortIdx, findIdx[0, 0])
                     elif findIdx.shape[0] > 1:
                         warnings.warn(
-                            "WARNING: a problem occurred with the surface overlays"
+                            "WARNING: a problem occurred with the surface overlays",
+                            stacklevel = 2
                         )
                 # now final plot
                 axs[axsx, axsy].plot(
