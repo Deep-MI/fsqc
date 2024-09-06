@@ -114,6 +114,8 @@ extend-exclude = [
     "setup.py",
     "singularity",
 ]
+ignore = ["E501"] # line too long (should be enforced soon)
+
 
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/linter/#rule-selection
