@@ -11,8 +11,8 @@ def evaluateHypothalamicSegmentation(
     SUBJECTS_DIR,
     OUTPUT_DIR,
     CREATE_SCREENSHOT=True,
-    SCREENSHOTS_OUTFILE=[],
-    SCREENSHOTS_ORIENTATION=["radiological"],
+    SCREENSHOTS_OUTFILE=None,
+    SCREENSHOTS_ORIENTATION=None,
 ):
     """
     Evaluate potential missegmentation of the hypothalamus.
@@ -35,7 +35,7 @@ def evaluateHypothalamicSegmentation(
         The output directory.
     CREATE_SCREENSHOT : bool, optional, default: True
         Whether to create screenshots.
-    SCREENSHOTS_OUTFILE : str or list, optional, default: []
+    SCREENSHOTS_OUTFILE : str or list, optional, default: None
         File or list of files for screenshots.
     SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
         Orientation or list of orientations for screenshots.
@@ -63,6 +63,9 @@ def evaluateHypothalamicSegmentation(
     from fsqc.createScreenshots import createScreenshots
     from fsqc.fsqcUtils import binarizeImage
 
+    if SCREENSHOTS_ORIENTATION is None:
+        SCREENSHOTS_ORIENTATION = ["radiological"]
+
     # --------------------------------------------------------------------------
     # check files
 
@@ -88,7 +91,7 @@ def evaluateHypothalamicSegmentation(
 
         raise ValueError("File not found")
 
-    if not SCREENSHOTS_OUTFILE:
+    if SCREENSHOTS_OUTFILE is None:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR, "hypothalamus.png")
 
     # --------------------------------------------------------------------------

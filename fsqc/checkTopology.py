@@ -61,10 +61,11 @@ def checkTopology(subjects_dir, subject):
     path_log_file = os.path.join(subjects_dir, subject, "scripts", "recon-all.log")
 
     if os.path.exists(path_log_file):
-        with open(path_log_file, "r") as logfile:
+        with open(path_log_file) as logfile:
             lines_log_file = logfile.read().splitlines()
     else:
-        warnings.warn("WARNING: could not find " + path_log_file + ", returning NaNs.")
+        warnings.warn("WARNING: could not find " + path_log_file + ", returning NaNs.",
+            stacklevel = 2)
         return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
 
     # Initialize

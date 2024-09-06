@@ -1197,7 +1197,8 @@ def _check_arguments(argsDict):
             argsDict["subjects_dir"], subject, "stats", "aseg.stats"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         # -files: surf/[lr]h.w-g.pct.mgh, label/[lr]h.cortex.label
@@ -1205,28 +1206,32 @@ def _check_arguments(argsDict):
             argsDict["subjects_dir"], subject, "surf", "lh.w-g.pct.mgh"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(
             argsDict["subjects_dir"], subject, "surf", "rh.w-g.pct.mgh"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(
             argsDict["subjects_dir"], subject, "label", "lh.cortex.label"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(
             argsDict["subjects_dir"], subject, "label", "rh.cortex.label"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         # -files: mri/transforms/talairach.lta
@@ -1234,19 +1239,22 @@ def _check_arguments(argsDict):
             argsDict["subjects_dir"], subject, "mri", "transforms", "talairach.lta"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc+aseg.mgz for FreeSurfer
         # -files: mri/norm.mgz, mri/aseg.mgz, mri/aparc.DKTatlas+aseg.deep.mgz for FastSurfer
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "norm.mgz")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         path_check = os.path.join(argsDict["subjects_dir"], subject, "mri", "aseg.mgz")
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         if argsDict["fastsurfer"] is True:
@@ -1258,7 +1266,8 @@ def _check_arguments(argsDict):
                 argsDict["subjects_dir"], subject, "mri", "aparc+aseg.mgz"
             )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         # -files: scripts/recon-all.log
@@ -1266,7 +1275,8 @@ def _check_arguments(argsDict):
             argsDict["subjects_dir"], subject, "scripts", "recon-all.log"
         )
         if not os.path.isfile(path_check):
-            warnings.warn("Could not find " + path_check + " for subject " + subject)
+            warnings.warn("Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2)
             subjects_to_remove.extend([subject])
 
         # check screenshots
@@ -1279,7 +1289,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1288,7 +1299,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1297,7 +1309,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1306,7 +1319,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1319,7 +1333,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1328,7 +1343,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1337,7 +1353,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1346,7 +1363,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1363,7 +1381,8 @@ def _check_arguments(argsDict):
                 )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1380,7 +1399,8 @@ def _check_arguments(argsDict):
                 )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1406,7 +1426,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1415,7 +1436,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1427,7 +1449,8 @@ def _check_arguments(argsDict):
             )
             if not os.path.isfile(path_check):
                 warnings.warn(
-                    "Could not find " + path_check + " for subject " + subject
+                    "Could not find " + path_check + " for subject " + subject,
+                    stacklevel = 2
                 )
                 subjects_to_remove.extend([subject])
 
@@ -1453,12 +1476,8 @@ def _check_packages():
     """
 
     import importlib.util
-    import sys
 
     import packaging.version
-
-    if sys.version_info <= (3, 8):
-        raise RuntimeError("ERROR: Python version must be 3.8 or greater\n")
 
     if importlib.util.find_spec("skimage") is None:
         raise ImportError(
@@ -3523,10 +3542,10 @@ def run_fsqc(
     screenshots_surf="default",
     screenshots_views="default",
     screenshots_layout=None,
-    screenshots_orientation=["radiological"],
+    screenshots_orientation=None,
     surfaces=False,
     surfaces_html=False,
-    surfaces_views=["left", "right", "superior", "inferior"],
+    surfaces_views=None,
     skullstrip=False,
     skullstrip_html=False,
     fornix=False,
@@ -3643,6 +3662,12 @@ def run_fsqc(
     dict
         A dictionary of input arguments and processing directives.
     """
+    # set defaults here to avoid mutable datastructures for default argument B006
+    if screenshots_orientation is None:
+        screenshots_orientation = ["radiological"]
+    if surfaces_views is None:
+        surfaces_views = ["left", "right", "superior", "inferior"]
+
     # create argsDict
     if argsDict is None and (subjects_dir is None or output_dir is None):
         raise ValueError(
