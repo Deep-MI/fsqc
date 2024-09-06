@@ -3662,7 +3662,7 @@ def run_fsqc(
     dict
         A dictionary of input arguments and processing directives.
     """
-    # set defauls here to avoid mutable datastructures for default argument B006
+    # set defaults here to avoid mutable datastructures for default argument B006
     if screenshots_orientation is None:
         screenshots_orientation = ["radiological"]
     if surfaces_views is None:
