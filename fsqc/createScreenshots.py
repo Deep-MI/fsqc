@@ -11,7 +11,7 @@ def createScreenshots(
     SUBJECTS_DIR,
     OUTFILE,
     INTERACTIVE=True,
-    LAYOUT=None,
+    LAYOUT="default",
     BASE="default",
     OVERLAY="default",
     LABELS=None,
@@ -21,7 +21,7 @@ def createScreenshots(
     XLIM=None,
     YLIM=None,
     BINARIZE=False,
-    ORIENTATION=None,
+    ORIENTATION="radiological",
 ):
     """
     Function to create screenshots.
@@ -36,20 +36,23 @@ def createScreenshots(
         The output file path.
     INTERACTIVE : bool, optional
         Flag for interactive mode, default is True.
-    LAYOUT : str, optional
-        The layout, default is None.
-    BASE : list, optional
+    LAYOUT : list, optional
+        The layout, default is "default".
+    BASE : str, optional
         The base, default is "default".
         Load norm.mgz as default.
-    OVERLAY : list, optional
+    OVERLAY : str, optional
         The overlay, default is "default".
         Load aseg.mgz as default.
+        Can be None.
     LABELS : None or str, optional
         The labels, default is None.
     SURF : list, optional
         The surface, default is "default".
+        Can be None.
     SURFCOLOR : list, optional
         The surface color, default is "default".
+        Can be None.
     VIEWS : list, optional
         The views, default is "default".
     XLIM : None or list, optional
@@ -58,15 +61,14 @@ def createScreenshots(
         The y limits, default is None.
     BINARIZE : bool, optional
         Flag for binarization, default is False.
-    ORIENTATION : list, optional
-        The orientation, default is None.
-        Will use ["radiological"] per default.
+    ORIENTATION : str, optional
+        The orientation, default is "radiological".
 
     Notes
     -----
-    BASE, VIEWS must be lists, can be "default".
+    LAYOUT, VIEWS can be lists or "default".
 
-    OVERLAY, SURF, SURFCOLOR can be lists, None, or "default".
+    SURF, SURFCOLOR can be lists, None, or "default".
 
     XLIM, YLIM can be lists of list two-element numeric lists or None; if given,
     length must match length of VIEWS. x and y refer to final image dimensions,
@@ -95,9 +97,6 @@ def createScreenshots(
     import nibabel as nb
     import numpy as np
 
-    if ORIENTATION is None:
-        ORIENTATION = ["radiological"]
-
     if not INTERACTIVE:
         matplotlib.use("Agg")
 
@@ -124,14 +123,14 @@ def createScreenshots(
     if BASE == "default":
         norm = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"))
     else:
-        norm = nb.load(BASE[0])
+        norm = nb.load(BASE)
 
     if OVERLAY is None:
         aseg = None
     elif OVERLAY == "default":
         aseg = nb.load(os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz"))
     else:
-        aseg = nb.load(OVERLAY[0])
+        aseg = nb.load(OVERLAY)
 
     # -----------------------------------------------------------------------------
     # import surface data
@@ -146,18 +145,20 @@ def createScreenshots(
     else:
         surflist = SURF
 
-    surf = list()
-
-    if surflist is not None:
-        for i in range(len(surflist)):
-            surf.append(nb.freesurfer.io.read_geometry(surflist[i], read_metadata=True))
-
-    if SURFCOLOR == "default" and SURF == "default":
+    if SURF is None:
+        surfcolor = None
+    elif SURFCOLOR == "default" and SURF == "default":
         surfcolor = ["yellow", "yellow", "red", "red"]
     elif SURFCOLOR == "default" and SURF != "default":
-        surfcolor = ["yellow"] * len(surf)
+        surfcolor = ["yellow"] * len(surflist)
     else:
         surfcolor = SURFCOLOR
+
+    surf = list()
+
+    if surflist is not None and surfcolor is not None:
+        for i in range(len(surflist)):
+            surf.append(nb.freesurfer.io.read_geometry(surflist[i], read_metadata=True))
 
     # -----------------------------------------------------------------------------
     # import colortable, compute auxiliary variables, and transform to matplotlib
@@ -378,7 +379,7 @@ def createScreenshots(
         plt.ioff()
 
     # compute layout
-    if LAYOUT is None:
+    if LAYOUT == "default":
         myLayout = computeLayout(len(CutsRRAS))
     else:
         myLayout = LAYOUT
@@ -561,7 +562,7 @@ def createScreenshots(
             axs[axsx, axsy].set_ylim(YLIM[p])
 
         # determine left-right orientation for coronal and axial views
-        if ORIENTATION == ["radiological"]:
+        if ORIENTATION == "radiological":
             if CutsRRAS[p][0] == "y" or CutsRRAS[p][0] == "z":
                 axs[axsx, axsy].invert_xaxis()
 

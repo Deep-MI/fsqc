@@ -683,7 +683,7 @@ def _parse_arguments():
         "--screenshots_views",
         dest="screenshots_views",
         help="view specification for screenshots",
-        default=["x=-10", "x=10", "y=0", "z=0"],
+        default="default",
         nargs="+",
         metavar="<dimension=coordinate>",
         required=False,
@@ -692,7 +692,7 @@ def _parse_arguments():
         "--screenshots_layout",
         dest="screenshots_layout",
         help="layout for screenshots",
-        default=["1", "4"],
+        default="default",
         nargs=2,
         metavar="<num>",
         required=False,
@@ -701,7 +701,7 @@ def _parse_arguments():
         "--screenshots_orientation",
         dest="screenshots_orientation",
         help=argparse.SUPPRESS,
-        default=["radiological"],
+        default="radiological",
         nargs=1,
         metavar="<neurological|radiological>",
         required=False,
@@ -899,27 +899,19 @@ def _check_arguments(argsDict):
                 logging.error("Reason: " + str(e))
                 raise
 
-    # check screenshots_base
-    argsDict["screenshots_base"] = [argsDict["screenshots_base"]]
-
-    # check screenshots_overlay (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
+    # check screenshots_overlay (this is either 'default' or 'none' or a single file or a single generic filename; further checks prior to execution of the screenshots module)
     if argsDict["screenshots_overlay"].lower() == "none":
         argsDict["screenshots_overlay"] = None
         logging.info("Found screenshot overlays set to None")
-    else:
-        argsDict["screenshots_overlay"] = [argsDict["screenshots_overlay"]]
 
     # check screenshots_surf (this is either 'default' or 'none' or a single file or a list; further checks prior to execution of the screenshots module)
     if not isinstance(argsDict["screenshots_surf"], list):
-        argsDict["screenshots_surf"] = [argsDict["screenshots_surf"]]
-    if argsDict["screenshots_surf"][0].lower() == "none":
-        argsDict["screenshots_surf"] = None
-        logging.info("Found screenshot surfaces set to None")
+        if argsDict["screenshots_surf"].lower() == "none":
+            argsDict["screenshots_surf"] = None
+            logging.info("Found screenshot surfaces set to None")
 
     # check if screenshots_views argument can be evaluated
-    if argsDict["screenshots_views"] == "default":
-        argsDict["screenshots_views"] = [argsDict["screenshots_views"]]
-    else:
+    if isinstance(argsDict["screenshots_views"], list):
         for x in argsDict["screenshots_views"]:
             isXYZ = (
                 x.split("=")[0] == "x"
@@ -950,7 +942,7 @@ def _check_arguments(argsDict):
         ]
 
     # check screenshots_layout
-    if argsDict["screenshots_layout"] is not None:
+    if argsDict["screenshots_layout"] != "default":
         if all([x.isdigit() for x in argsDict["screenshots_layout"]]):
             argsDict["screenshots_layout"] = [
                 int(x) for x in argsDict["screenshots_layout"]
@@ -961,16 +953,16 @@ def _check_arguments(argsDict):
             )
 
     # check screenshots_orientation
-    if argsDict["screenshots_orientation"] != ["neurological"] and argsDict[
+    if argsDict["screenshots_orientation"] != "neurological" and argsDict[
         "screenshots_orientation"
-    ] != ["radiological"]:
+    ] != "radiological":
         raise TypeError(
             "ERROR: screenshots_orientation argument must be either 'neurological' or 'radiological'."
         )
     else:
         logging.info(
             "Found screenshot orientation set to "
-            + argsDict["screenshots_orientation"][0]
+            + argsDict["screenshots_orientation"]
         )
 
     # check if skullstrip subdirectory exists or can be created and is writable
@@ -1282,7 +1274,7 @@ def _check_arguments(argsDict):
         # check screenshots
         if (
             argsDict["screenshots"] is True or argsDict["screenshots_html"] is True
-        ) and argsDict["screenshots_surf"] == ["default"]:
+        ) and argsDict["screenshots_surf"] == "default":
             # -files: surf/[lr]h.white (optional), surf/[lr]h.pial (optional)
             path_check = os.path.join(
                 argsDict["subjects_dir"], subject, "surf", "lh.white"
@@ -1945,6 +1937,7 @@ def _do_fsqc(argsDict):
             # run optional modules: screenshots
 
             if argsDict["screenshots"] is True or argsDict["screenshots_html"] is True:
+
                 # determine status
                 screenshots_status = 0
                 if argsDict["skip_existing"] is True:
@@ -1993,14 +1986,14 @@ def _do_fsqc(argsDict):
                         screenshots_surf_subj = list()
 
                         # check screenshots_base
-                        if argsDict["screenshots_base"][0] == "default":
+                        if argsDict["screenshots_base"] == "default":
                             screenshots_base_subj = argsDict["screenshots_base"]
                             logging.info("Using default for screenshot base image")
-                        elif os.path.isfile(argsDict["screenshots_base"][0]):
+                        elif os.path.isfile(argsDict["screenshots_base"]):
                             screenshots_base_subj = argsDict["screenshots_base"]
                             logging.info(
                                 "Using "
-                                + screenshots_base_subj[0]
+                                + screenshots_base_subj
                                 + " as screenshot base image"
                             )
                         elif os.path.isfile(
@@ -2008,44 +2001,42 @@ def _do_fsqc(argsDict):
                                 argsDict["subjects_dir"],
                                 subject,
                                 "mri",
-                                argsDict["screenshots_base"][0],
+                                argsDict["screenshots_base"],
                             )
                         ):
-                            screenshots_base_subj = [
-                                os.path.join(
-                                    argsDict["subjects_dir"],
-                                    subject,
-                                    "mri",
-                                    argsDict["screenshots_base"][0],
-                                )
-                            ]
+                            screenshots_base_subj = os.path.join(
+                                argsDict["subjects_dir"],
+                                subject,
+                                "mri",
+                                argsDict["screenshots_base"],
+                            )
                             logging.info(
                                 "Using "
-                                + screenshots_base_subj[0]
+                                + screenshots_base_subj
                                 + " as screenshot base image"
                             )
                         else:
                             raise FileNotFoundError(
                                 "ERROR: cannot find the screenshots base file "
-                                + argsDict["screenshots_base"][0]
+                                + argsDict["screenshots_base"]
                             )
 
                         # check screenshots_overlay
                         if argsDict["screenshots_overlay"] is not None:
-                            if argsDict["screenshots_overlay"][0] == "default":
+                            if argsDict["screenshots_overlay"] == "default":
                                 screenshots_overlay_subj = argsDict[
                                     "screenshots_overlay"
                                 ]
                                 logging.info(
                                     "Using default for screenshot overlay image"
                                 )
-                            elif os.path.isfile(argsDict["screenshots_overlay"][0]):
+                            elif os.path.isfile(argsDict["screenshots_overlay"]):
                                 screenshots_overlay_subj = argsDict[
                                     "screenshots_overlay"
                                 ]
                                 logging.info(
                                     "Using "
-                                    + screenshots_overlay_subj[0]
+                                    + screenshots_overlay_subj
                                     + " as screenshot overlay image"
                                 )
                             elif os.path.isfile(
@@ -2053,66 +2044,80 @@ def _do_fsqc(argsDict):
                                     argsDict["subjects_dir"],
                                     subject,
                                     "mri",
-                                    argsDict["screenshots_overlay"][0],
+                                    argsDict["screenshots_overlay"],
                                 )
                             ):
-                                screenshots_overlay_subj = [
-                                    os.path.join(
-                                        argsDict["subjects_dir"],
-                                        subject,
-                                        "mri",
-                                        argsDict["screenshots_overlay"][0],
-                                    )
-                                ]
+                                screenshots_overlay_subj = os.path.join(
+                                    argsDict["subjects_dir"],
+                                    subject,
+                                    "mri",
+                                    argsDict["screenshots_overlay"],
+                                )
                                 logging.info(
                                     "Using "
-                                    + screenshots_overlay_subj[0]
+                                    + screenshots_overlay_subj
                                     + " as screenshot overlay image"
                                 )
                             else:
                                 raise FileNotFoundError(
                                     "ERROR: cannot find the screenshots overlay file "
-                                    + argsDict["screenshots_overlay"][0]
+                                    + argsDict["screenshots_overlay"]
                                 )
                         else:
                             screenshots_overlay_subj = argsDict["screenshots_overlay"]
 
                         # check screenshots_surf
                         if argsDict["screenshots_surf"] is not None:
-                            for screenshots_surf_i in argsDict["screenshots_surf"]:
-                                if screenshots_surf_i == "default":
+                            if isinstance(argsDict["screenshots_surf"], str):
+                                if argsDict["screenshots_surf"] == "default":
+                                    screenshots_surf_subj = "default"
                                     logging.info("Using default for screenshot surface")
-                                elif os.path.isfile(screenshots_surf_i):
-                                    logging.info(
-                                        "Using "
-                                        + screenshots_surf_i
-                                        + " as screenshot surface"
-                                    )
-                                elif os.path.isfile(
-                                    os.path.join(
-                                        argsDict["subjects_dir"],
-                                        subject,
-                                        "surf",
-                                        screenshots_surf_i,
-                                    )
-                                ):
-                                    screenshots_surf_i = os.path.join(
-                                        argsDict["subjects_dir"],
-                                        subject,
-                                        "surf",
-                                        screenshots_surf_i,
-                                    )
-                                    logging.info(
-                                        "Using "
-                                        + screenshots_surf_i
-                                        + " as screenshot surface"
-                                    )
                                 else:
-                                    raise FileNotFoundError(
-                                        "ERROR: cannot find the screenshots surface file "
-                                        + screenshots_surf_i
-                                    )
-                                screenshots_surf_subj.append(screenshots_surf_i)
+                                    if os.path.isfile(argsDict["screenshots_surf"]):
+                                        logging.info(
+                                            "Using "
+                                            + argsDict["screenshots_surf"]
+                                            + " as screenshot surface"
+                                        )
+                                        screenshots_surf_subj = [argsDict["screenshots_surf"]]
+                                    else:
+                                        raise FileNotFoundError(
+                                            "ERROR: cannot find the screenshots surface file "
+                                            + argsDict["screenshots_surf"]
+                                        )
+                            elif isinstance(argsDict["screenshots_surf"], list):
+                                for screenshots_surf_i in argsDict["screenshots_surf"]:
+                                    if os.path.isfile(screenshots_surf_i):
+                                        logging.info(
+                                            "Using "
+                                            + screenshots_surf_i
+                                            + " as screenshot surface"
+                                        )
+                                    elif os.path.isfile(
+                                        os.path.join(
+                                            argsDict["subjects_dir"],
+                                            subject,
+                                            "surf",
+                                            screenshots_surf_i,
+                                        )
+                                    ):
+                                        screenshots_surf_i = os.path.join(
+                                            argsDict["subjects_dir"],
+                                            subject,
+                                            "surf",
+                                            screenshots_surf_i,
+                                        )
+                                        logging.info(
+                                            "Using "
+                                            + screenshots_surf_i
+                                            + " as screenshot surface"
+                                        )
+                                    else:
+                                        raise FileNotFoundError(
+                                            "ERROR: cannot find the screenshots surface file "
+                                            + screenshots_surf_i
+                                        )
+                                    screenshots_surf_subj.append(screenshots_surf_i)
                         else:
                             screenshots_surf_subj = None
 
@@ -2287,11 +2292,9 @@ def _do_fsqc(argsDict):
                                 argsDict["subjects_dir"], subject, "mri", "orig.mgz"
                             )
                         ):
-                            skullstrip_base_subj = [
-                                os.path.join(
-                                    argsDict["subjects_dir"], subject, "mri", "orig.mgz"
-                                )
-                            ]
+                            skullstrip_base_subj = os.path.join(
+                                argsDict["subjects_dir"], subject, "mri", "orig.mgz"
+                            )
                             logging.info(
                                 "Using " + "orig.mgz" + " as skullstrip base image"
                             )
@@ -2310,14 +2313,12 @@ def _do_fsqc(argsDict):
                                 "brainmask.mgz",
                             )
                         ):
-                            skullstrip_overlay_subj = [
-                                os.path.join(
-                                    argsDict["subjects_dir"],
-                                    subject,
-                                    "mri",
-                                    "brainmask.mgz",
-                                )
-                            ]
+                            skullstrip_overlay_subj = os.path.join(
+                                argsDict["subjects_dir"],
+                                subject,
+                                "mri",
+                                "brainmask.mgz",
+                            )
                             logging.info(
                                 "Using "
                                 + "brainmask.mgz"
@@ -3541,8 +3542,8 @@ def run_fsqc(
     screenshots_overlay="default",
     screenshots_surf="default",
     screenshots_views="default",
-    screenshots_layout=None,
-    screenshots_orientation=None,
+    screenshots_layout="default",
+    screenshots_orientation="radiological",
     surfaces=False,
     surfaces_html=False,
     surfaces_views=None,
@@ -3593,15 +3594,15 @@ def run_fsqc(
         Filename for base image for screenshots.
     screenshots_overlay : str, default: "default"
         Filename for overlay image for screenshots.
-    screenshots_surf : list of str, default: "default"
+    screenshots_surf : (list of) str, default: "default"
         List of filenames of surface files to include in screenshots.
-    screenshots_views : list of str, default: "default"
+    screenshots_views : (list of) str, default: "default"
         List of parameters to set the views of the screenshots.
         Example: ['x=0', 'x=-10', 'x=10', 'y=20', 'z=0'].
-    screenshots_layout : list of int, default: None
+    screenshots_layout : str or list of int, default: "default"
         Layout describing rows and columns of the screenshots.
         Example: [1, 4] (one row, four columns).
-    screenshots_orientation : list of str, default: ["radiological"]
+    screenshots_orientation : str, default: "radiological"
         Orientation of screenshots. Either "radiological" or "neurological".
     surfaces : bool, default: False
         Create screenshots of pial and inflated surfaces.

@@ -158,8 +158,8 @@ def evaluateFornixSegmentation(
             INTERACTIVE=False,
             VIEWS=[("x", x_coord - 1), ("x", x_coord), ("x", x_coord + 1)],
             LAYOUT=(1, 3),
-            BASE=[os.path.join(OUTPUT_DIR, "normCCup.mgz")],
-            OVERLAY=[os.path.join(OUTPUT_DIR, "cc.mgz")],
+            BASE=os.path.join(OUTPUT_DIR, "normCCup.mgz"),
+            OVERLAY=os.path.join(OUTPUT_DIR, "cc.mgz"),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
         )

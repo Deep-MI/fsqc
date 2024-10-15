@@ -12,7 +12,7 @@ def evaluateHypothalamicSegmentation(
     OUTPUT_DIR,
     CREATE_SCREENSHOT=True,
     SCREENSHOTS_OUTFILE=None,
-    SCREENSHOTS_ORIENTATION=None,
+    SCREENSHOTS_ORIENTATION="radiological",
 ):
     """
     Evaluate potential missegmentation of the hypothalamus.
@@ -37,8 +37,8 @@ def evaluateHypothalamicSegmentation(
         Whether to create screenshots.
     SCREENSHOTS_OUTFILE : str or list, optional, default: None
         File or list of files for screenshots.
-    SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
-        Orientation or list of orientations for screenshots.
+    SCREENSHOTS_ORIENTATION : str, optional, default: "radiological"
+        Orientation for screenshots.
 
     Returns
     -------
@@ -62,9 +62,6 @@ def evaluateHypothalamicSegmentation(
 
     from fsqc.createScreenshots import createScreenshots
     from fsqc.fsqcUtils import binarizeImage
-
-    if SCREENSHOTS_ORIENTATION is None:
-        SCREENSHOTS_ORIENTATION = ["radiological"]
 
     # --------------------------------------------------------------------------
     # check files
@@ -249,12 +246,10 @@ def evaluateHypothalamicSegmentation(
                 ("z", ctr_tkr_z1),
             ],
             LAYOUT=(1, 9),
-            BASE=[os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")],
-            OVERLAY=[
-                os.path.join(
-                    SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
-                )
-            ],
+            BASE=os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"),
+            OVERLAY=os.path.join(
+                SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
+            ),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
             ORIENTATION=SCREENSHOTS_ORIENTATION,
