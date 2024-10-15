@@ -10,7 +10,7 @@ cd /home/user/my_singlarity_images
 singularity build fsqc-latest.sif docker://deepmi/fsqcdocker:latest
 ```
 
-Singularity Images are saved as `.sif` files. Here the _/homer/user/my_singlarity_images_ is the path where you want your file saved. You can change _deepmi/fsqc:latest_ with any tag provided in our [Dockerhub](https://hub.docker.com/r/deepmi/fsqcdocker/tags).
+Singularity Images are saved as `.sif` files. Here the _/home/user/my_singlarity_images_ is the path where you want your file saved. You can change _deepmi/fsqc:latest_ with any tag provided in our [Dockerhub](https://hub.docker.com/r/deepmi/fsqcdocker/tags).
 
 If you want to use a locally available image that you created yourself, instead run:
 
