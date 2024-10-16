@@ -150,7 +150,8 @@ run_fsqc --subjects_dir <directory> --output_dir <directory>
     [--fornix] [--fornix-html] [--hippocampus]
     [--hippocampus-html] [--hippocampus-label ... ]
     [--hypothalamus] [--hypothalamus-html] [--shape]
-    [--outlier] [--fastsurfer] [-h] [--more-help]
+    [--outlier] [--fastsurfer] [--exit-on-error]
+    [--skip-existing] [-h] [--more-help]
     [...]
 
 
@@ -194,6 +195,9 @@ optional arguments:
   --exit-on-error        terminate the program when encountering an error;
                          otherwise, try to continue with the next module or
                          case
+  --skip-existing        skips processing for a given case if output
+                         already exists, even with possibly different 
+                         parameters or settings.                           
 
 getting help:
   -h, --help            display this help message and exit

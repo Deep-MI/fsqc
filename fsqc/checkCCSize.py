@@ -70,7 +70,7 @@ def checkCCSize(subjects_dir, subject):
     relative_cc = sum_cc / intracranial_volume
 
     logging.info(
-        "Relative size of the corpus callosum is " + "{:.4}".format(relative_cc)
+        "Relative size of the corpus callosum is " + f"{relative_cc:.4}"
     )
 
     # Return

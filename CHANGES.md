@@ -3,6 +3,11 @@
 
 This is a document summarizing the changes that are associated with (major) updates and releases. Priority is given to changes that are relevant to the user, and those that introduce new features or break compatibility with prior versions.
 
+## Version 2.1.0
+
+- Added group-only, no-group options to allow for running the scripts at the individual or group level only. Default is to run at both levels.
+- Added status file and skip-existing option to allow for incremental updates of a given output directory; additional cases or additional modules will be added. Existing ones will not be recomputed.
+
 ## Version 2.0.2
 
 - This fixes an issue with the outlier module, which did not run for FastSurfer output due to incorrect expectations for names of stats files.

@@ -10,8 +10,8 @@ def evaluateHippocampalSegmentation(
     SUBJECTS_DIR,
     OUTPUT_DIR,
     CREATE_SCREENSHOT=True,
-    SCREENSHOTS_OUTFILE=[],
-    SCREENSHOTS_ORIENTATION=["radiological"],
+    SCREENSHOTS_OUTFILE=None,
+    SCREENSHOTS_ORIENTATION="radiological",
     HEMI="lh",
     LABEL="T1.v21",
 ):
@@ -36,10 +36,10 @@ def evaluateHippocampalSegmentation(
         The output directory.
     CREATE_SCREENSHOT : bool, optional, default: True
         Whether to create screenshots.
-    SCREENSHOTS_OUTFILE : str or list, optional, default: []
+    SCREENSHOTS_OUTFILE : str or list, optional, default: None
         File or list of files for screenshots.
-    SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
-        Orientation or list of orientations for screenshots.
+    SCREENSHOTS_ORIENTATION : str, optional, default: "radiological"
+        Orientation for screenshots.
     HEMI : str, optional, default: "lh"
         Hemisphere to evaluate, either 'lh' or 'rh'.
     LABEL : str, optional, default: "T1.v21"
@@ -101,7 +101,7 @@ def evaluateHippocampalSegmentation(
 
         raise ValueError("File not found")
 
-    if not SCREENSHOTS_OUTFILE:
+    if SCREENSHOTS_OUTFILE is None:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR, "hippocampus.png")
 
     # --------------------------------------------------------------------------
@@ -174,15 +174,13 @@ def evaluateHippocampalSegmentation(
             INTERACTIVE=False,
             VIEWS=[("x", ctr_tkr_x0), ("y", ctr_tkr_y0), ("z", ctr_tkr_z0)],
             LAYOUT=(1, 3),
-            BASE=[os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")],
-            OVERLAY=[
-                os.path.join(
-                    SUBJECTS_DIR,
-                    SUBJECT,
-                    "mri",
-                    HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
-                )
-            ],
+            BASE=os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"),
+            OVERLAY=os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            ),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
             ORIENTATION=SCREENSHOTS_ORIENTATION,

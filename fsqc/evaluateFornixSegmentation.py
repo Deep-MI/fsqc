@@ -10,9 +10,10 @@ def evaluateFornixSegmentation(
     SUBJECTS_DIR,
     OUTPUT_DIR,
     CREATE_SCREENSHOT=True,
-    SCREENSHOTS_OUTFILE=[],
+    SCREENSHOTS_OUTFILE=None,
     RUN_SHAPEDNA=True,
     N_EIGEN=15,
+    WRITE_EIGEN=True,
 ):
     """
     Evaluate potential missegmentation of the fornix.
@@ -40,12 +41,14 @@ def evaluateFornixSegmentation(
         The output directory.
     CREATE_SCREENSHOT : bool, optional (default: True)
         Whether to create screenshots.
-    SCREENSHOTS_OUTFILE : str or list, optional (default: [])
+    SCREENSHOTS_OUTFILE : str or list, optional (default: None)
         File or list of files for screenshots.
     RUN_SHAPEDNA : bool, optional (default: True)
         Whether to run shape analysis.
     N_EIGEN : int, optional (default: 30)
         Number of Eigenvalues for shape analysis.
+    WRITE_EIGEN : bool, optional (default: True)
+        Write csv file with eigenvalues (or nans) to output directory.
 
     Returns
     -------
@@ -61,6 +64,7 @@ def evaluateFornixSegmentation(
 
     import nibabel as nb
     import numpy as np
+    import pandas as pd
 
     from fsqc.createScreenshots import createScreenshots
     from fsqc.fsqcUtils import applyTransform, binarizeImage
@@ -76,7 +80,7 @@ def evaluateFornixSegmentation(
         warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "transforms", "cc_up.lta")
-            + ", returning NaNs"
+            + ", returning NaNs", stacklevel = 2
         )
 
         out = np.empty(N_EIGEN)
@@ -88,7 +92,7 @@ def evaluateFornixSegmentation(
         warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "aseg.mgz")
-            + ", returning NaNs"
+            + ", returning NaNs", stacklevel = 2
         )
 
         out = np.empty(N_EIGEN)
@@ -100,7 +104,7 @@ def evaluateFornixSegmentation(
         warnings.warn(
             "WARNING: could not find "
             + os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")
-            + ", returning NaNs"
+            + ", returning NaNs", stacklevel = 2
         )
 
         out = np.empty(N_EIGEN)
@@ -108,7 +112,7 @@ def evaluateFornixSegmentation(
 
         return out
 
-    if not SCREENSHOTS_OUTFILE:
+    if SCREENSHOTS_OUTFILE is None:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR, "cc.png")
 
     # --------------------------------------------------------------------------
@@ -154,8 +158,8 @@ def evaluateFornixSegmentation(
             INTERACTIVE=False,
             VIEWS=[("x", x_coord - 1), ("x", x_coord), ("x", x_coord + 1)],
             LAYOUT=(1, 3),
-            BASE=[os.path.join(OUTPUT_DIR, "normCCup.mgz")],
-            OVERLAY=[os.path.join(OUTPUT_DIR, "cc.mgz")],
+            BASE=os.path.join(OUTPUT_DIR, "normCCup.mgz"),
+            OVERLAY=os.path.join(OUTPUT_DIR, "cc.mgz"),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
         )
@@ -187,10 +191,19 @@ def evaluateFornixSegmentation(
         d["Eigenvectors"] = evec
 
         # return
-        return d["Eigenvalues"]
+        out = d["Eigenvalues"]
 
     else:
         out = np.empty(N_EIGEN)
         out[:] = np.nan
 
-        return out
+    # write output
+    if WRITE_EIGEN is True:
+        pd.DataFrame(out).transpose().to_csv(
+            os.path.join(OUTPUT_DIR, SUBJECT + ".fornix.csv"), na_rep="NA", index=False
+        )
+
+    # --------------------------------------------------------------------------
+    # return
+
+    return out

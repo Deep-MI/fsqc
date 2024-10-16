@@ -11,8 +11,8 @@ def evaluateHypothalamicSegmentation(
     SUBJECTS_DIR,
     OUTPUT_DIR,
     CREATE_SCREENSHOT=True,
-    SCREENSHOTS_OUTFILE=[],
-    SCREENSHOTS_ORIENTATION=["radiological"],
+    SCREENSHOTS_OUTFILE=None,
+    SCREENSHOTS_ORIENTATION="radiological",
 ):
     """
     Evaluate potential missegmentation of the hypothalamus.
@@ -35,10 +35,10 @@ def evaluateHypothalamicSegmentation(
         The output directory.
     CREATE_SCREENSHOT : bool, optional, default: True
         Whether to create screenshots.
-    SCREENSHOTS_OUTFILE : str or list, optional, default: []
+    SCREENSHOTS_OUTFILE : str or list, optional, default: None
         File or list of files for screenshots.
-    SCREENSHOTS_ORIENTATION : str or list, optional, default: ["radiological"]
-        Orientation or list of orientations for screenshots.
+    SCREENSHOTS_ORIENTATION : str, optional, default: "radiological"
+        Orientation for screenshots.
 
     Returns
     -------
@@ -88,7 +88,7 @@ def evaluateHypothalamicSegmentation(
 
         raise ValueError("File not found")
 
-    if not SCREENSHOTS_OUTFILE:
+    if SCREENSHOTS_OUTFILE is None:
         SCREENSHOTS_OUTFILE = os.path.join(OUTPUT_DIR, "hypothalamus.png")
 
     # --------------------------------------------------------------------------
@@ -246,12 +246,10 @@ def evaluateHypothalamicSegmentation(
                 ("z", ctr_tkr_z1),
             ],
             LAYOUT=(1, 9),
-            BASE=[os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz")],
-            OVERLAY=[
-                os.path.join(
-                    SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
-                )
-            ],
+            BASE=os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "norm.mgz"),
+            OVERLAY=os.path.join(
+                SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
+            ),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
             ORIENTATION=SCREENSHOTS_ORIENTATION,

@@ -14,7 +14,7 @@ Requirements
   ```
 - If installing the toolbox as a Python package or if using the Docker image, all required packages will be installed automatically, and manual installation as detailed above will not be necessary.
 
-- This software has been tested on Ubuntu 20.04.
+- This software has been tested on Ubuntu 20.04 and Ubuntu 22.04.
 
 - A working `FreeSurfer <https://freesurfer.net/>`_ installation (version 6 or newer) is required for running the 'shape' module of this toolbox. Also, make sure that FreeSurfer is sourced (i.e., FREESURFER_HOME is set as an environment variable) before running an analysis.
 

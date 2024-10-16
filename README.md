@@ -222,7 +222,9 @@ run_fsqc --subjects_dir <directory> --output_dir <directory>
     [--fornix] [--fornix-html] [--hippocampus]
     [--hippocampus-html] [--hippocampus-label ... ]
     [--hypothalamus] [--hypothalamus-html] [--shape]
-    [--outlier] [--fastsurfer] [-h] [--more-help]
+    [--outlier] [--fastsurfer] [--no-group]
+    [--group-only] [--exit-on-error]
+    [--skip-existing] [-h] [--more-help]
     [...]
 
 
@@ -263,9 +265,17 @@ optional arguments:
   --outlier-table        specify normative values (only in conjunction with
                          --outlier)
   --fastsurfer           use FastSurfer instead of FreeSurfer output
+  --no-group             run script in subject-level mode. will compute
+                         individual files and statistics, but not create
+                         group-level summaries.
+  --group-only           run script in group mode. will create group-level
+                         summaries from existing inputs
   --exit-on-error        terminate the program when encountering an error;
                          otherwise, try to continue with the next module or
                          case
+  --skip-existing        skips processing for a given case if output
+                         already exists, even with possibly different
+                         parameters or settings
 
 getting help:
   -h, --help            display this help message and exit
@@ -395,7 +405,7 @@ Call `help(fsqc.run_fsqc)` for further usage info and additional options.
 
 ### As a Docker image
 
-We provide a configuration files that can be used to create a Docker or
+We provide configuration files that can be used to create a Docker or
 Singularity image for the fsqc scripts. Documentation can be found on the
 [Docker](docker/Docker.md) and [Singularity](singularity/Singularity.md) pages.
 
@@ -467,7 +477,7 @@ ___
   all required packages will be installed automatically and manual installation
   as detailed above will not be necessary.
 
-- This software has been tested on Ubuntu 20.04.
+- This software has been tested on Ubuntu 20.04 and 22.04.
 
 - A working [FreeSurfer](https://freesurfer.net) installation (version 6 or
   newer) is required for running the 'shape' module of this toolbox. Also make

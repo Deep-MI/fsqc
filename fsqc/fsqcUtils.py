@@ -36,7 +36,7 @@ def importMGH(filename):
     logging.captureWarnings(True)
 
     if not os.path.exists(filename):
-        warnings.warn("WARNING: could not find " + filename + ", returning NaNs")
+        warnings.warn("WARNING: could not find " + filename + ", returning NaNs", stacklevel = 2)
         return numpy.nan
 
     fp = open(filename, "rb")
@@ -70,7 +70,7 @@ def importMGH(filename):
 
     unused_space_size = unused_space_size - USED_SPACE_SIZE
 
-    for i in range(unused_space_size):
+    for _i in range(unused_space_size):
         struct.unpack(">b", fp.read(charsize))[0]
 
     nv = ndim1 * ndim2 * ndim3 * nframes
@@ -220,7 +220,7 @@ def readLTA(file):
 
     import numpy as np
 
-    with open(file, "r") as f:
+    with open(file) as f:
         lta = f.readlines()
     d = dict()
     i = 0
