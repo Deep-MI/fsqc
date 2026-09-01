@@ -109,7 +109,7 @@ def evaluateHypothalamicSegmentation(
     seg_data = seg.get_fdata()
 
     expected_labels = np.array([801, 802, 803, 804, 805, 806, 807, 808, 809, 810])
-    present_labels = np.setdiff1d(np.unique(seg_data), 0)
+    present_labels = np.intersect1d(np.setdiff1d(np.unique(seg_data).astype(int), 0), expected_labels)
     missing_labels = np.setdiff1d(expected_labels, present_labels)
 
     if present_labels.size == 0:
