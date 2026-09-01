@@ -147,6 +147,26 @@ def evaluateHippocampalSegmentation(
 
         raise ValueError("Empty segmentation")
 
+    # hippocampal subfields (231-246) and amygdala nuclei (7001-7020) that
+    # the T1.v21 hippoAmygLabels atlas is expected to produce
+    expected_labels = np.array(list(range(231, 247)) + list(range(7001, 7021)))
+    missing_labels = np.setdiff1d(expected_labels, present_labels)
+
+    if missing_labels.size > 0:
+        logging.warning(
+            "WARNING: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " is missing hippocampal/amygdala label(s) "
+            + str(missing_labels.astype(int).tolist())
+            + "; screenshot will be created from the remaining labels and"
+            " may only be partially informative."
+        )
+
     vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
     # anchor the cropping window on the CA1-head label (237); fall back to

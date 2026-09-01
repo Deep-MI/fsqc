@@ -170,7 +170,9 @@ def createScreenshots(
 
     if not (
         np.isin(
-            list(range(231, 247)) + [801, 802, 803, 804, 805, 806, 807, 808, 809, 810],
+            list(range(231, 247))
+            + [801, 802, 803, 804, 805, 806, 807, 808, 809, 810]
+            + list(range(7001, 7021)),
             lut[:, 0],
         ).all()
     ):
@@ -202,6 +204,26 @@ def createScreenshots(
                 [244, "GC-ML-DG-body", 32, 200, 255, 0],
                 [245, "molecular_layer_HP-head", 100, 25, 25, 0],
                 [246, "molecular_layer_HP-body", 128, 0, 0, 0],
+                [7001, "Lateral-nucleus", 72, 132, 181, 0],
+                [7002, "Basolateral-nucleus", 243, 243, 243, 0],
+                [7003, "Basal-nucleus", 207, 63, 79, 0],
+                [7004, "Centromedial-nucleus", 121, 20, 135, 0],
+                [7005, "Central-nucleus", 197, 60, 248, 0],
+                [7006, "Medial-nucleus", 2, 149, 2, 0],
+                [7007, "Cortical-nucleus", 221, 249, 166, 0],
+                [7008, "Accessory-Basal-nucleus", 232, 146, 35, 0],
+                [7009, "Corticoamygdaloid-transitio", 20, 60, 120, 0],
+                [7010, "Anterior-amygdaloid-area-AAA", 250, 250, 0, 0],
+                [7011, "Fusion-amygdala-HP-FAH", 122, 187, 222, 0],
+                [7012, "Hippocampal-amygdala-transition-HATA", 237, 12, 177, 0],
+                [7013, "Endopiriform-nucleus", 10, 49, 255, 0],
+                [7014, "Lateral-nucleus-olfactory-tract", 205, 184, 144, 0],
+                [7015, "Paralaminar-nucleus", 45, 205, 165, 0],
+                [7016, "Intercalated-nucleus", 117, 160, 175, 0],
+                [7017, "Prepiriform-cortex", 221, 217, 21, 0],
+                [7018, "Periamygdaloid-cortex", 20, 60, 120, 0],
+                [7019, "Envelope-Amygdala", 141, 21, 100, 0],
+                [7020, "Extranuclear-Amydala", 225, 140, 141, 0],
             ),
             dtype=object,
         )
