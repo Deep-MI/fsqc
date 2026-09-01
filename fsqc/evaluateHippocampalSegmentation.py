@@ -149,7 +149,10 @@ def evaluateHippocampalSegmentation(
 
     # hippocampal subfields (231-246) and amygdala nuclei (7001-7020) that
     # the T1.v21 hippoAmygLabels atlas is expected to produce
-    expected_labels = np.array(list(range(231, 247)) + list(range(7001, 7021)))
+    #expected_labels = np.array(list(range(231, 247)) + list(range(7001, 7021)))
+    expected_labels = np.array([203, 211, 212, 215, 226, 233, 234, 235, 236, 237, 238, 239, 240,
+                                241, 242, 243, 244, 245, 246,
+                                7001, 7003, 7005, 7006, 7007, 7008, 7009, 7010, 7015])
     missing_labels = np.setdiff1d(expected_labels, present_labels)
 
     if missing_labels.size > 0:
