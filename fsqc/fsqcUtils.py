@@ -7,6 +7,58 @@ This module provides various import/export functions as well as the
 # ------------------------------------------------------------------------------
 
 
+def ensureDir(path, retries=3, delay=0.5):
+    """
+    Create a directory, including any missing parent directories.
+
+    Unlike a plain 'os.makedirs(path, exist_ok=True)', this function also
+    tolerates filesystems that report directory metadata with a delay.
+
+    Parameters
+    ----------
+    path : str
+        Path of the directory to create.
+    retries : int, default: 3
+        Number of additional attempts before giving up.
+    delay : float, default: 0.5
+        Seconds to wait between attempts.
+
+    Returns
+    -------
+    None
+        This function returns nothing.
+
+    Notes
+    -----
+    'os.makedirs()' swallows the 'FileExistsError' raised by its underlying
+    'mkdir()' call only if a subsequent 'os.path.isdir()' check confirms that
+    the existing path is a directory; otherwise the error is re-raised, even
+    with 'exist_ok=True'. On networked filesystems (SMB/CIFS, NFS) that check
+    may transiently fail for a directory that does exist, because the client
+    still serves a cached, outdated view of the parent directory. Retrying
+    after a short delay gives the cache time to refresh.
+
+    Note that a genuine error is still raised once the attempts are exhausted,
+    and that a non-directory file blocking the path is never removed.
+    """
+    import os
+    import time
+
+    for attempt in range(retries + 1):
+        try:
+            os.makedirs(path, exist_ok=True)
+            return
+        except FileExistsError:
+            # 'path' exists, but was not recognized as a directory; give a
+            # possibly outdated cache time to refresh before trying again.
+            if attempt == retries:
+                raise
+            time.sleep(delay)
+
+
+# ------------------------------------------------------------------------------
+
+
 def importMGH(filename):
     """
     A function to read Freesurfer MGH files.

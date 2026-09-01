@@ -593,6 +593,8 @@ def checkMotion(
     import numpy as np
     from scipy import ndimage as ndimg
 
+    from fsqc.fsqcUtils import ensureDir
+
     # mriqc pulls in nipype/niworkflows, which are known to attach their own
     # handler(s) to the root logger as a side effect of import -- undoing
     # fsqc's own _start_logging() setup and causing every subsequent
@@ -632,7 +634,7 @@ def checkMotion(
     logging.info("Computing MRIQC-style motion/noise metrics ...")
 
     if write_masks and output_dir is not None:
-        os.makedirs(output_dir, exist_ok=True)
+        ensureDir(output_dir)
 
     # resolve + conform the reference volume (single grid, shared with
     # aseg/aparc below); bail out with NaNs if it doesn't exist

@@ -901,6 +901,8 @@ def _check_arguments(argsDict):
     import tempfile
     import warnings
 
+    from fsqc.fsqcUtils import ensureDir
+
     logging.captureWarnings(True)
 
     # --------------------------------------------------------------------------
@@ -966,7 +968,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.mkdir(os.path.join(argsDict["output_dir"], "screenshots"))
+                ensureDir(os.path.join(argsDict["output_dir"], "screenshots"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create screenshots directory "
@@ -1070,7 +1072,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.mkdir(os.path.join(argsDict["output_dir"], "skullstrip"))
+                ensureDir(os.path.join(argsDict["output_dir"], "skullstrip"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create skullstrip directory "
@@ -1102,7 +1104,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.mkdir(os.path.join(argsDict["output_dir"], "fornix"))
+                ensureDir(os.path.join(argsDict["output_dir"], "fornix"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create fornix directory "
@@ -1134,7 +1136,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.mkdir(os.path.join(argsDict["output_dir"], "hypothalamus"))
+                ensureDir(os.path.join(argsDict["output_dir"], "hypothalamus"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create hypothalamus directory "
@@ -1166,7 +1168,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.mkdir(os.path.join(argsDict["output_dir"], "hippocampus"))
+                ensureDir(os.path.join(argsDict["output_dir"], "hippocampus"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create hippocampus directory "
@@ -1210,7 +1212,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.makedirs(os.path.join(argsDict["output_dir"], "brainprint"))
+                ensureDir(os.path.join(argsDict["output_dir"], "brainprint"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create brainprint directory "
@@ -1242,7 +1244,7 @@ def _check_arguments(argsDict):
             )
         else:
             try:
-                os.makedirs(os.path.join(argsDict["output_dir"], "outliers"))
+                ensureDir(os.path.join(argsDict["output_dir"], "outliers"))
             except Exception as e:
                 logging.error(
                     "ERROR: cannot create outliers directory "
@@ -1661,6 +1663,7 @@ def _do_fsqc(argsDict):
     from fsqc.evaluateFornixSegmentation import evaluateFornixSegmentation
     from fsqc.evaluateHippocampalSegmentation import evaluateHippocampalSegmentation
     from fsqc.evaluateHypothalamicSegmentation import evaluateHypothalamicSegmentation
+    from fsqc.fsqcUtils import ensureDir
     from fsqc.outlierDetection import outlierDetection, outlierTable
 
     # ------------------------------------------------------------------------------
@@ -1743,8 +1746,7 @@ def _do_fsqc(argsDict):
 
             # check / create subject-specific status_outdir
             status_outdir = os.path.join(argsDict["output_dir"], "status", subject)
-            if not os.path.isdir(status_outdir):
-                os.makedirs(status_outdir)
+            ensureDir(status_outdir)
 
             # if it already exists, read statusfile
             status_dict = dict()
@@ -1783,8 +1785,7 @@ def _do_fsqc(argsDict):
 
             # check / create subject-specific metrics_outdir
             metrics_outdir = os.path.join(argsDict["output_dir"], "metrics", subject)
-            if not os.path.isdir(metrics_outdir):
-                os.makedirs(metrics_outdir)
+            ensureDir(metrics_outdir)
 
             #
             metrics_status = 0
@@ -1998,7 +1999,9 @@ def _do_fsqc(argsDict):
                     }
                 )
 
-                # write to file
+                # write to file; the output directory was created before the
+                # metrics were computed, so make sure that it is still visible
+                ensureDir(metrics_outdir)
                 pd.DataFrame(metricsDict[subject], index=[subject]).to_csv(
                     os.path.join(
                         argsDict["output_dir"], "metrics", subject, "metrics.csv"
@@ -2146,8 +2149,7 @@ def _do_fsqc(argsDict):
                 screenshots_outdir = os.path.join(
                     argsDict["output_dir"], "screenshots", subject
                 )
-                if not os.path.isdir(screenshots_outdir):
-                    os.makedirs(screenshots_outdir)
+                ensureDir(screenshots_outdir)
                 outfile = os.path.join(screenshots_outdir, subject + ".png")
 
                 #
@@ -2370,8 +2372,7 @@ def _do_fsqc(argsDict):
                 surfaces_outdir = os.path.join(
                     argsDict["output_dir"], "surfaces", subject
                 )
-                if not os.path.isdir(surfaces_outdir):
-                    os.makedirs(surfaces_outdir)
+                ensureDir(surfaces_outdir)
 
                 #
                 if surfaces_status == 0:
@@ -2448,8 +2449,7 @@ def _do_fsqc(argsDict):
                 skullstrip_outdir = os.path.join(
                     argsDict["output_dir"], "skullstrip", subject
                 )
-                if not os.path.isdir(skullstrip_outdir):
-                    os.makedirs(skullstrip_outdir)
+                ensureDir(skullstrip_outdir)
                 outfile = os.path.join(skullstrip_outdir, subject + ".png")
 
                 #
@@ -2578,8 +2578,7 @@ def _do_fsqc(argsDict):
 
                 # check / create subject-specific fornix_outdir
                 fornix_outdir = os.path.join(argsDict["output_dir"], "fornix", subject)
-                if not os.path.isdir(fornix_outdir):
-                    os.makedirs(fornix_outdir)
+                ensureDir(fornix_outdir)
                 fornix_screenshot_outfile = os.path.join(fornix_outdir, "cc.png")
 
                 #
@@ -2716,8 +2715,7 @@ def _do_fsqc(argsDict):
                 hypothalamus_outdir = os.path.join(
                     argsDict["output_dir"], "hypothalamus", subject
                 )
-                if not os.path.isdir(hypothalamus_outdir):
-                    os.makedirs(hypothalamus_outdir)
+                ensureDir(hypothalamus_outdir)
                 hypothalamus_screenshot_outfile = os.path.join(
                     hypothalamus_outdir, "hypothalamus.png"
                 )
@@ -2801,8 +2799,7 @@ def _do_fsqc(argsDict):
                 hippocampus_outdir = os.path.join(
                     argsDict["output_dir"], "hippocampus", subject
                 )
-                if not os.path.isdir(hippocampus_outdir):
-                    os.makedirs(hippocampus_outdir)
+                ensureDir(hippocampus_outdir)
                 hippocampus_screenshot_outfile_left = os.path.join(
                     hippocampus_outdir, "hippocampus-left.png"
                 )
@@ -2880,6 +2877,9 @@ def _do_fsqc(argsDict):
             # 1: Failed
             # 2: Not done
             # 3: Skipped
+            # the output directory was created at the beginning of the subject
+            # loop, so make sure that it is still visible
+            ensureDir(status_outdir)
             pd.DataFrame(statusDict[subject], index=[subject]).T.to_csv(
                 os.path.join(argsDict["output_dir"], "status", subject, "status.txt"),
                 header=False,
@@ -3627,6 +3627,8 @@ def _start_logging(argsDict):
     import time
     import traceback
 
+    from fsqc.fsqcUtils import ensureDir
+
     # setup function to log uncaught exceptions
     def foo(exctype, value, tb):
         # log
@@ -3652,7 +3654,7 @@ def _start_logging(argsDict):
         logging.info("Found output directory " + argsDict["output_dir"])
     else:
         try:
-            os.mkdir(argsDict["output_dir"])
+            ensureDir(argsDict["output_dir"])
         except Exception as e:
             logging.error(
                 "ERROR: cannot create output directory " + argsDict["output_dir"]
@@ -3667,7 +3669,7 @@ def _start_logging(argsDict):
         )
     else:
         try:
-            os.mkdir(os.path.join(argsDict["output_dir"], "status"))
+            ensureDir(os.path.join(argsDict["output_dir"], "status"))
         except Exception as e:
             logging.error(
                 "ERROR: cannot create status directory "
@@ -3683,7 +3685,7 @@ def _start_logging(argsDict):
         )
     else:
         try:
-            os.mkdir(os.path.join(argsDict["output_dir"], "metrics"))
+            ensureDir(os.path.join(argsDict["output_dir"], "metrics"))
         except Exception as e:
             logging.error(
                 "ERROR: cannot create metrics directory "
