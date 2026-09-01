@@ -130,26 +130,53 @@ def evaluateHippocampalSegmentation(
         )
     )
     seg_data = seg.get_fdata()
-    seg_labels = np.setdiff1d(np.unique(seg_data), 0)
+    present_labels = np.setdiff1d(np.unique(seg_data), 0)
 
-    centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, seg_labels))
-    centroids = np.concatenate((seg_labels[:, np.newaxis], centroids), axis=1)
+    if present_labels.size == 0:
+        logging.error(
+            "ERROR: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " contains no hippocampal/amygdala labels, not running"
+            " hippocampus module."
+        )
+
+        raise ValueError("Empty segmentation")
 
     vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
-    ctr_tkr = np.concatenate(
-        (centroids[:, 1:4], np.ones((centroids.shape[0], 1))), axis=1
-    )
-    ctr_tkr = np.matmul(vox2ras_tkr, ctr_tkr.T).T
-    ctr_tkr = np.concatenate(
-        (np.array(centroids[:, 0], ndmin=2).T, ctr_tkr[:, 0:3]), axis=1
-    )
+    # anchor the cropping window on the CA1-head label (237); fall back to
+    # the centroid of the whole present hippocampus/amygdala segmentation if
+    # that specific subfield has zero voxels, rather than indexing an empty
+    # array
+    anchor_label = 237
+    anchor = np.array(ndimage.center_of_mass(seg_data, seg_data, [anchor_label]))[0]
 
-    # [7004, 237, 238]
+    if np.isnan(anchor).any():
+        logging.warning(
+            "WARNING: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " has no voxels for label "
+            + str(anchor_label)
+            + " (CA1-head); falling back to the overall hippocampus/amygdala"
+            " centroid to anchor the screenshot."
+        )
+        anchor = np.array(ndimage.center_of_mass(seg_data != 0))
 
-    ctr_tkr_x0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 1]
-    ctr_tkr_y0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 2]
-    ctr_tkr_z0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 3]
+    anchor_tkr = np.matmul(vox2ras_tkr, np.append(anchor, 1))[0:3]
+
+    ctr_tkr_x0 = anchor_tkr[0]
+    ctr_tkr_y0 = anchor_tkr[1]
+    ctr_tkr_z0 = anchor_tkr[2]
 
     # set ranges for cropping the image (assuming RAS coordinates)
 

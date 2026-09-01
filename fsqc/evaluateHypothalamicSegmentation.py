@@ -107,10 +107,48 @@ def evaluateHypothalamicSegmentation(
         os.path.join(SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz")
     )
     seg_data = seg.get_fdata()
-    seg_labels = np.setdiff1d(np.unique(seg_data), 0)
 
-    centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, seg_labels))
-    centroids = np.concatenate((seg_labels[:, np.newaxis], centroids), axis=1)
+    expected_labels = np.array([801, 802, 803, 804, 805, 806, 807, 808, 809, 810])
+    present_labels = np.setdiff1d(np.unique(seg_data), 0)
+    missing_labels = np.setdiff1d(expected_labels, present_labels)
+
+    if present_labels.size == 0:
+        logging.error(
+            "ERROR: "
+            + os.path.join(
+                SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
+            )
+            + " contains no hypothalamic subunit labels (801-810), not"
+            " running hypothalamus module."
+        )
+
+        raise ValueError("Empty segmentation")
+
+    if missing_labels.size > 0:
+        logging.warning(
+            "WARNING: "
+            + os.path.join(
+                SUBJECTS_DIR, SUBJECT, "mri", "hypothalamic_subunits_seg.v1.mgz"
+            )
+            + " is missing hypothalamic subunit label(s) "
+            + str(missing_labels.astype(int).tolist())
+            + "; screenshot will be created from the remaining subunits and"
+            " may only be partially informative."
+        )
+
+    # index centroids by the fixed, expected label order (not by the labels
+    # actually present) so a missing subunit cannot shift the remaining rows
+    # out of alignment with the positional indexing below; scipy returns NaN
+    # centroids for labels with zero voxels instead of raising
+    centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, expected_labels))
+
+    if missing_labels.size > 0:
+        # fall back to the centroid of all remaining hypothalamic voxels so
+        # a missing subunit still yields a sensible position instead of NaN
+        fallback = np.array(ndimage.center_of_mass(seg_data != 0))
+        centroids[np.isnan(centroids).any(axis=1)] = fallback
+
+    centroids = np.concatenate((expected_labels[:, np.newaxis], centroids), axis=1)
 
     vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
