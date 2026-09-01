@@ -121,6 +121,13 @@ def evaluateHippocampalSegmentation(
     # --------------------------------------------------------------------------
     # get centroids
 
+    # hippocampal subfields (203-246) and amygdala nuclei (7001-7020) that
+    # the T1.v21 hippoAmygLabels atlas is expected to produce
+    #expected_labels = np.array(list(range(231, 247)) + list(range(7001, 7021)))
+    expected_labels = np.array([203, 211, 212, 215, 226, 233, 234, 235, 236, 237, 238, 239, 240,
+                                241, 242, 243, 244, 245, 246,
+                                7001, 7003, 7005, 7006, 7007, 7008, 7009, 7010, 7015])
+
     seg = nb.load(
         os.path.join(
             SUBJECTS_DIR,
@@ -130,26 +137,71 @@ def evaluateHippocampalSegmentation(
         )
     )
     seg_data = seg.get_fdata()
-    seg_labels = np.setdiff1d(np.unique(seg_data), 0)
 
-    centroids = np.array(ndimage.center_of_mass(seg_data, seg_data, seg_labels))
-    centroids = np.concatenate((seg_labels[:, np.newaxis], centroids), axis=1)
+    present_labels = np.intersect1d(np.setdiff1d(np.unique(seg_data).astype(int), 0), expected_labels)
+
+    if present_labels.size == 0:
+        logging.error(
+            "ERROR: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " contains no hippocampal/amygdala labels, not running"
+            " hippocampus module."
+        )
+
+        raise ValueError("Empty segmentation")
+
+    missing_labels = np.setdiff1d(expected_labels, present_labels)
+
+    if missing_labels.size > 0:
+        logging.warning(
+            "WARNING: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " is missing hippocampal/amygdala label(s) "
+            + str(missing_labels.astype(int).tolist())
+            + "; screenshot will be created from the remaining labels and"
+            " may only be partially informative."
+        )
 
     vox2ras_tkr = seg.header.get_vox2ras_tkr()
 
-    ctr_tkr = np.concatenate(
-        (centroids[:, 1:4], np.ones((centroids.shape[0], 1))), axis=1
-    )
-    ctr_tkr = np.matmul(vox2ras_tkr, ctr_tkr.T).T
-    ctr_tkr = np.concatenate(
-        (np.array(centroids[:, 0], ndmin=2).T, ctr_tkr[:, 0:3]), axis=1
-    )
+    # anchor the cropping window on the CA1-head label (237); fall back to
+    # the centroid of the whole present hippocampus/amygdala segmentation if
+    # that specific subfield has zero voxels, rather than indexing an empty
+    # array
+    anchor_label = 237
+    anchor = np.array(ndimage.center_of_mass(seg_data, seg_data, [anchor_label]))[0]
 
-    # [7004, 237, 238]
+    if np.isnan(anchor).any():
+        logging.warning(
+            "WARNING: "
+            + os.path.join(
+                SUBJECTS_DIR,
+                SUBJECT,
+                "mri",
+                HEMI + ".hippoAmygLabels-" + LABEL + ".FSvoxelSpace.mgz",
+            )
+            + " has no voxels for label "
+            + str(anchor_label)
+            + " (CA1-head); falling back to the overall hippocampus/amygdala"
+            " centroid to anchor the screenshot."
+        )
+        anchor = np.array(ndimage.center_of_mass(seg_data != 0))
 
-    ctr_tkr_x0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 1]
-    ctr_tkr_y0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 2]
-    ctr_tkr_z0 = ctr_tkr[np.argwhere(ctr_tkr[:, 0] == 237), 3]
+    anchor_tkr = np.matmul(vox2ras_tkr, np.append(anchor, 1))[0:3]
+
+    ctr_tkr_x0 = anchor_tkr[0]
+    ctr_tkr_y0 = anchor_tkr[1]
+    ctr_tkr_z0 = anchor_tkr[2]
 
     # set ranges for cropping the image (assuming RAS coordinates)
 
