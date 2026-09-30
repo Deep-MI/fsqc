@@ -313,6 +313,9 @@ def get_help(print_help=True, return_help=False):
                                 are x=-10 x=10 y=0 z=0.
           --screenshots_layout <rows> <columns>
                                 layout matrix for screenshot images
+          --screenshots_alpha <float>
+                                opacity of screenshot overlays between 0 and 1.
+                                default is 0.5.
           --rotmask <filename>
                                 full path to an externally computed rotation mask
                                 (NIfTI or FreeSurfer MGH/MGZ) to use for the
@@ -744,6 +747,15 @@ def _parse_arguments():
         required=False,
     )
     expert.add_argument(
+        "--screenshots_alpha",
+        dest="screenshots_alpha",
+        help="opacity of screenshot overlays (0 to 1)",
+        default=0.5,
+        type=float,
+        metavar="<float>",
+        required=False,
+    )
+    expert.add_argument(
         "--screenshots_orientation",
         dest="screenshots_orientation",
         help=argparse.SUPPRESS,
@@ -836,6 +848,7 @@ def _parse_arguments():
     argsDict["screenshots_views"] = args.screenshots_views
     argsDict["screenshots_layout"] = args.screenshots_layout
     argsDict["screenshots_orientation"] = args.screenshots_orientation
+    argsDict["screenshots_alpha"] = args.screenshots_alpha
     argsDict["surfaces"] = args.surfaces
     argsDict["surfaces_html"] = args.surfaces_html
     argsDict["surfaces_views"] = args.surfaces_views
@@ -904,6 +917,12 @@ def _check_arguments(argsDict):
     from fsqc.fsqcUtils import ensureDir
 
     logging.captureWarnings(True)
+
+    # allow legacy argsDict objects that predate the screenshots_alpha option
+    argsDict.setdefault("screenshots_alpha", 0.5)
+    alpha = argsDict["screenshots_alpha"]
+    if not 0 <= alpha <= 1:
+        raise ValueError(f"screenshots_alpha must be between 0 and 1, got {alpha}")
 
     # --------------------------------------------------------------------------
     # check arguments
@@ -2314,6 +2333,7 @@ def _do_fsqc(argsDict):
                             VIEWS=argsDict["screenshots_views"],
                             LAYOUT=argsDict["screenshots_layout"],
                             ORIENTATION=argsDict["screenshots_orientation"],
+                            ALPHA=argsDict["screenshots_alpha"],
                         )
 
                         # return
@@ -2522,6 +2542,7 @@ def _do_fsqc(argsDict):
                             LAYOUT=argsDict["screenshots_layout"],
                             BINARIZE=True,
                             ORIENTATION=argsDict["screenshots_orientation"],
+                            ALPHA=argsDict["screenshots_alpha"],
                         )
 
                         # return
@@ -2600,6 +2621,7 @@ def _do_fsqc(argsDict):
                             RUN_SHAPEDNA=FORNIX_SHAPE,
                             N_EIGEN=FORNIX_N_EIGEN,
                             WRITE_EIGEN=FORNIX_WRITE_EIGEN,
+                            SCREENSHOTS_ALPHA=argsDict["screenshots_alpha"],
                         )
 
                         # create a dictionary from fornix shape output
@@ -2737,6 +2759,7 @@ def _do_fsqc(argsDict):
                             CREATE_SCREENSHOT=HYPOTHALAMUS_SCREENSHOT,
                             SCREENSHOTS_OUTFILE=hypothalamus_screenshot_outfile,
                             SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                            SCREENSHOTS_ALPHA=argsDict["screenshots_alpha"],
                         )
 
                         # return
@@ -2824,6 +2847,7 @@ def _do_fsqc(argsDict):
                             CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
                             SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_left,
                             SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                            SCREENSHOTS_ALPHA=argsDict["screenshots_alpha"],
                             HEMI="lh",
                             LABEL=argsDict["hippocampus_label"],
                         )
@@ -2834,6 +2858,7 @@ def _do_fsqc(argsDict):
                             CREATE_SCREENSHOT=HIPPOCAMPUS_SCREENSHOT,
                             SCREENSHOTS_OUTFILE=hippocampus_screenshot_outfile_right,
                             SCREENSHOTS_ORIENTATION=argsDict["screenshots_orientation"],
+                            SCREENSHOTS_ALPHA=argsDict["screenshots_alpha"],
                             HEMI="rh",
                             LABEL=argsDict["hippocampus_label"],
                         )
@@ -3767,6 +3792,7 @@ def run_fsqc(
     motion_headmask=None,
     motion_airmask=None,
     logfile=None,
+    screenshots_alpha=0.5,
 ):
     """
     Run the fsqc submodules.
@@ -3878,6 +3904,8 @@ def run_fsqc(
     logfile : str, default: None
         Specify a custom location for the logfile. Default location is the
         output directory.
+    screenshots_alpha : float, default: 0.5
+        Opacity of the screenshot overlays, between 0 and 1.
 
     Returns
     -------
@@ -3911,6 +3939,7 @@ def run_fsqc(
         argsDict["screenshots_views"] = screenshots_views
         argsDict["screenshots_layout"] = screenshots_layout
         argsDict["screenshots_orientation"] = screenshots_orientation
+        argsDict["screenshots_alpha"] = screenshots_alpha
         argsDict["surfaces"] = surfaces
         argsDict["surfaces_html"] = surfaces_html
         argsDict["surfaces_views"] = surfaces_views

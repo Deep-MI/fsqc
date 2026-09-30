@@ -14,6 +14,7 @@ def evaluateFornixSegmentation(
     RUN_SHAPEDNA=True,
     N_EIGEN=15,
     WRITE_EIGEN=True,
+    SCREENSHOTS_ALPHA=0.5,
 ):
     """
     Evaluate potential missegmentation of the fornix.
@@ -49,6 +50,8 @@ def evaluateFornixSegmentation(
         Number of Eigenvalues for shape analysis.
     WRITE_EIGEN : bool, optional (default: True)
         Write csv file with eigenvalues (or nans) to output directory.
+    SCREENSHOTS_ALPHA : float, optional (default: 0.5)
+        Opacity of the screenshot overlays, between 0 and 1.
 
     Returns
     -------
@@ -162,6 +165,7 @@ def evaluateFornixSegmentation(
             OVERLAY=os.path.join(OUTPUT_DIR, "cc.mgz"),
             SURF=None,
             OUTFILE=SCREENSHOTS_OUTFILE,
+            ALPHA=SCREENSHOTS_ALPHA,
         )
 
     # --------------------------------------------------------------------------

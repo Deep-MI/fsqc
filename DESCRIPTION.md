@@ -267,6 +267,9 @@ expert options:
                         does not matter. Default views are x=-10 x=10 y=0 z=0.
   --screenshots_layout <rows> <columns>
                         layout matrix for screenshot images.
+  --screenshots_alpha <float>
+                        opacity of screenshot overlays between 0 and 1.
+                        default is 0.5.
   --rotmask <filename>
                         full path to an externally computed rotation mask (NIfTI
                         or FreeSurfer MGH/MGZ) to use for the motion/noise

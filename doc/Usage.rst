@@ -147,6 +147,10 @@ As a Command Line Tool
     --screenshots_layout <rows> <columns>
         Layout matrix for screenshot images.
 
+    --screenshots_alpha <float>
+        Opacity of screenshot overlays between 0 and 1.
+        Default is 0.5.
+
 Examples:
 ---------
 - Run the QC pipeline for all subjects found in /my/subjects/directory:
