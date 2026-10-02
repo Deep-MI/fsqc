@@ -151,6 +151,10 @@ As a Command Line Tool
         Opacity of screenshot overlays between 0 and 1.
         Default is 0.5.
 
+    --screenshots_zero_margin
+        Remove margins and spacing between screenshot panels.
+        Disabled by default.
+
 Examples:
 ---------
 - Run the QC pipeline for all subjects found in /my/subjects/directory:
