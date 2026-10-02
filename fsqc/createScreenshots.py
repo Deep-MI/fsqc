@@ -22,6 +22,7 @@ def createScreenshots(
     YLIM=None,
     BINARIZE=False,
     ORIENTATION="radiological",
+    ALPHA=0.5,
 ):
     """
     Function to create screenshots.
@@ -63,6 +64,8 @@ def createScreenshots(
         Flag for binarization, default is False.
     ORIENTATION : str, optional
         The orientation, default is "radiological".
+    ALPHA : float, optional
+        Opacity of the overlay, between 0 and 1. Default is 0.5.
 
     Notes
     -----
@@ -109,11 +112,12 @@ def createScreenshots(
 
     logging.captureWarnings(True)
 
+    if not 0 <= ALPHA <= 1:
+        raise ValueError("ALPHA must be between 0 and 1")
+
     FIGSIZE = 8
 
     FIGDPI = 100
-
-    ALPHA = 0.5
 
     tol = 1e-16
 

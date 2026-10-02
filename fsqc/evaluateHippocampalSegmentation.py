@@ -14,6 +14,7 @@ def evaluateHippocampalSegmentation(
     SCREENSHOTS_ORIENTATION="radiological",
     HEMI="lh",
     LABEL="T1.v21",
+    SCREENSHOTS_ALPHA=0.5,
 ):
     """
     Evaluate potential missegmentation of the hippocampus and amygdala.
@@ -44,6 +45,8 @@ def evaluateHippocampalSegmentation(
         Hemisphere to evaluate, either 'lh' or 'rh'.
     LABEL : str, optional, default: "T1.v21"
         Label for hippocampal and amygdala segmentation.
+    SCREENSHOTS_ALPHA : float, optional, default: 0.5
+        Opacity of the screenshot overlays, between 0 and 1.
 
     Returns
     -------
@@ -238,4 +241,5 @@ def evaluateHippocampalSegmentation(
             ORIENTATION=SCREENSHOTS_ORIENTATION,
             XLIM=XLIM,
             YLIM=YLIM,
+            ALPHA=SCREENSHOTS_ALPHA,
         )

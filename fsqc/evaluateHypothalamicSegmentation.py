@@ -13,6 +13,7 @@ def evaluateHypothalamicSegmentation(
     CREATE_SCREENSHOT=True,
     SCREENSHOTS_OUTFILE=None,
     SCREENSHOTS_ORIENTATION="radiological",
+    SCREENSHOTS_ALPHA=0.5,
 ):
     """
     Evaluate potential missegmentation of the hypothalamus.
@@ -39,6 +40,8 @@ def evaluateHypothalamicSegmentation(
         File or list of files for screenshots.
     SCREENSHOTS_ORIENTATION : str, optional, default: "radiological"
         Orientation for screenshots.
+    SCREENSHOTS_ALPHA : float, optional, default: 0.5
+        Opacity of the screenshot overlays, between 0 and 1.
 
     Returns
     -------
@@ -293,4 +296,5 @@ def evaluateHypothalamicSegmentation(
             ORIENTATION=SCREENSHOTS_ORIENTATION,
             XLIM=XLIM,
             YLIM=YLIM,
+            ALPHA=SCREENSHOTS_ALPHA,
         )
