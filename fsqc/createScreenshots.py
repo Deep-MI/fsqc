@@ -23,6 +23,7 @@ def createScreenshots(
     BINARIZE=False,
     ORIENTATION="radiological",
     ALPHA=0.5,
+    ZERO_MARGIN=False,
 ):
     """
     Function to create screenshots.
@@ -66,6 +67,8 @@ def createScreenshots(
         The orientation, default is "radiological".
     ALPHA : float, optional
         Opacity of the overlay, between 0 and 1. Default is 0.5.
+    ZERO_MARGIN : bool, optional
+        Remove outer margins and spacing between panels. Default is False.
 
     Notes
     -----
@@ -361,7 +364,18 @@ def createScreenshots(
     fig.set_dpi(FIGDPI)
     fig.set_facecolor("black")
     fig.set_tight_layout({"pad": 0})
-    fig.subplots_adjust(wspace=0)
+
+    if ZERO_MARGIN:
+        fig.subplots_adjust(
+            left=0,
+            right=1,
+            top=1,
+            bottom=0,
+            wspace=0,
+            hspace=0,
+        )
+    else:
+        fig.subplots_adjust(wspace=0)
 
     # -----------------------------------------------------------------------------
     # plot each panel
