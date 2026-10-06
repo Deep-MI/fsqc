@@ -316,6 +316,9 @@ def get_help(print_help=True, return_help=False):
           --screenshots_alpha <float>
                                 opacity of screenshot overlays between 0 and 1.
                                 default is 0.5.
+          --screenshots_zero_margin
+                                remove margins and spacing between screenshot panels.
+                                disabled by default.
           --rotmask <filename>
                                 full path to an externally computed rotation mask
                                 (NIfTI or FreeSurfer MGH/MGZ) to use for the
@@ -756,6 +759,14 @@ def _parse_arguments():
         required=False,
     )
     expert.add_argument(
+        "--screenshots_zero_margin",
+        dest="screenshots_zero_margin",
+        help="remove margins and spacing between screenshot panels",
+        default=False,
+        action="store_true",
+        required=False,
+    )
+    expert.add_argument(
         "--screenshots_orientation",
         dest="screenshots_orientation",
         help=argparse.SUPPRESS,
@@ -849,6 +860,7 @@ def _parse_arguments():
     argsDict["screenshots_layout"] = args.screenshots_layout
     argsDict["screenshots_orientation"] = args.screenshots_orientation
     argsDict["screenshots_alpha"] = args.screenshots_alpha
+    argsDict["screenshots_zero_margin"] = args.screenshots_zero_margin
     argsDict["surfaces"] = args.surfaces
     argsDict["surfaces_html"] = args.surfaces_html
     argsDict["surfaces_views"] = args.surfaces_views
@@ -923,6 +935,7 @@ def _check_arguments(argsDict):
     alpha = argsDict["screenshots_alpha"]
     if not 0 <= alpha <= 1:
         raise ValueError(f"screenshots_alpha must be between 0 and 1, got {alpha}")
+    argsDict.setdefault("screenshots_zero_margin", False)
 
     # --------------------------------------------------------------------------
     # check arguments
@@ -2334,6 +2347,7 @@ def _do_fsqc(argsDict):
                             LAYOUT=argsDict["screenshots_layout"],
                             ORIENTATION=argsDict["screenshots_orientation"],
                             ALPHA=argsDict["screenshots_alpha"],
+                            ZERO_MARGIN=argsDict["screenshots_zero_margin"],
                         )
 
                         # return
@@ -2543,6 +2557,7 @@ def _do_fsqc(argsDict):
                             BINARIZE=True,
                             ORIENTATION=argsDict["screenshots_orientation"],
                             ALPHA=argsDict["screenshots_alpha"],
+                            ZERO_MARGIN=argsDict["screenshots_zero_margin"],
                         )
 
                         # return
@@ -3793,6 +3808,7 @@ def run_fsqc(
     motion_airmask=None,
     logfile=None,
     screenshots_alpha=0.5,
+    screenshots_zero_margin=False,
 ):
     """
     Run the fsqc submodules.
@@ -3906,6 +3922,8 @@ def run_fsqc(
         output directory.
     screenshots_alpha : float, default: 0.5
         Opacity of the screenshot overlays, between 0 and 1.
+    screenshots_zero_margin : bool, default: False
+        Remove outer margins and spacing between screenshot panels.
 
     Returns
     -------
@@ -3940,6 +3958,7 @@ def run_fsqc(
         argsDict["screenshots_layout"] = screenshots_layout
         argsDict["screenshots_orientation"] = screenshots_orientation
         argsDict["screenshots_alpha"] = screenshots_alpha
+        argsDict["screenshots_zero_margin"] = screenshots_zero_margin
         argsDict["surfaces"] = surfaces
         argsDict["surfaces_html"] = surfaces_html
         argsDict["surfaces_views"] = surfaces_views

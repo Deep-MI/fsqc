@@ -270,6 +270,9 @@ expert options:
   --screenshots_alpha <float>
                         opacity of screenshot overlays between 0 and 1.
                         default is 0.5.
+  --screenshots_zero_margin
+                        remove margins and spacing between screenshot panels.
+                        disabled by default.
   --rotmask <filename>
                         full path to an externally computed rotation mask (NIfTI
                         or FreeSurfer MGH/MGZ) to use for the motion/noise
